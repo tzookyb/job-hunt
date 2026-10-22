@@ -4,18 +4,20 @@ import { normalize } from '../../public/js/model/normalize.js';
 import { addStage, deleteStage, moveBy, moveTo, applyOrderToAll } from '../../public/js/model/stages.js';
 
 const state = () => normalize({
-  stages: [{ id: 'a', name: 'Applied' }, { id: 'b', name: 'HR phone' }],
+  stageDefaultsV2: true,
+  stages: [{ id: 'a', name: 'Applied', defaultOn: true }, { id: 'b', name: 'HR phone', defaultOn: true }],
   companies: [{ id: 'open', status: 'active' }, { id: 'gone', status: 'rejected' }],
 }).data;
 
-test('a new stage reaches every company: on for open processes, off for closed ones', () => {
+test('a new stage reaches every company, switched on only where it was added', () => {
   const s = state();
-  const st = addStage(s, '  CTO meeting ');
+  const [here, other] = s.companies;
+  const st = addStage(s, '  CTO meeting ', here);
   assert.equal(st.name, 'CTO meeting');
-  const [open, gone] = s.companies;
-  assert.equal(open.order.at(-1), st.id);
-  assert.equal(open.stages[st.id].enabled, true);
-  assert.equal(gone.stages[st.id].enabled, false);
+  assert.equal(st.defaultOn, false);
+  assert.equal(other.order.at(-1), st.id);
+  assert.equal(here.stages[st.id].enabled, true);
+  assert.equal(other.stages[st.id].enabled, false);
 });
 
 test('adding an existing name reuses it and switches it on for that company', () => {

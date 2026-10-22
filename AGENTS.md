@@ -88,7 +88,8 @@ The server listens on `127.0.0.1` only: it's a personal tool, not something to e
 
 ```js
 {
-  stages: [{ id, name }],                 // shared list, in display order
+  stages: [{ id, name, defaultOn }],      // shared list; its order is the default for new companies
+                                          // defaultOn = switched on for new companies (Applied + HR by default)
   companies: [{
     id, name, position, website, careersUrl, comments, createdAt,
     lastInteraction: 'YYYY-MM-DD',       // set by hand, or to today when a stage is ticked done
@@ -100,12 +101,15 @@ The server listens on `127.0.0.1` only: it's a personal tool, not something to e
     stages: { [stageId]: { enabled, done, comment, meeting: 'YYYY-MM-DDTHH:mm' } },   // enabled = applies to this company
     notes: [{ id, title, body }],
   }],
-  updatedAt,
+  updatedAt, stageDefaultsV2: true,
 }
 ```
 
 ### Upgrades in `normalize()` (keep them all)
 
+- **`stageDefaultsV2` (one-time):** sets `defaultOn` for Applied and HR Initial/HR phone. Companies not past that
+  stage get their other stages switched off, except stages with a ✓, a meeting or a comment. Returns
+  `migrated: true`, so the page saves once after loading.
 - **Removed statuses** (`OLD_STATUS` in `config.js`): `offer` loads as `active`, `closed` as `withdrawn`. Unknown
   statuses become `active`.
 
@@ -126,13 +130,13 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
 - **Last interaction:** ticking a stage sets it to today; adding a company does not (owner's rule).
 - **Progress popover:** hovering a Progress cell opens the company's stage list (`views/popover.js`). It stays open
   while focused or dragging, closes on Esc, outside click, scroll or mouse-out.
-- **Stage list** (popover and company page, `views/stageList.js`): done ✓, comment, relevant switch (off = greyed
-  and excluded from progress), reorder by ⋮⋮ drag or ↑↓, a meeting date-time per stage, and "+ Add stage" (adds to the shared list; every company
-  gets it, switched off for closed ones).
-- **Stages dialog:** rename, reorder and delete shared stages; "Apply this order to all companies".
+- **Stage list** (popover and company page, `views/stageList.js`): done ✓, a "when?" meeting date-time, comment,
+  relevant switch (off = greyed and excluded from progress), reorder by ⋮⋮ drag or ↑↓, and "+ Add stage" (adds to
+  the shared list; every company gets it, but it's switched on only for the company it was added from).
+- **Stages dialog:** rename, reorder and delete shared stages; a switch for "on by default for new companies"; "Apply this order to all companies".
 - **Search** filters by every word across all text, stage comments and notes. `/` focuses it.
-- **Company page** (`#/c/<id>`): fields (incl. Last interaction, and Reason when closed), the stage list (done, comment, relevant switch) and Notes: titled free-text
-  sections, whose title suggests stage names. `Esc` goes back.
+- **Company page** (`#/c/<id>`): fields (incl. Last interaction, and Reason when closed), the stage list and Notes:
+  titled free-text sections whose title suggests stage names. `Esc` goes back.
 - **Saving:** every edit autosaves; the top-right status says where. Without the server it falls back to
   `localStorage['jobTracker']` and says so in red.
 
@@ -144,6 +148,9 @@ From the owner's list: save without the server (File System Access API), stage r
 
 Newest first.
 
+- **2026-10-22 11:14:** Stage defaults. The data is in live use (the owner had renamed a stage to "HR Initial"), so
+  the change ships as a one-time upgrade in `normalize()` rather than an edit to `data.json`, which an open tab could
+  overwrite. Tell the owner to refresh every open tab.
 - **2026-10-22 11:10:** Named the app **Job Hunt** (owner's pick over Pipeline, Next Round, Callback…), crosshair
   favicon, dark-blue palette. Status column widened so "Approached me" fits.
 - **2026-10-22 11:00:** New status set; old `offer`/`closed` values upgrade on load. Owner picked "Approached me"

@@ -11,6 +11,7 @@ function render() {
   $('#gsList').innerHTML = getState().stages.map(s => `
     <div class="gs" data-g="${s.id}">
       <input class="field" value="${esc(s.name)}">
+      <label class="switch" title="On by default for new companies"><input type="checkbox" class="gdef" ${s.defaultOn ? 'checked' : ''}><span></span></label>
       <button class="icon gup" title="Move up">↑</button><button class="icon gdown" title="Move down">↓</button>
       <button class="icon gdel" title="Delete from all companies">✕</button>
     </div>`).join('');
@@ -26,6 +27,7 @@ export function init() {
   d.addEventListener('click', e => { if (e.target === d) d.close(); });
 
   delegate(d, 'input', '.gs .field', (e, el) => { stageOfRow(el).name = el.value; save(); });
+  delegate(d, 'change', '.gs .gdef', (e, el) => { stageOfRow(el).defaultOn = el.checked; save(); });
   delegate(d, 'click', '.gup, .gdown', (e, el) => {
     const { stages } = getState();
     if (moveBy(stages, stages.indexOf(stageOfRow(el)), el.classList.contains('gup') ? -1 : 1)) { save(); render(); }

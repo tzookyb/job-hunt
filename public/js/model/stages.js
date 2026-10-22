@@ -1,10 +1,9 @@
 // The shared stage list and each company's own order of it. Pure functions over the app state.
 import { uid } from '../util.js';
 import { blankStage } from './normalize.js';
-import { CLOSED } from '../config.js';
 
-// Adds a stage to the shared list; every company gets it (on for open processes, off for closed ones).
-// If a stage with that name exists, it is just switched on for `forCompany`.
+// Adds a stage to the shared list. Every company gets it, switched on only for `forCompany` (the one it was added
+// from). If a stage with that name exists, it is just switched on for `forCompany`.
 export function addStage(state, name, forCompany = null) {
   name = String(name || '').trim();
   if (!name) return null;
@@ -13,11 +12,11 @@ export function addStage(state, name, forCompany = null) {
     if (forCompany) forCompany.stages[existing.id].enabled = true;
     return existing;
   }
-  const s = { id: uid(), name };
+  const s = { id: uid(), name, defaultOn: false };
   state.stages.push(s);
   for (const c of state.companies) {
     c.order.push(s.id);
-    c.stages[s.id] = blankStage(!CLOSED.includes(c.status));
+    c.stages[s.id] = blankStage(c === forCompany);
   }
   return s;
 }

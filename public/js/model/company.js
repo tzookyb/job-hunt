@@ -7,7 +7,7 @@ export function newCompany(state, fields = {}) {
   const c = { id: uid(), name: '', position: '', website: '', careersUrl: '', comments: '', status: 'active',
     lastInteraction: '', closeReason: '', contact: '', recruiterUrl: '', glassdoorUrl: '',
     order: state.stages.map(s => s.id), stages: {}, notes: [], createdAt: Date.now(), ...fields };
-  for (const s of state.stages) c.stages[s.id] = blankStage();
+  for (const s of state.stages) c.stages[s.id] = blankStage(s.defaultOn);
   return c;
 }
 

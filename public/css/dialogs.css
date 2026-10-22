@@ -10,5 +10,6 @@ dialog .addstage{padding-left:0}
 .gs{display:flex;gap:4px;align-items:center;margin-bottom:6px}
 .gs .field{flex:1;padding:6px 9px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;outline:none}
 .gs .field:focus{border-color:var(--accent)}
+.gs .switch{margin:0 6px}
 .gs .icon{padding:4px 7px}
 .gs .gdel:hover{color:var(--bad)}
