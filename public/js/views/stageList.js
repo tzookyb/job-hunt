@@ -12,7 +12,7 @@ export function stageListHtml(c) {
   let n = 0;
   return `<div class="stagelist">
     <table class="stbl">
-      <thead><tr><th></th><th>#</th><th>Done</th><th>Stage</th><th>Meeting</th><th>Comment</th><th>Relevant</th><th></th></tr></thead>
+      <thead><tr><th></th><th>#</th><th>Done</th><th>Stage</th><th>when?</th><th>Comment</th><th>Relevant</th><th></th></tr></thead>
       <tbody>${c.order.map(id => { const x = c.stages[id]; return `
         <tr class="srow ${x.enabled ? '' : 'off'} ${x.done ? 'done' : ''}" data-stage="${id}">
           <td class="grip" title="Drag to reorder">⋮⋮</td>

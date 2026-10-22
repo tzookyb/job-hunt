@@ -136,6 +136,7 @@ From the owner's list: save without the server (File System Access API), stage r
 
 Newest first.
 
+- **2026-10-22 10:56:** Stage list column "Meeting" → "when?". (Headers render in capitals via CSS.)
 - **2026-10-22 10:45:** Handoff: working rules for future sessions (the owner keeps tweaking the app day to day).
 - **2026-10-22 10:30:** README: how to run, where data is saved, why there's a server. Owner asked why a server is
   needed: browsers can't write files. Alternatives offered, none chosen yet: File System Access API (Chromium only,
