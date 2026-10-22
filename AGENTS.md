@@ -96,8 +96,8 @@ The server listens on `127.0.0.1` only: it's a personal tool, not something to e
     id, name, position, website, careersUrl, comments, createdAt,
     lastInteraction: 'YYYY-MM-DD',       // set by hand, or to today when a stage is ticked done
     closeReason,                          // why a rejected/withdrawn/closed process ended
-    contact,                              // point of contact: free text (name, email, phone)
-    recruiterUrl, glassdoorUrl, logo,     // logo = image URL
+    glassdoorUrl, logo,                   // logo = image URL
+    contacts: [{ id, name, phone, whatsapp, linkedin }],
     status: 'interested'|'approached'|'active'|'rejected'|'withdrawn',   // 'active' shows as "In process"
     order: [stageId...],                  // this company's own stage order
     stages: { [stageId]: { enabled, done, comment, meeting: 'YYYY-MM-DDTHH:mm' } },   // enabled = applies to this company
@@ -112,6 +112,8 @@ The server listens on `127.0.0.1` only: it's a personal tool, not something to e
 - **`stageDefaultsV2` (one-time):** sets `defaultOn` for Applied and HR Initial/HR phone. Companies not past that
   stage get their other stages switched off, except stages with a ✓, a meeting or a comment. Returns
   `migrated: true`, so the page saves once after loading.
+- **Contacts (v3):** the old `contact` text and `recruiterUrl` become `contacts[0]`, and the old fields are deleted.
+  Every company keeps at least one (blank) contact row.
 - **Removed statuses** (`OLD_STATUS` in `config.js`): `offer` loads as `active`, `closed` as `withdrawn`. Unknown
   statuses become `active`.
 
@@ -136,6 +138,9 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
   relevant switch (off = greyed and excluded from progress), reorder by ⋮⋮ drag or ↑↓, and "+ Add stage" (adds to
   the shared list; every company gets it, but it's switched on only for the company it was added from).
 - **Hiring Stages dialog:** rename, reorder and delete shared stages; a switch for "on by default for new companies"; "Apply this order to all companies".
+- **Points of contact** (`views/contacts.js`): name · phone with 📞 (`tel:`) · WhatsApp link (or `wa.me` built
+  from the phone; local 05x numbers become +9725x) · LinkedIn chat. ＋ adds a contact, ✕ removes one (asks if it
+  has data). Empty links are greyed out; clicking one focuses its field.
 - **+ Add Company:** asks for the name, then a loader (with Skip) runs `/api/lookup`, fills only empty fields and
   opens the company page. "↻ Look up" on the company page runs it again.
 - **Logos:** a frozen logo column (initial as fallback) next to the frozen Company column; a big logo on the
@@ -166,6 +171,8 @@ From the owner's list: save without the server (File System Access API), stage r
 
 Newest first.
 
+- **2026-10-22 11:33:** Multiple contacts with call / WhatsApp / LinkedIn buttons; Recruiter LinkedIn field removed,
+  its data upgraded into contacts.
 - **2026-10-22 11:26:** Add-company flow with a naive lookup (website, logo, Glassdoor) and logo columns.
 - **2026-10-22 11:20:** Button copy ("Hiring Stages", "+ Add Company"); logo next to the app name.
 

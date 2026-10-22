@@ -2,6 +2,7 @@
 // Every schema change must be handled here, so old data always loads.
 import { uid } from '../util.js';
 import { DEFAULT_STAGES, STATUSES, OLD_STATUS } from '../config.js';
+import { blankContact, upgradeContacts } from './contacts.js';
 
 export const blankStage = (enabled = true) => ({ enabled, done: false, comment: '' });
 
@@ -26,8 +27,10 @@ export function normalize(raw) {
       if (!c.order.includes(id)) c.order.push(id);
       c.stages[id] = { ...blankStage(defaultOn(id)), ...c.stages[id] };
     }
-    for (const f of ['name', 'position', 'website', 'careersUrl', 'comments', 'lastInteraction', 'closeReason', 'contact', 'recruiterUrl', 'glassdoorUrl', 'logo']) c[f] = c[f] || '';
+    for (const f of ['name', 'position', 'website', 'careersUrl', 'comments', 'lastInteraction', 'closeReason', 'glassdoorUrl', 'logo']) c[f] = c[f] || '';
     c.notes = Array.isArray(c.notes) ? c.notes : [];
+    if (upgradeContacts(c)) migrated = true;
+    if (!c.contacts.length) c.contacts.push(blankContact());
     c.status = OLD_STATUS[c.status] || c.status;
     if (!STATUSES.some(([k]) => k === c.status)) c.status = 'active';
   }

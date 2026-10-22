@@ -26,4 +26,19 @@ h2{font-size:13px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted
 .note input{flex:1;background:transparent;border:0;font-weight:600;font-size:15px;outline:none;padding:4px 0}
 .note textarea{width:100%;background:transparent;border:0;outline:none;resize:none;min-height:70px;padding:6px 0;line-height:1.55}
 .dangerzone{margin:36px 0 60px;text-align:right}
-@media (max-width:700px){.grid{grid-template-columns:1fr}}
+/* contacts */
+.contacts{display:flex;flex-direction:column;gap:6px}
+.chead{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--muted)}
+.chead .icon{padding:0 6px;font-size:15px;line-height:1}
+.chead .icon:hover{color:var(--accent)}
+.contact{display:grid;grid-template-columns:1fr 1fr 1.2fr 1.1fr auto;gap:8px;align-items:center}
+.contact .lc{min-width:0}
+.contact .icon{padding:4px 6px}
+.contact .del-contact:hover{color:var(--bad)}
+.ci{display:flex;align-items:center;padding:0 9px;color:var(--accent);opacity:.9}
+.ci svg{width:16px;height:16px}
+.ci:hover{opacity:1}
+.ci.off{color:#3f4b68;cursor:default}
+.ci[data-ci=whatsapp]:not(.off){color:#25d366}
+.ci[data-ci=linkedin]:not(.off){color:#4f9fe0}
+@media (max-width:700px){.grid{grid-template-columns:1fr}.contact{grid-template-columns:1fr 1fr}.contact .del-contact{justify-self:end}}

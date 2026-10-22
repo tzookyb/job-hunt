@@ -1,11 +1,12 @@
 // Creating and changing companies. Pure functions over the app state.
 import { uid } from '../util.js';
 import { blankStage } from './normalize.js';
+import { blankContact } from './contacts.js';
 
 export function newCompany(state, fields = {}) {
   // a new company is not an interaction: lastInteraction stays empty until something happens
   const c = { id: uid(), name: '', position: '', website: '', careersUrl: '', comments: '', status: 'active',
-    lastInteraction: '', closeReason: '', contact: '', recruiterUrl: '', glassdoorUrl: '', logo: '',
+    lastInteraction: '', closeReason: '', glassdoorUrl: '', logo: '', contacts: [blankContact()],
     order: state.stages.map(s => s.id), stages: {}, notes: [], createdAt: Date.now(), ...fields };
   for (const s of state.stages) c.stages[s.id] = blankStage(s.defaultOn);
   return c;

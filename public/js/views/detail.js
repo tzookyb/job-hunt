@@ -7,6 +7,7 @@ import { findCompany, removeCompany } from '../model/company.js';
 import { isClosed, statusLabel } from '../config.js';
 import { companyOf, statusOptions, progressInner, agoHtml, logoHtml } from './common.js';
 import { runLookup } from './addCompany.js';
+import { contactsHtml } from './contacts.js';
 import { linkInput } from './fields.js';
 import { stageListHtml } from './stageList.js';
 import { notesHtml } from './notes.js';
@@ -34,9 +35,8 @@ export function renderDetail(id) {
       ${isClosed(c) ? `<label class="full">Reason (${esc(statusLabel(c.status))})<input class="field" data-f="closeReason" value="${esc(c.closeReason)}" placeholder="Why did it end?"></label>` : ''}
       <label>Website${linkInput(c, 'website', 'website')}</label>
       <label>Careers / job post${linkInput(c, 'careersUrl', 'link to the position')}</label>
-      <label>Point of contact<input class="field" data-f="contact" value="${esc(c.contact)}" placeholder="Name, email, phone"></label>
-      <label>Recruiter LinkedIn${linkInput(c, 'recruiterUrl', 'linkedin.com/in/…')}</label>
       <label>Glassdoor${linkInput(c, 'glassdoorUrl', 'glassdoor.com/…')}</label>
+      ${contactsHtml(c)}
       <label class="full">Logo URL<input class="field" data-f="logo" value="${esc(c.logo)}" placeholder="https://…/logo.png"></label>
       <label class="full">Comments<textarea class="field" data-f="comments" rows="2" placeholder="General notes about the position">${esc(c.comments)}</textarea></label>
     </div>
