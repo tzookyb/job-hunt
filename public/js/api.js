@@ -19,3 +19,11 @@ export async function lookup(name, signal) {
     return await r.json();
   } catch { return { error: signal?.aborted ? 'Skipped' : 'Lookup failed' }; }
 }
+
+// "Back up now" → the new backup's file name.
+export async function backup() {
+  const r = await fetch('/api/backup', { method: 'POST' });
+  if (r.status === 404) throw new Error('restart the server');
+  if (!r.ok) throw new Error(await r.text());
+  return (await r.json()).name;
+}

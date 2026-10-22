@@ -49,6 +49,7 @@ edit as you go. Every change persists locally to a JSON file. Single user, runs 
 | `server/app.js` | Builds the HTTP server from its parts (so tests can start it on a random port). |
 | `server/routes.js` | API route table: `"METHOD /path": handler`. |
 | `server/storage.js` | `JsonStore`: reads/writes the data file. |
+| `server/backups.js` | `Backups`: activity-driven automatic backups (see below). |
 | `server/static.js` | Serves `public/` (known file types only, no path traversal). |
 | `server/http.js` | `send`, `sendJson`, `readBody`. |
 | `server/lookup/` | Naive company lookup (see below). `index.js` builds it with an injectable `get`. |
@@ -70,8 +71,9 @@ edit as you go. Every change persists locally to a JSON file. Single user, runs 
 
 | Endpoint | Behaviour |
 |---|---|
-| `GET /api/data` | Returns `data.json`, or `{}` if nothing has been saved yet. |
-| `PUT /api/data` | Validates the JSON, copies the current file to `data.backup.json`, then writes via temp file + rename (atomic). |
+| `GET /api/data` | Returns `data.json`, or `{}` if nothing has been saved yet. Runs the backup check. |
+| `PUT /api/data` | Validates the JSON, runs the backup check, copies the current file to `data.backup.json`, then writes via temp file + rename (atomic). |
+| `POST /api/backup` | Forces a backup now → `{ name }` (409 if there's no data yet). |
 | `GET /api/lookup?name=X` | Naive lookup → `{ website, logo, links: { <field>: url }, source }`; prints a line to the terminal. |
 | `GET /*` | Static files from `public/`. |
 
@@ -152,6 +154,7 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
   company page: click it to paste an image URL (`views/logoEditor.js`; Enter saves, Esc restores, empty removes).
 - **Research** (`views/research.js`): 8 sites from `config.RESEARCH` (field, label, domain, tooltip). Hover a name
   for what the site is for; an empty field's 🔍 opens a Google `site:` search.
+- **⤓ Back up now** (`views/backupButton.js`): flushes any pending save, then `POST /api/backup`.
 - **Bookmarks drawer** (`views/bookmarks.js`): 🔖 at the right end of the top bar, or `B`. Add, edit inline, delete,
   drag to reorder. Hidden on company pages.
 - **Search** filters by every word across all text, contacts, research links, stage comments and notes. `/` focuses it.
@@ -163,6 +166,15 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
 ### Saved in the browser only (`localStorage`)
 
 `jobTrackerSort` (sort), `jobHuntDrawer` (drawer open), `jobTracker` (data fallback when there's no server).
+
+## Backups
+
+1. `data.backup.json`: the previous version, rewritten on every save.
+2. `backups/auto-YYYY-MM-DD_HH-MM-SS.json`: there's no timer. On every `GET`/`PUT /api/data` (checked at most once
+   a minute), if the newest automatic backup is 6+ hours old (time read from the file name), `data.json` is copied
+   there. On a save this happens before writing. Automatic backups older than 7 days are deleted; any other file in
+   `backups/` is never touched. Nothing happens while the app isn't used.
+3. The ⤓ button forces a backup.
 
 ## Company lookup
 
@@ -185,6 +197,7 @@ From the owner's list: save without the server (File System Access API), stage r
 
 Newest first.
 
+- **2026-10-22 12:14:** Automatic backups (6h interval, 7-day retention, only while the app is used) and ⤓.
 - **2026-10-22 12:06:** Bookmarks drawer, button at the end of the top bar.
 - **2026-10-22 11:58:** Research section with 8 sites; the lookup tries to fill all of them.
 - **2026-10-22 11:52:** WhatsApp computed from the phone (separate field removed and upgraded), one reused tab.

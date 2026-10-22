@@ -14,6 +14,7 @@ export async function startApp(overrides = {}, deps = {}) {
   const config = {
     host: '127.0.0.1', port: 0, publicDir: path.join(ROOT, 'public'), dataDir,
     dataFile: path.join(dataDir, 'data.json'), previousFile: path.join(dataDir, 'data.backup.json'),
+    backupDir: path.join(dataDir, 'backups'),
     ...overrides,
   };
   const server = createApp(config, deps);

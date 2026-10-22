@@ -14,7 +14,8 @@ import * as contacts from './views/contacts.js';
 import * as logoEditor from './views/logoEditor.js';
 import * as research from './views/research.js';
 import * as bookmarks from './views/bookmarks.js';
+import * as backupButton from './views/backupButton.js';
 
-[header, fields, sheet, detail, stageList, popover, stagesDialog, addCompany, contacts, logoEditor, research, bookmarks, notes, router].forEach(m => m.init());
+[header, backupButton, fields, sheet, detail, stageList, popover, stagesDialog, addCompany, contacts, logoEditor, research, bookmarks, notes, router].forEach(m => m.init());
 await load();
 router.route();

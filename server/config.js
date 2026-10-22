@@ -13,5 +13,6 @@ export function loadConfig(env = process.env) {
     dataDir,
     dataFile: path.join(dataDir, 'data.json'),
     previousFile: path.join(dataDir, 'data.backup.json'),
+    backupDir: path.join(dataDir, 'backups'),
   };
 }

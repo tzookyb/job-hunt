@@ -18,6 +18,9 @@ Then open http://localhost:4317. To use another port: `PORT=5000 npm start`.
 - Everything is saved to `data.json` in this folder (created on your first edit). The server prints its path when
   it starts.
 - `data.backup.json` holds the previous save, as a safety net.
+- `backups/` holds automatic backups: when you use the app and the newest backup is more than 6 hours old, a new
+  `auto-<date>.json` is made. Backups older than 7 days are deleted. Nothing happens while you're not using the
+  app, and other files you put in `backups/` are never touched. The ⤓ button makes one right away.
 - To move the app to another machine, copy the folder, data included.
 
 If the top-right corner says **"No server — saving in this browser only"**, the page isn't talking to the server

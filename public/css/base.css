@@ -30,6 +30,7 @@ body.in-detail .tools, body.in-detail #bmBtn{display:none}
 .btn{background:var(--panel2);border:1px solid var(--line2);border-radius:8px;padding:6px 12px;cursor:pointer;white-space:nowrap}
 .btn:hover{border-color:var(--accent)}
 .btn:disabled{opacity:.5;cursor:wait}
+.btn.icon-btn{padding:6px 10px;font-size:15px;line-height:1.2}
 .btn.primary{background:#1f3a70;border-color:#3358a0}
 .btn.ghost{background:transparent}
 .btn.danger{color:var(--bad)}

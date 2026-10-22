@@ -5,10 +5,12 @@ import { apiRoutes } from './routes.js';
 import { serveStatic } from './static.js';
 import { send } from './http.js';
 import { createLookup } from './lookup/index.js';
+import { Backups } from './backups.js';
 
-export function createApp(config, { lookup = createLookup() } = {}) {
+export function createApp(config, { lookup = createLookup(), backups } = {}) {
   const store = new JsonStore({ file: config.dataFile, previousFile: config.previousFile });
-  const routes = apiRoutes({ store, lookup, config });
+  backups ||= new Backups({ dataFile: config.dataFile, dir: config.backupDir });
+  const routes = apiRoutes({ store, lookup, backups, config });
   const statics = serveStatic(config.publicDir);
 
   return http.createServer(async (req, res) => {
