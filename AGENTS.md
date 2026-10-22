@@ -239,9 +239,12 @@ Learned on 2026-10-22 by running real lookups through the owner's running app:
      frozen); Comparably serves a JS shell ("comparably-companies-ui"), so it rarely verifies; Levels.fyi refused an
      automated fetch.
   4. **One DuckDuckGo search** for Glassdoor, only if it's still missing.
+  5. **Naive addresses** (`probes.js`, `NAIVE`) for sites that block bots but have a fixed pattern — filled
+     unchecked when nothing else found them (owner's call). Blind: `teamblind.com/company/<Name>` with the name as
+     typed, spaces → dashes (e.g. `Fiverr` → `/company/Fiverr`).
 
   Startup Nation Finder and Blind have no Wikidata property; Blind, Indeed and Crunchbase block automated visits, so
-  they mostly come from the company website or stay empty (the UI's 🔍 search link covers them). The terminal report
+  they mostly come from the company website (Blind: else the naive address) or stay empty (the UI's 🔍 search link covers them). The terminal report
   says where each link came from.
 - **Possible next step (needs a key, owner declined for now):** a search API restricted to one site per query —
   Tavily (1,000 free credits/month, no card) or Brave ($5 free credit/month, card required). Google's Custom Search
@@ -289,6 +292,7 @@ Learned on 2026-10-22 by running real lookups through the owner's running app:
 
 Newest first.
 
+- **2026-10-22 21:35:** Blind falls back to the naive `teamblind.com/company/<Name>` address when not found.
 - **2026-10-22 21:40:** Status picker in the Add company dialog, defaulting to Interested.
 - **2026-10-22 21:30:** 24-hour time everywhere; the "when?" picker became date + typed 24-hour time.
 - **2026-10-22 21:20:** Lookup: research links also from the company's own website and from guessed addresses

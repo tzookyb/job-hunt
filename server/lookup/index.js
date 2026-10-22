@@ -2,7 +2,8 @@
 // the UI only fills fields that are still empty, and the user checks the result.
 //
 // Research links, most reliable first: Wikidata IDs → links on the company's own website → guessed addresses on
-// sites with predictable URLs → ONE DuckDuckGo search for Glassdoor if it's still missing.
+// sites with predictable URLs → ONE DuckDuckGo search for Glassdoor if it's still missing → naive, unchecked
+// addresses for sites that block bots (Blind).
 // Lesson learned (see AGENTS.md): search engines answer automated searches with bot checks after the first one.
 // Don't add parallel or bulk searching back.
 import { httpGet } from './fetch.js';
@@ -12,7 +13,7 @@ import { viaWikidata } from './wikidata.js';
 import { findLogo } from './logo.js';
 import { SITES, findOnSite } from './research.js';
 import { linksFromCompanySite } from './companySite.js';
-import { PROBES, probe } from './probes.js';
+import { PROBES, NAIVE, probe } from './probes.js';
 
 const report = (name, r, log) => {
   const lines = [`\nLookup "${name}": website ${r.website || '—'} (${r.source || 'not found'}), logo ${r.logo ? 'yes' : '—'}`];
@@ -51,6 +52,8 @@ export function createLookup({ get = httpGet, log = console.log } = {}) {
       const r = await findOnSite(get, name, key, SITES.find(s => s.field === 'glassdoorUrl'), ['duckduckgo']);
       if (r.url) add({ glassdoorUrl: r.url }, 'search: ' + r.note); else notes.glassdoorUrl = r.note;
     }
+
+    for (const n of NAIVE) if (!links[n.field]) add({ [n.field]: n.url(name) }, 'naive address (not checked)');
 
     const result = { website, logo, links, source: ddg ? 'duckduckgo' : wd.website ? 'wikidata' : guess ? 'guess' : '', log: notes };
     report(name, result, log);

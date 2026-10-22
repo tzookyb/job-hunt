@@ -51,6 +51,7 @@ test('lookup: website from DuckDuckGo, research links from Wikidata IDs, no sear
     linkedinUrl: 'https://www.linkedin.com/company/acme-inc/',
     glassdoorUrl: 'https://www.glassdoor.com/Overview/-EI_IE123.htm',
     crunchbaseUrl: 'https://www.crunchbase.com/organization/acme',
+    blindUrl: 'https://www.teamblind.com/company/Acme',   // naive fallback
   });
   assert.equal(r.log.linkedinUrl, 'wikidata');
   assert.ok(!get.calls.some(u => /bing\.com|html\.duckduckgo/.test(u)), 'no search-engine scraping');
@@ -119,4 +120,12 @@ test('lookup: guessed addresses are kept only when the page names the company', 
   assert.equal(r.links.levelsUrl, undefined);
   assert.equal(get.calls.filter(u => u.includes('levels.fyi')).length, 1, 'stops at the first block');
   assert.equal(r.links.comparablyUrl, undefined);
+});
+
+test('Blind falls back to a naive address built from the name', async () => {
+  const r = await createLookup({ get: fakeGet([]), log: () => {} })('Fiverr');
+  assert.equal(r.links.blindUrl, 'https://www.teamblind.com/company/Fiverr');
+  assert.match(r.log.blindUrl, /naive/);
+  const r2 = await createLookup({ get: fakeGet([]), log: () => {} })(' Acme  Labs ');
+  assert.equal(r2.links.blindUrl, 'https://www.teamblind.com/company/Acme-Labs');
 });

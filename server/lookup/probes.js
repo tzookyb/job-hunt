@@ -35,3 +35,10 @@ export async function probe(get, name, key, p) {
   }
   return { url: '', note: `guess failed (${tried.join(', ')})` };
 }
+
+// Sites we can't check (they block automated visits) but whose company pages follow a fixed pattern: when nothing
+// else found them, fill in the naive address and let the user correct it. Blind uses the display name,
+// e.g. "Fiverr" → teamblind.com/company/Fiverr.
+export const NAIVE = [
+  { field: 'blindUrl', url: name => `https://www.teamblind.com/company/${encodeURIComponent(name.trim().replace(/\s+/g, '-'))}` },
+];
