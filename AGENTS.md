@@ -1,4 +1,4 @@
-# Agent context
+# Job Hunt — agent context
 
 **Read this whole file before changing anything.** It is the shared memory of this project for every agent (and
 human) working on it. `CLAUDE.md` only points here.
@@ -33,7 +33,7 @@ edit as you go. Every change persists locally to a JSON file. Single user, runs 
 - **Back up before touching code:** copy `data.json` to a dated file first.
 - **Test every change.** `npm test` for unit/integration tests; check UI changes in a headless browser against a
   throwaway data folder, never the real one.
-- **UI text in plain English.** Dark theme.
+- **UI text in plain English.** Dark theme with a dark-blue palette; colours are CSS tokens in `base.css`.
 - **Report briefly** what changed, and whether the owner only needs to refresh the tab (front-end change) or also
   restart the server (`server/` change).
 
@@ -51,7 +51,8 @@ edit as you go. Every change persists locally to a JSON file. Single user, runs 
 | `server/storage.js` | `JsonStore`: reads/writes the data file. |
 | `server/static.js` | Serves `public/` (known file types only, no path traversal). |
 | `server/http.js` | `send`, `sendJson`, `readBody`. |
-| `public/index.html` | Page shell: header, `<main>`, one module script. |
+| `public/index.html` | Page shell: header, `<main>`, dialogs, one module script. |
+| `public/favicon.svg` | Crosshair-target icon (navy square, blue rings). |
 | `public/css/` | `base.css` (tokens, buttons, header), `sheet.css`, `stages.css`, `detail.css`, `dialogs.css`. |
 | `public/js/main.js` | Composition root: calls each feature's `init()`, loads data, routes. |
 | `public/js/store.js` | Owns the state; `load()`, debounced `save()` (350ms), `writeNow()`; server or localStorage. |
@@ -143,6 +144,8 @@ From the owner's list: save without the server (File System Access API), stage r
 
 Newest first.
 
+- **2026-10-22 11:10:** Named the app **Job Hunt** (owner's pick over Pipeline, Next Round, Callback…), crosshair
+  favicon, dark-blue palette. Status column widened so "Approached me" fits.
 - **2026-10-22 11:00:** New status set; old `offer`/`closed` values upgrade on load. Owner picked "Approached me"
   (alternatives offered: Inbound, They reached out, Recruiter reached out).
 - **2026-10-22 10:56:** Stage list column "Meeting" → "when?". (Headers render in capitals via CSS.)

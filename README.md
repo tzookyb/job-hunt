@@ -1,4 +1,4 @@
-# Job tracker
+# Job Hunt
 
 A local, spreadsheet-like tracker for job applications and interviews. It runs in a browser tab and saves every
 edit to a JSON file on your machine. No accounts, no cloud, no dependencies.

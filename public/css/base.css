@@ -1,7 +1,7 @@
 :root{
-  --bg:#0f1115; --panel:#161a21; --panel2:#1c212a; --line:#262c37; --line2:#323a48;
-  --text:#e6e8ec; --muted:#8b93a3; --accent:#7aa2f7; --ok:#4ade80; --bad:#f87171; --warn:#fbbf24;
-  --focus-bg:#1d2533; --hover-bg:#1a1f28;
+  --bg:#0a1020; --panel:#0f1830; --panel2:#14203b; --line:#1f2c4a; --line2:#2a3a5e;
+  --text:#e3e8f4; --muted:#8693b3; --accent:#7aa7ff; --ok:#4ade80; --bad:#f87171; --warn:#fbbf24;
+  --focus-bg:#18264a; --hover-bg:#132040; --track:#1e2a47;
   color-scheme: dark;
 }
 *{box-sizing:border-box}
@@ -27,7 +27,7 @@ body.in-detail .tools{display:none}
 .btn{background:var(--panel2);border:1px solid var(--line2);border-radius:8px;padding:6px 12px;cursor:pointer;white-space:nowrap}
 .btn:hover{border-color:var(--accent)}
 .btn:disabled{opacity:.5;cursor:wait}
-.btn.primary{background:#24375f;border-color:#35508a}
+.btn.primary{background:#1f3a70;border-color:#3358a0}
 .btn.ghost{background:transparent}
 .btn.danger{color:var(--bad)}
 .icon{background:transparent;border:0;cursor:pointer;color:var(--muted);padding:8px 10px}
@@ -37,9 +37,9 @@ body.in-detail .tools{display:none}
 /* toggle switch */
 .switch{position:relative;display:inline-block;width:30px;height:17px;cursor:pointer;vertical-align:middle}
 .switch input{opacity:0;width:0;height:0;position:absolute}
-.switch span{position:absolute;inset:0;background:#2a303b;border-radius:10px;transition:.15s}
+.switch span{position:absolute;inset:0;background:#23304e;border-radius:10px;transition:.15s}
 .switch span::after{content:'';position:absolute;left:2px;top:2px;width:13px;height:13px;border-radius:50%;background:#8a93a4;transition:.15s}
-.switch input:checked + span{background:#34507f}
+.switch input:checked + span{background:#2b4a7d}
 .switch input:checked + span::after{left:15px;background:#e5e8ee}
 
 main{padding:16px 20px;max-width:1100px;margin:0 auto}
