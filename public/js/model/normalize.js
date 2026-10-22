@@ -31,6 +31,7 @@ export function normalize(raw) {
     c.notes = Array.isArray(c.notes) ? c.notes : [];
     if (upgradeContacts(c)) migrated = true;
     if (!c.contacts.length) c.contacts.push(blankContact());
+    c.contacts = c.contacts.map(x => ({ ...blankContact(), ...x }));
     c.status = OLD_STATUS[c.status] || c.status;
     if (!STATUSES.some(([k]) => k === c.status)) c.status = 'active';
   }

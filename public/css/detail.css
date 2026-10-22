@@ -38,7 +38,7 @@ h2{font-size:13px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted
 .chead{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--muted)}
 .chead .icon{padding:0 6px;font-size:15px;line-height:1}
 .chead .icon:hover{color:var(--accent)}
-.contact{display:grid;grid-template-columns:1fr 1fr 1.2fr 1.1fr auto;gap:8px;align-items:center}
+.contact{display:grid;grid-template-columns:1fr .8fr 1fr 1.2fr 1.1fr auto;gap:8px;align-items:center}
 .contact .lc{min-width:0}
 .contact .icon{padding:4px 6px}
 .contact .del-contact:hover{color:var(--bad)}

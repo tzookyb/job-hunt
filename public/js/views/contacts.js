@@ -1,4 +1,4 @@
-// Points of contact on the company page: name · phone (📞 call) · WhatsApp · LinkedIn, ＋ to add, ✕ to remove.
+// Points of contact on the company page: name · role · phone (📞 call) · WhatsApp · LinkedIn, ＋ to add, ✕ to remove.
 import { esc } from '../util.js';
 import { mainEl, delegate, $, $$ } from '../dom.js';
 import { save } from '../store.js';
@@ -22,6 +22,7 @@ function contactHtml(x) {
   const L = contactLinks(x);
   return `<div class="contact" data-ctid="${x.id}">
     <div class="lc">${input(x, 'name', 'Name')}</div>
+    <div class="lc">${input(x, 'role', 'Role')}</div>
     <div class="lc">${input(x, 'phone', 'Phone', 'tel')}${iconLink(L, 'phone')}</div>
     <div class="lc">${input(x, 'whatsapp', 'WhatsApp chat link')}${iconLink(L, 'whatsapp')}</div>
     <div class="lc">${input(x, 'linkedin', 'LinkedIn chat')}${iconLink(L, 'linkedin')}</div>

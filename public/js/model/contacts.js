@@ -1,9 +1,9 @@
 // Points of contact and the links built from them. Pure.
 import { uid, href } from '../util.js';
 
-export const blankContact = () => ({ id: uid(), name: '', phone: '', whatsapp: '', linkedin: '' });
+export const blankContact = () => ({ id: uid(), name: '', role: '', phone: '', whatsapp: '', linkedin: '' });
 
-export const hasData = x => !!(x.name || x.phone || x.whatsapp || x.linkedin);
+export const hasData = x => !!(x.name || x.role || x.phone || x.whatsapp || x.linkedin);
 
 // Phone → digits for tel: and wa.me. "00…" counts as "+…"; a local Israeli number (05x…) becomes +9725x….
 export function phoneDigits(phone) {

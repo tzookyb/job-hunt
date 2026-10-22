@@ -30,3 +30,12 @@ test('normalize gives every company at least one (blank) contact and saves the u
   assert.equal(data.companies[0].contacts.length, 1);
   assert.equal(migrated, true);
 });
+
+test('contacts get a role field, and it is searchable', async () => {
+  const { matches } = await import('../../public/js/model/search.js');
+  const { data } = normalize({ stageDefaultsV2: true, companies: [{ id: 'a', contacts: [{ id: 'x', name: 'Dana' }] }] });
+  const c = data.companies[0];
+  assert.equal(c.contacts[0].role, '');
+  c.contacts[0].role = 'Recruiter';
+  assert.ok(matches(c, 'recruiter'));
+});
