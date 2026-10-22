@@ -21,3 +21,8 @@ test('normalize does not mutate its input', () => {
   normalize(raw);
   assert.equal(raw.companies[0].stages, undefined);
 });
+
+test('removed statuses load as their replacements; unknown ones as "In process"', () => {
+  const { data } = normalize({ companies: [{ status: 'offer' }, { status: 'closed' }, { status: 'weird' }, { status: 'approached' }] });
+  assert.deepEqual(data.companies.map(c => c.status), ['active', 'withdrawn', 'active', 'approached']);
+});

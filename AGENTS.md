@@ -94,7 +94,7 @@ The server listens on `127.0.0.1` only: it's a personal tool, not something to e
     closeReason,                          // why a rejected/withdrawn/closed process ended
     contact,                              // point of contact: free text (name, email, phone)
     recruiterUrl, glassdoorUrl,
-    status: 'active'|'offer'|'rejected'|'withdrawn'|'closed',
+    status: 'interested'|'approached'|'active'|'rejected'|'withdrawn',   // 'active' shows as "In process"
     order: [stageId...],                  // this company's own stage order
     stages: { [stageId]: { enabled, done, comment, meeting: 'YYYY-MM-DDTHH:mm' } },   // enabled = applies to this company
     notes: [{ id, title, body }],
@@ -103,7 +103,12 @@ The server listens on `127.0.0.1` only: it's a personal tool, not something to e
 }
 ```
 
-`normalize()` fills defaults for anything missing, so partial or old data always loads. It also keeps every
+### Upgrades in `normalize()` (keep them all)
+
+- **Removed statuses** (`OLD_STATUS` in `config.js`): `offer` loads as `active`, `closed` as `withdrawn`. Unknown
+  statuses become `active`.
+
+`normalize()` also fills defaults for anything missing, so partial or old data always loads. It also keeps every
 company's `order` and `stages` in sync with the shared list (unknown stages are appended).
 
 ## UI
@@ -111,7 +116,9 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
 - **Sheet:** deliberately minimal: Company, Progress (bar · % · "x/y · next: <stage>", relevant stages only), Next
   meeting (earliest upcoming meeting on a relevant stage; amber for today/tomorrow), Last interaction (date + "x days ago", amber after 7 days), Status, ⤢ open, ✕ delete. Website, position and comments
   live on the company page only.
-- **Rejected & closed** (rejected, withdrawn, closed) move to a collapsible table below, with an editable Reason
+- **Statuses:** Interested (thinking of applying, grey stripe) · Approached me (they reached out, blue stripe) · In
+  process · Rejected · Withdrew. Offer and "Closed / done" were dropped by the owner.
+- **Rejected & closed** (rejected, withdrawn) move to a collapsible table below, with an editable Reason
   column in place of Next meeting. Changing the status moves the row.
 - **Sorting:** click a header; again to flip. Empty values always go last. Last interaction and Progress start
   descending. Remembered per browser in `localStorage['jobTrackerSort']`.
@@ -136,6 +143,8 @@ From the owner's list: save without the server (File System Access API), stage r
 
 Newest first.
 
+- **2026-10-22 11:00:** New status set; old `offer`/`closed` values upgrade on load. Owner picked "Approached me"
+  (alternatives offered: Inbound, They reached out, Recruiter reached out).
 - **2026-10-22 10:56:** Stage list column "Meeting" → "when?". (Headers render in capitals via CSS.)
 - **2026-10-22 10:45:** Handoff: working rules for future sessions (the owner keeps tweaking the app day to day).
 - **2026-10-22 10:30:** README: how to run, where data is saved, why there's a server. Owner asked why a server is
