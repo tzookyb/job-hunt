@@ -44,7 +44,7 @@ export function renderSheet() {
   const list = companies.filter(c => matches(c, query()));
   const active = list.filter(c => !isClosed(c)), closed = list.filter(isClosed);
   $('#count').textContent = query().trim() ? `${list.length} of ${companies.length}` : `${active.length} active · ${closed.length} closed`;
-  const empty = active.length ? '' : !companies.length ? 'No companies yet — click “+ Company”.' : query().trim() ? 'No matches.' : 'No active processes.';
+  const empty = active.length ? '' : !companies.length ? 'No companies yet — click “+ Add Company”.' : query().trim() ? 'No matches.' : 'No active processes.';
   mainEl().innerHTML = `${tableHtml(active, false, empty)}
     ${closed.length ? `<details id="closedSec" ${closedOpen ? 'open' : ''}>
       <summary class="section-title">Rejected &amp; closed (${closed.length})</summary>

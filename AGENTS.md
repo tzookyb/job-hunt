@@ -133,7 +133,7 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
 - **Stage list** (popover and company page, `views/stageList.js`): done ✓, a "when?" meeting date-time, comment,
   relevant switch (off = greyed and excluded from progress), reorder by ⋮⋮ drag or ↑↓, and "+ Add stage" (adds to
   the shared list; every company gets it, but it's switched on only for the company it was added from).
-- **Stages dialog:** rename, reorder and delete shared stages; a switch for "on by default for new companies"; "Apply this order to all companies".
+- **Hiring Stages dialog:** rename, reorder and delete shared stages; a switch for "on by default for new companies"; "Apply this order to all companies".
 - **Search** filters by every word across all text, stage comments and notes. `/` focuses it.
 - **Company page** (`#/c/<id>`): fields (incl. Last interaction, and Reason when closed), the stage list and Notes:
   titled free-text sections whose title suggests stage names. `Esc` goes back.
@@ -147,6 +147,8 @@ From the owner's list: save without the server (File System Access API), stage r
 ## Work log
 
 Newest first.
+
+- **2026-10-22 11:20:** Button copy ("Hiring Stages", "+ Add Company"); logo next to the app name.
 
 - **2026-10-22 11:14:** Stage defaults. The data is in live use (the owner had renamed a stage to "HR Initial"), so
   the change ships as a one-time upgrade in `normalize()` rather than an edit to `data.json`, which an open tab could
