@@ -74,7 +74,7 @@ edit as you go. Every change persists locally to a JSON file. Single user, runs 
 | `GET /api/data` | Returns `data.json`, or `{}` if nothing has been saved yet. Runs the backup check. |
 | `PUT /api/data` | Validates the JSON, runs the backup check, copies the current file to `data.backup.json`, then writes via temp file + rename (atomic). |
 | `POST /api/backup` | Forces a backup now → `{ name }` (409 if there's no data yet). |
-| `GET /api/lookup?name=X` | Naive lookup → `{ website, logo, links: { <field>: url }, source }`; prints a line to the terminal. |
+| `GET /api/lookup?name=X` | Naive lookup → `{ website, logo, links: { <field>: url }, source, log }`; prints a ✓/✗ report per site to the terminal. |
 | `GET /*` | Static files from `public/`. |
 
 The server listens on `127.0.0.1` only: it's a personal tool, not something to expose on a network.
@@ -176,16 +176,35 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
    `backups/` is never touched. Nothing happens while the app isn't used.
 3. The ⤓ button forces a backup.
 
-## Company lookup
+## Company lookup — what works and what doesn't
 
-- **Website:** DuckDuckGo Instant Answer → Wikidata "official website" (P856) → guessing `name.{com,io,ai,co.il,…}`
-  (kept only if the page title mentions the name and it isn't a domain-for-sale page). A domain must look like the
-  name (`plausible()`), and directory sites (Wikipedia, LinkedIn, Glassdoor, x.com…) are excluded by whole hostname.
+Learned on 2026-10-22 by running real lookups through the owner's running app:
+
+- **Website:** DuckDuckGo Instant Answer → Wikidata P856 → guessing `name.{com,io,ai,co.il,…}` (kept only if the
+  page title contains the name and it isn't a domain-for-sale page). A domain must look like the name
+  (`plausible()`); directory sites are excluded by whole hostname (so `x.com` doesn't match `wix.com`).
 - **Logo:** the homepage's best `<link rel=icon|apple-touch-icon>`, checked to be an image, else Google's s2
   favicon service.
-- **Research links** (`server/lookup/research.js`, `SITES`): per site, a `<name> site:<domain>` search on Bing, then
-  DuckDuckGo, links unwrapped from their redirect formats. A result counts only if it's a company page whose path
-  contains the name. Glassdoor links are always normalized to the Overview ("About") tab (`toOverview()`).
+- **Research links come mainly from Wikidata IDs** (`server/lookup/wikidata.js`, `WD_IDS`):
+
+  | Property | Site | URL pattern |
+  |---|---|---|
+  | P4264 | LinkedIn | `linkedin.com/company/$1/` |
+  | P8060 | Glassdoor | `glassdoor.com/Overview/-EI_IE$1.htm` |
+  | P10285 | Indeed | `indeed.com/cmp/$1` |
+  | P2088 | Crunchbase | `crunchbase.com/organization/$1` |
+  | P10206 | Comparably | `comparably.com/companies/$1` |
+  | P10146 | Levels.fyi | `levels.fyi/company/$1/` |
+
+  Startup Nation Finder and Blind have no Wikidata property. Coverage is patchy: many companies have only one or
+  two IDs; empty fields fall back to the 🔍 search link in the UI.
+- **Scraping search engines failed and is deliberately minimal now:**
+  - DuckDuckGo's HTML endpoint answers the first automated search, then returns 202 bot checks.
+  - Bing returns pages without result markup; Bing's `format=rss` ignores `site:`.
+  - Only one DuckDuckGo search per lookup remains, for Glassdoor, and only when Wikidata has no Glassdoor ID.
+  - **Don't add parallel or bulk searching back.** It gets the owner's connection flagged with CAPTCHAs.
+- **Glassdoor URLs** are always normalized to the Overview ("About") tab (`toOverview()`).
+- A lookup takes roughly 5–20s. The client waits up to 60s and has a Skip button.
 - **Testing:** there's no internet in the test environment; `test/server/fakeNet.js` answers requests with canned
   responses. In the browser, stub `/api/lookup` with Playwright's `page.route`.
 
@@ -197,6 +216,7 @@ From the owner's list: save without the server (File System Access API), stage r
 
 Newest first.
 
+- **2026-10-22 12:30:** Lookup reworked around Wikidata IDs after bulk searching triggered bot checks and a CAPTCHA.
 - **2026-10-22 12:14:** Automatic backups (6h interval, 7-day retention, only while the app is used) and ⤓.
 - **2026-10-22 12:06:** Bookmarks drawer, button at the end of the top bar.
 - **2026-10-22 11:58:** Research section with 8 sites; the lookup tries to fill all of them.

@@ -6,7 +6,7 @@ import { getState, getMode, save } from '../store.js';
 import { newCompany } from '../model/company.js';
 import { RESEARCH } from '../config.js';
 
-const LOOKUP_TIMEOUT = 30_000;
+const LOOKUP_TIMEOUT = 60_000;
 const FIELDS = [['website', 'website'], ['logo', 'logo'], ...RESEARCH.map(r => [r.field, r.label])];
 let controller = null;
 

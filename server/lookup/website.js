@@ -1,4 +1,4 @@
-// Finding a company's official website, from the most to the least reliable source.
+// Finding a company's official website (Wikidata is in wikidata.js).
 import { BOT_UA } from './fetch.js';
 import { norm, plausible } from './names.js';
 
@@ -10,22 +10,6 @@ export async function viaDuckDuckGo(get, name, key) {
     const box = (j.Infobox?.content || []).find(x => /official_website|website/i.test(x.data_type + ' ' + x.label));
     return [box?.value, ...(j.Results || []).map(x => x.FirstURL)].filter(Boolean).find(u => plausible(u, key)) || null;
   } catch { return null; }
-}
-
-// Wikidata's "official website" (P856) on the best matching entity.
-export async function viaWikidata(get, name, key) {
-  try {
-    const s = await get('https://www.wikidata.org/w/api.php?action=wbsearchentities&format=json&language=en&type=item&limit=5&search=' + encodeURIComponent(name), { ua: BOT_UA });
-    const hits = JSON.parse(s.body).search;
-    if (!hits.length) return null;
-    const e = await get('https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&props=claims&ids=' + hits.map(x => x.id).join('|'), { ua: BOT_UA });
-    const entities = JSON.parse(e.body).entities;
-    for (const h of hits) {
-      const site = entities[h.id]?.claims?.P856?.[0]?.mainsnak?.datavalue?.value;
-      if (site && plausible(site, key)) return site;
-    }
-  } catch { /* nothing usable */ }
-  return null;
 }
 
 const PARKED = /(for sale|buy this domain|domain is parked|parked free|godaddy|sedo\.com|dan\.com|hugedomains|afternic)/i;

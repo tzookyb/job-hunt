@@ -29,24 +29,48 @@ test('search result links are unwrapped', () => {
   assert.match(unwrapLinks(bing), / https:\/\/acme\.io\/jobs /);
 });
 
-test('lookup finds the website, logo and research links', async () => {
+const wikidata = entities => [
+  [/wbsearchentities/, json({ search: Object.entries(entities).map(([id, e]) => ({ id, label: e.label })) })],
+  [/wbgetentities/, json({ entities: Object.fromEntries(Object.entries(entities).map(([id, e]) => [id, { claims: Object.fromEntries(Object.entries(e.claims).map(([p, v]) => [p, [{ mainsnak: { datavalue: { value: v } } }]])) }])) })],
+];
+
+test('lookup: website from DuckDuckGo, research links from Wikidata IDs, no searches needed', async () => {
   const get = fakeGet([
     ['https://api.duckduckgo.com/', json({ Infobox: { content: [{ data_type: 'official_website', label: 'Website', value: 'https://www.acme.io/' }] } })],
-    ['https://www.wikidata.org/', json({ search: [] })],
-    [/bing\.com\/search.*glassdoor/, html('<a href="https://www.glassdoor.com/Reviews/Acme-Reviews-E123.htm">')],
-    [/bing\.com\/search.*linkedin/, html('<a href="https://il.linkedin.com/company/acme-inc?trk=x">')],
-    [/bing\.com\/search.*teamblind/, html('<a href="https://www.teamblind.com/company/Monday">')],   // another company
+    ...wikidata({
+      Q2: { label: 'Acme Tower', claims: { P856: 'https://skyline-towers.example' } },   // a building, not the company
+      Q1: { label: 'Acme', claims: { P4264: 'acme-inc', P8060: '123', P2088: 'acme' } },
+    }),
     ['https://www.acme.io/icon.svg', image],
     ['https://www.acme.io', html('<title>Acme</title><link rel="icon" href="/icon.svg">')],
   ]);
-  const lookup = createLookup({ get, log: () => {} });
-  const r = await lookup('Acme');
+  const r = await createLookup({ get, log: () => {} })('Acme');
   assert.equal(r.website, 'https://www.acme.io');
   assert.equal(r.logo, 'https://www.acme.io/icon.svg');
+  assert.deepEqual(r.links, {
+    linkedinUrl: 'https://www.linkedin.com/company/acme-inc/',
+    glassdoorUrl: 'https://www.glassdoor.com/Overview/-EI_IE123.htm',
+    crunchbaseUrl: 'https://www.crunchbase.com/organization/acme',
+  });
+  assert.equal(r.log.linkedinUrl, 'wikidata');
+  assert.ok(!get.calls.some(u => /bing\.com|html\.duckduckgo/.test(u)), 'no search-engine scraping');
+});
+
+test('lookup: one DuckDuckGo search for Glassdoor only when Wikidata has none', async () => {
+  const get = fakeGet([
+    [/html\.duckduckgo\.com.*glassdoor/, html('<a class="result__a" href="//duckduckgo.com/l/?uddg=' + encodeURIComponent('https://www.glassdoor.com/Reviews/Acme-Reviews-E123.htm') + '">')],
+  ]);
+  const r = await createLookup({ get, log: () => {} })('Acme');
   assert.equal(r.links.glassdoorUrl, 'https://www.glassdoor.com/Overview/Working-at-Acme-EI_IE123.11,15.htm');
-  assert.equal(r.links.linkedinUrl, 'https://www.linkedin.com/company/acme-inc/');
-  assert.equal(r.links.blindUrl, undefined);
-  assert.equal(r.source, 'duckduckgo');
+  assert.equal(get.calls.filter(u => /html\.duckduckgo|bing\.com/.test(u)).length, 1);
+  assert.match(r.log.glassdoorUrl, /duckduckgo: 200, .*found/);
+});
+
+test('a bot-check page is reported as blocked', async () => {
+  const get = fakeGet([[/html\.duckduckgo/, html('<form id="challenge-form">are you a robot?</form>')]]);
+  const r = await createLookup({ get, log: () => {} })('Acme');
+  assert.equal(r.links.glassdoorUrl, undefined);
+  assert.match(r.log.glassdoorUrl, /blocked/);
 });
 
 test('lookup falls back to guessing domains and skips parked pages', async () => {
