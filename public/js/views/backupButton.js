@@ -12,7 +12,7 @@ async function backupNow() {
   btn.disabled = true;
   try {
     if (isSaving()) await writeNow();
-    status(`Backed up ✓ backups/${await api.backup()}`);
+    status(`Backed up ✓ user-data/backups/${await api.backup()}`);
   } catch (e) { status('Backup failed: ' + e.message, true); }
   finally { btn.disabled = false; }
 }

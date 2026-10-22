@@ -1,7 +1,5 @@
 # personal data — never commit it
-data.json
-data.backup.json
-backups/
+user-data/
 *.tmp
 
 node_modules/

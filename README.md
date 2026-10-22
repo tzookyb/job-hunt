@@ -15,13 +15,15 @@ Then open http://localhost:4317. To use another port: `PORT=5000 npm start`.
 
 ## Where is my data?
 
-- Everything is saved to `data.json` in this folder (created on your first edit). The server prints its path when
-  it starts.
-- `data.backup.json` holds the previous save, as a safety net.
-- `backups/` holds automatic backups: when you use the app and the newest backup is more than 6 hours old, a new
+All your personal data lives in the `user-data/` folder, separate from the app code (and ignored by git):
+
+- `user-data/data.json` is your database, created on your first edit. The server prints its path when it starts.
+- `user-data/data.backup.json` holds the previous save, as a safety net.
+- `user-data/backups/` holds automatic backups: when you use the app and the newest backup is more than 6 hours old, a new
   `auto-<date>.json` is made. Backups older than 7 days are deleted. Nothing happens while you're not using the
-  app, and other files you put in `backups/` are never touched. The ⤓ button makes one right away.
-- To move the app to another machine, copy the folder, data included.
+  app, and other files you put there are never touched. The ⤓ button makes one right away.
+- To move your data to another machine, copy `user-data/`. To give the app to someone else, copy the folder
+  without it; they start with an empty tracker. To keep the data somewhere else: `DATA_DIR=/path/to/folder npm start`.
 
 If the top-right corner says **"No server — saving in this browser only"**, the page isn't talking to the server
 (it was opened as a file, or the server isn't running). Start it and open http://localhost:4317.

@@ -27,10 +27,10 @@ edit as you go. Every change persists locally to a JSON file. Single user, runs 
   on the server. Anyone with Node ≥ 18 can clone and `npm start`.
 - **Small, single-purpose modules.** One responsibility per file; features plug in rather than growing a central
   switch statement. Pure logic (data model, calculations) stays free of DOM and I/O so it can be unit-tested.
-- **The data file is sacred.** The owner uses the app live every day. Never overwrite, reset or "clean up" his
-  `data.json`. Schema changes must be backward compatible: extend `normalize()` so old data still loads, and use a
+- **The data file is sacred.** The owner uses the app live every day. Never overwrite, reset or "clean up"
+  `user-data/data.json`. Schema changes must be backward compatible: extend `normalize()` so old data still loads, and use a
   one-time upgrade (set a flag, return `migrated: true` so the page saves once) when data has to change shape.
-- **Back up before touching code:** copy `data.json` to a dated file first.
+- **Back up before touching code:** copy `user-data/data.json` to `user-data/backups/manual/` with a date first.
 - **Test every change.** `npm test` for unit/integration tests; check UI changes in a headless browser against a
   throwaway data folder, never the real one.
 - **UI text in plain English.** Dark theme with a dark-blue palette; colours are CSS tokens in `base.css`.
@@ -45,7 +45,7 @@ edit as you go. Every change persists locally to a JSON file. Single user, runs 
 | `CLAUDE.md` | Points Claude Code at this file. |
 | `README.md` | User-facing: how to run, where data lives. |
 | `server/index.js` | Entry point (`npm start`). |
-| `server/config.js` | Port (`PORT` env, default 4317), folders and data file paths. |
+| `server/config.js` | Port (`PORT` env, default 4317) and paths; `DATA_DIR` env overrides the data folder. |
 | `server/app.js` | Builds the HTTP server from its parts (so tests can start it on a random port). |
 | `server/routes.js` | API route table: `"METHOD /path": handler`. |
 | `server/storage.js` | `JsonStore`: reads/writes the data file. |
@@ -66,6 +66,7 @@ edit as you go. Every change persists locally to a JSON file. Single user, runs 
 | `public/js/model/` | Pure logic, unit-tested: `normalize`, `company`, `stages`, `progress`, `meetings`, `search`, `sort`, `contacts`, `bookmarks`. |
 | `public/js/views/` | One file per UI feature, each with an `init()` that registers its own delegated listeners. |
 | `test/` | `node --test` suites; `test/helpers.js` starts the app against a temp data folder. |
+| `user-data/` | **All personal data** (git-ignored, created on start): `data.json`, `data.backup.json`, `backups/`. |
 
 ## Server API
 
@@ -76,6 +77,9 @@ edit as you go. Every change persists locally to a JSON file. Single user, runs 
 | `POST /api/backup` | Forces a backup now → `{ name }` (409 if there's no data yet). |
 | `GET /api/lookup?name=X` | Naive lookup → `{ website, logo, links: { <field>: url }, source, log }`; prints a ✓/✗ report per site to the terminal. |
 | `GET /*` | Static files from `public/`. |
+
+App code and personal data are kept apart: everything personal is in `user-data/` (or `DATA_DIR`). Copy the repo
+without it to give the app to someone (they start empty); copy `user-data/` alone to move the data.
 
 The server listens on `127.0.0.1` only: it's a personal tool, not something to expose on a network.
 
@@ -92,7 +96,7 @@ The server listens on `127.0.0.1` only: it's a personal tool, not something to e
 - **`data-f="<field>"` inputs are bound automatically** by `views/fields.js`.
 - **Model code is pure** (no DOM, no fetch) and lives in `public/js/model/`, so `node --test` can import it.
 
-## Data model (`data.json`)
+## Data model (`user-data/data.json`)
 
 ```js
 {
@@ -189,11 +193,13 @@ when there's no server).
 
 ## Backups
 
+All in `user-data/`:
+
 1. `data.backup.json`: the previous version, rewritten on every save.
 2. `backups/auto-YYYY-MM-DD_HH-MM-SS.json`: there's no timer. On every `GET`/`PUT /api/data` (checked at most once
    a minute), if the newest automatic backup is 6+ hours old (time read from the file name), `data.json` is copied
    there. On a save this happens before writing. Automatic backups older than 7 days are deleted; any other file in
-   `backups/` is never touched. Nothing happens while the app isn't used.
+   `backups/` (e.g. `backups/manual/`) is never touched. Nothing happens while the app isn't used.
 3. The ⤓ button forces a backup.
 
 ## Company lookup — what works and what doesn't
@@ -250,6 +256,9 @@ Learned on 2026-10-22 by running real lookups through the owner's running app:
 
 Newest first.
 
+- **2026-10-22 16:04:** Personal data moved to `user-data/` (`DATA_DIR` overrides it), so the app is portable and
+  shareable without the owner's data. Owner's existing files were moved in by hand: `data.json`, `data.backup.json`,
+  `backups/`, and the first day's dated safety copies → `backups/manual/`.
 - **2026-10-22 12:44:** Full handoff pass on this file: UI map, keys, bus events, testing recipe, known gaps.
 - **2026-10-22 12:42:** Stage-delete warning listing affected companies, with jump-to-company and delete anyway.
 - **2026-10-22 12:36:** Company name read-only in the sheet, ⤢ removed (logo/name open the page), draggable column
