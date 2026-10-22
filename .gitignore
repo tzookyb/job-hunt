@@ -1,5 +1,6 @@
 # personal data — never commit it
 user-data/
+.demo-data/
 *.tmp
 
 node_modules/

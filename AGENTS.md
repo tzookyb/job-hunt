@@ -43,7 +43,9 @@ edit as you go. Every change persists locally to a JSON file. Single user, runs 
 |---|---|
 | `AGENTS.md` | This file. |
 | `CLAUDE.md` | Points Claude Code at this file. |
-| `README.md` | User-facing: how to run, where data lives. |
+| `README.md` | User-facing: features, how to run, your data, backups. |
+| `scripts/demo.js` | `npm run demo`: runs on fictional sample data (`scripts/demo-data.js`) in `.demo-data/` (git-ignored), port 4318. |
+| `docs/screenshots/` | README screenshots, taken with Playwright from the demo data. |
 | `start.command` | macOS double-click launcher (login + interactive zsh, so `node` from nvm/Homebrew is found). |
 | `server/index.js` | Entry point (`npm start`). |
 | `server/config.js` | Port (`PORT` env, default 4317) and paths; `DATA_DIR` env overrides the data folder. |
@@ -243,11 +245,12 @@ Learned on 2026-10-22 by running real lookups through the owner's running app:
   profile), hence `#!/bin/zsh -il` and a fallback over common install folders. It keeps the window open after the
   server stops, so errors stay readable.
 - On a freshly set-up Mac, Node may simply not be installed: `brew install node` (or the nodejs.org installer).
-- If `npm start` hangs with no output at all, check for a hidden macOS privacy prompt ("iTerm would like to access
-  files in your Documents folder") — the process blocks until it's answered.
+- If `npm start` hangs with no output at all, a likely cause (not confirmed) is a hidden macOS privacy prompt ("iTerm
+  would like to access files in your Documents folder"): the process waits until it's answered.
 
 ## Testing recipe
 
+- To try changes on realistic data without touching `user-data/`, use `npm run demo` (delete `.demo-data/` to reset).
 - `npm test` runs everything under `test/` with `node:test` (no dependencies). Model tests import the browser's pure
   modules directly; server tests start the app on a random port against a temp folder (`test/helpers.js`); lookup
   tests use `test/server/fakeNet.js` instead of the internet.
@@ -268,6 +271,9 @@ Learned on 2026-10-22 by running real lookups through the owner's running app:
 
 Newest first.
 
+- **2026-10-22 17:30:** Ported to a public GitHub repo: this history was rebuilt commit by commit from the session
+  logs, with the code split into modules. Added a sample-data demo, README screenshots and a showcase README.
+  Personal data stays out of git (`user-data/`, `.demo-data/` ignored).
 - **2026-10-22 16:10:** `start.command` launcher for macOS; notes on starting the server on a fresh Mac.
 - **2026-10-22 16:04:** Personal data moved to `user-data/` (`DATA_DIR` overrides it), so the app is portable and
   shareable without the owner's data. Owner's existing files were moved in by hand: `data.json`, `data.backup.json`,
