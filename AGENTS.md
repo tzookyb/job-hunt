@@ -144,7 +144,7 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
 - **+ Add Company:** asks for the name, then a loader (with Skip) runs `/api/lookup`, fills only empty fields and
   opens the company page. "↻ Look up" on the company page runs it again.
 - **Logos:** a frozen logo column (initial as fallback) next to the frozen Company column; a big logo on the
-  company page, set via "Logo URL".
+  company page: click it to paste an image URL (`views/logoEditor.js`; Enter saves, Esc restores, empty removes).
 - **Search** filters by every word across all text, stage comments and notes. `/` focuses it.
 - **Company page** (`#/c/<id>`): fields (incl. Last interaction, and Reason when closed), the stage list and Notes:
   titled free-text sections whose title suggests stage names. `Esc` goes back.
@@ -171,6 +171,7 @@ From the owner's list: save without the server (File System Access API), stage r
 
 Newest first.
 
+- **2026-10-22 11:36:** Logo URL field replaced by click-to-paste on the big logo.
 - **2026-10-22 11:33:** Multiple contacts with call / WhatsApp / LinkedIn buttons; Recruiter LinkedIn field removed,
   its data upgraded into contacts.
 - **2026-10-22 11:26:** Add-company flow with a naive lookup (website, logo, Glassdoor) and logo columns.

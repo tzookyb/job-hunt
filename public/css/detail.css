@@ -26,6 +26,13 @@ h2{font-size:13px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted
 .note input{flex:1;background:transparent;border:0;font-weight:600;font-size:15px;outline:none;padding:4px 0}
 .note textarea{width:100%;background:transparent;border:0;outline:none;resize:none;min-height:70px;padding:6px 0;line-height:1.55}
 .dangerzone{margin:36px 0 60px;text-align:right}
+/* click-to-paste logo */
+.logo-wrap{position:relative;display:inline-flex}
+.logo-btn{background:none;border:0;padding:0;cursor:pointer;border-radius:13px}
+.logo-btn:hover .lg,.logo-wrap.editing .lg{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.logo-input{display:none;position:absolute;top:64px;left:0;width:380px;z-index:6;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.logo-wrap.editing .logo-input{display:block}
+
 /* contacts */
 .contacts{display:flex;flex-direction:column;gap:6px}
 .chead{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--muted)}

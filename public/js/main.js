@@ -11,7 +11,8 @@ import * as popover from './views/popover.js';
 import * as stagesDialog from './views/stagesDialog.js';
 import * as addCompany from './views/addCompany.js';
 import * as contacts from './views/contacts.js';
+import * as logoEditor from './views/logoEditor.js';
 
-[header, fields, sheet, detail, stageList, popover, stagesDialog, addCompany, contacts, notes, router].forEach(m => m.init());
+[header, fields, sheet, detail, stageList, popover, stagesDialog, addCompany, contacts, logoEditor, notes, router].forEach(m => m.init());
 await load();
 router.route();

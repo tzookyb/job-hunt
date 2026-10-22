@@ -8,6 +8,7 @@ import { isClosed, statusLabel } from '../config.js';
 import { companyOf, statusOptions, progressInner, agoHtml, logoHtml } from './common.js';
 import { runLookup } from './addCompany.js';
 import { contactsHtml } from './contacts.js';
+import { logoEditorHtml } from './logoEditor.js';
 import { linkInput } from './fields.js';
 import { stageListHtml } from './stageList.js';
 import { notesHtml } from './notes.js';
@@ -23,7 +24,7 @@ export function renderDetail(id) {
   <div class="detail" data-id="${c.id}">
     <div class="dhead">
       <button class="btn ghost back">← All</button>
-      ${logoHtml(c, 'big')}
+      ${logoEditorHtml(c)}
       <input class="title" data-f="name" value="${esc(c.name)}" placeholder="Company name">
       <select data-f="status">${statusOptions(c.status)}</select>
       <button class="btn ghost lookup" title="Fill empty website, logo and Glassdoor">↻ Look up</button>
@@ -37,7 +38,6 @@ export function renderDetail(id) {
       <label>Careers / job post${linkInput(c, 'careersUrl', 'link to the position')}</label>
       <label>Glassdoor${linkInput(c, 'glassdoorUrl', 'glassdoor.com/…')}</label>
       ${contactsHtml(c)}
-      <label class="full">Logo URL<input class="field" data-f="logo" value="${esc(c.logo)}" placeholder="https://…/logo.png"></label>
       <label class="full">Comments<textarea class="field" data-f="comments" rows="2" placeholder="General notes about the position">${esc(c.comments)}</textarea></label>
     </div>
     <h2>Stages</h2>
