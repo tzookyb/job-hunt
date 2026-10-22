@@ -12,7 +12,7 @@ tr.row select{cursor:pointer}
 select option{background:var(--panel2)}
 .closedtbl tr.row > td > *{opacity:.6}
 .closedtbl tr.row:hover > td > *{opacity:1}
-.col-name{width:200px}.col-open,.col-del{width:38px}.col-prog{width:34%}.col-reason{width:26%}.closedtbl .col-prog{width:24%}.col-date{width:190px}.col-status{width:150px}
+.col-name{width:200px}.col-open,.col-del{width:38px}.col-prog{width:30%}.col-reason{width:26%}.closedtbl .col-prog{width:24%}.col-date{width:190px}.col-status{width:150px}
 .section-title{font-size:13px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin:26px 0 8px;display:flex;gap:8px;align-items:center;cursor:pointer;list-style:none}
 .section-title::-webkit-details-marker{display:none}
 details > .section-title::before{content:'▸';transition:transform .15s;display:inline-block}
@@ -31,3 +31,18 @@ details[open] > .section-title::before{transform:rotate(90deg)}
 .st-withdrawn .bar > span, .st-closed .bar > span{background:#5b6475}
 .pct{font-variant-numeric:tabular-nums;font-weight:600;min-width:38px}
 .pn{color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+
+/* sorting */
+th[data-sort]{cursor:pointer;user-select:none}
+th[data-sort]:hover{color:var(--text)}
+th[data-sort]::after{content:'↕';opacity:.3;margin-left:5px;font-size:11px}
+th.sorted-asc::after{content:'↑';opacity:1;color:var(--accent)}
+th.sorted-desc::after{content:'↓';opacity:1;color:var(--accent)}
+
+/* next meeting */
+.col-meet{width:190px}
+.meet{padding:6px 10px;line-height:1.25;white-space:nowrap}
+.meet b{font-weight:600;font-size:13px}
+.meet small{display:block;color:var(--muted);font-size:11px;overflow:hidden;text-overflow:ellipsis;max-width:170px}
+.meet.soon b{color:var(--warn)}
+.meet.none{color:#454b57}

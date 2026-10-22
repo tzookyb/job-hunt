@@ -12,13 +12,14 @@ export function stageListHtml(c) {
   let n = 0;
   return `<div class="stagelist">
     <table class="stbl">
-      <thead><tr><th></th><th>#</th><th>Done</th><th>Stage</th><th>Comment</th><th>Relevant</th><th></th></tr></thead>
+      <thead><tr><th></th><th>#</th><th>Done</th><th>Stage</th><th>Meeting</th><th>Comment</th><th>Relevant</th><th></th></tr></thead>
       <tbody>${c.order.map(id => { const x = c.stages[id]; return `
         <tr class="srow ${x.enabled ? '' : 'off'} ${x.done ? 'done' : ''}" data-stage="${id}">
           <td class="grip" title="Drag to reorder">⋮⋮</td>
           <td class="num">${x.enabled ? ++n : '–'}</td>
           <td><input type="checkbox" data-sd="${id}" ${x.done ? 'checked' : ''} ${x.enabled ? '' : 'disabled'}></td>
           <td class="sname">${esc(stageName(id))}</td>
+          <td><input type="datetime-local" class="smeet ${x.meeting ? 'has' : ''}" data-sm="${id}" value="${esc(x.meeting || '')}" title="Scheduled meeting for this stage"></td>
           <td><input class="scomment" data-sc="${id}" value="${esc(x.comment)}" placeholder="comment…"></td>
           <td class="rel"><label class="switch" title="Does this company have this stage?"><input type="checkbox" data-se="${id}" ${x.enabled ? 'checked' : ''}><span></span></label></td>
           <td class="mv"><button class="icon up" title="Move up">↑</button><button class="icon down" title="Move down">↓</button></td>
@@ -44,6 +45,13 @@ function initEditing(main) {
   delegate(main, 'input', 'input[data-sc]', (e, el) => {
     companyOf(el).stages[el.dataset.sc].comment = el.value;
     save();
+  });
+  delegate(main, 'input', 'input[data-sm]', (e, el) => {
+    const c = companyOf(el);
+    c.stages[el.dataset.sm].meeting = el.value;
+    el.classList.toggle('has', !!el.value);
+    save();
+    emit('meeting:changed', c);   // updates the Next meeting cell without redrawing this list
   });
   delegate(main, 'keydown', '.newstage', (e, el) => {
     if (e.key !== 'Enter' || !el.value.trim()) return;

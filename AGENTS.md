@@ -51,11 +51,11 @@ edit as you go. Every change persists locally to a JSON file. Single user, runs 
 | `public/js/main.js` | Composition root: calls each feature's `init()`, loads data, routes. |
 | `public/js/store.js` | Owns the state; `load()`, debounced `save()` (350ms), `writeNow()`; server or localStorage. |
 | `public/js/api.js` | `fetch` wrappers for the server API. |
-| `public/js/bus.js` | Tiny pub/sub: `status`, `render`, `field`, `company:changed`, `stages:changed`. |
+| `public/js/bus.js` | Tiny pub/sub: `status`, `render`, `field`, `company:changed`, `stages:changed`, `meeting:changed`. |
 | `public/js/dom.js` | `$`, `$$`, `delegate()`, `autosize()`. |
 | `public/js/router.js` | `#/c/<id>` → company page, otherwise the sheet. |
 | `public/js/config.js` | Default stages, statuses. |
-| `public/js/model/` | Pure logic, unit-tested: `normalize`, `company`, `stages`, `progress`, `search`. |
+| `public/js/model/` | Pure logic, unit-tested: `normalize`, `company`, `stages`, `progress`, `meetings`, `search`, `sort`. |
 | `public/js/views/` | One file per UI feature, each with an `init()` that registers its own delegated listeners. |
 | `test/` | `node --test` suites; `test/helpers.js` starts the app against a temp data folder. |
 
@@ -89,7 +89,7 @@ The server listens on `127.0.0.1` only: it's a personal tool, not something to e
     closeReason,                          // why a rejected/withdrawn/closed process ended
     status: 'active'|'offer'|'rejected'|'withdrawn'|'closed',
     order: [stageId...],                  // this company's own stage order
-    stages: { [stageId]: { enabled, done, comment } },   // enabled = this stage applies to the company
+    stages: { [stageId]: { enabled, done, comment, meeting: 'YYYY-MM-DDTHH:mm' } },   // enabled = applies to this company
     notes: [{ id, title, body }],
   }],
   updatedAt,
@@ -101,16 +101,18 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
 
 ## UI
 
-- **Sheet:** deliberately minimal: Company, Progress (bar · % · "x/y · next: <stage>", relevant stages only), Last
-  interaction (date + "x days ago", amber after 7 days), Status, ⤢ open, ✕ delete. Website, position and comments
+- **Sheet:** deliberately minimal: Company, Progress (bar · % · "x/y · next: <stage>", relevant stages only), Next
+  meeting (earliest upcoming meeting on a relevant stage; amber for today/tomorrow), Last interaction (date + "x days ago", amber after 7 days), Status, ⤢ open, ✕ delete. Website, position and comments
   live on the company page only.
 - **Rejected & closed** (rejected, withdrawn, closed) move to a collapsible table below, with an editable Reason
-  column. Changing the status moves the row.
+  column in place of Next meeting. Changing the status moves the row.
+- **Sorting:** click a header; again to flip. Empty values always go last. Last interaction and Progress start
+  descending. Remembered per browser in `localStorage['jobTrackerSort']`.
 - **Last interaction:** ticking a stage sets it to today; adding a company does not (owner's rule).
 - **Progress popover:** hovering a Progress cell opens the company's stage list (`views/popover.js`). It stays open
   while focused or dragging, closes on Esc, outside click, scroll or mouse-out.
 - **Stage list** (popover and company page, `views/stageList.js`): done ✓, comment, relevant switch (off = greyed
-  and excluded from progress), reorder by ⋮⋮ drag or ↑↓, and "+ Add stage" (adds to the shared list; every company
+  and excluded from progress), reorder by ⋮⋮ drag or ↑↓, a meeting date-time per stage, and "+ Add stage" (adds to the shared list; every company
   gets it, switched off for closed ones).
 - **Stages dialog:** rename, reorder and delete shared stages; "Apply this order to all companies".
 - **Search** filters by every word across all text, stage comments and notes. `/` focuses it.
@@ -123,6 +125,7 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
 
 Newest first.
 
+- **2026-10-22 10:18:** Meeting per stage, Next meeting column, sortable columns (`model/sort.js`, `model/meetings.js`).
 - **2026-10-22 10:16:** Minimal sheet columns, Last interaction, separate Rejected & closed table with Reason.
 - **2026-10-22 10:14:** Shared, growable stage list with per-company order and relevance; progress popover on hover;
   Stages dialog. Owner wants stages mostly common, greyed out where a company doesn't have them.

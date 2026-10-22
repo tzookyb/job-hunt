@@ -1,23 +1,29 @@
 // The main screen: active companies, and a collapsible "Rejected & closed" table below them.
-import { esc } from '../util.js';
+import { esc, today } from '../util.js';
 import { mainEl, delegate, $ } from '../dom.js';
 import { isClosed } from '../config.js';
 import { getState, save } from '../store.js';
 import { on, emit } from '../bus.js';
 import { matches } from '../model/search.js';
+import { sortCompanies, nextSort } from '../model/sort.js';
 import { removeCompany } from '../model/company.js';
-import { companyOf, statusOptions, progressInner, agoHtml } from './common.js';
+import { companyOf, statusOptions, progressInner, agoHtml, meetingHtml } from './common.js';
 import { reopen, popoverCompanyId } from './popover.js';
 
+const SORT_KEY = 'jobTrackerSort';
 const query = () => $('#q').value;
 let closedOpen = true;
+let sort = { key: null, dir: 1 };
+try { sort = JSON.parse(localStorage.getItem(SORT_KEY)) || sort; } catch { /* keep default */ }
+
+const th = (key, label) => `<th data-sort="${key}" class="${sort.key === key ? (sort.dir > 0 ? 'sorted-asc' : 'sorted-desc') : ''}">${label}</th>`;
 
 function rowHtml(c) {
   const closed = isClosed(c);
   return `<tr class="row st-${c.status}" data-id="${c.id}">
     <td><input data-f="name" value="${esc(c.name)}" placeholder="Company"></td>
     <td><button class="prog ${popoverCompanyId() === c.id ? 'open' : ''}">${progressInner(c)}</button></td>
-    ${closed ? `<td><input data-f="closeReason" value="${esc(c.closeReason)}" placeholder="Why? e.g. no feedback, salary, ghosted…"></td>` : ''}
+    <td>${closed ? `<input data-f="closeReason" value="${esc(c.closeReason)}" placeholder="Why? e.g. no feedback, salary, ghosted…">` : meetingHtml(c)}</td>
     <td><div class="datecell"><input type="date" data-f="lastInteraction" value="${esc(c.lastInteraction)}">${agoHtml(c.lastInteraction)}</div></td>
     <td><select data-f="status">${statusOptions(c.status)}</select></td>
     <td><button class="icon open" title="Open company page">⤢</button></td>
@@ -27,9 +33,9 @@ function rowHtml(c) {
 
 function tableHtml(list, closed, emptyText = '') {
   return `<div class="sheet-wrap"><table class="sheet ${closed ? 'closedtbl' : ''}">
-    <colgroup><col class="col-name"><col class="col-prog">${closed ? '<col class="col-reason">' : ''}<col class="col-date"><col class="col-status"><col class="col-open"><col class="col-del"></colgroup>
-    <thead><tr><th>Company</th><th>Progress</th>${closed ? '<th>Reason</th>' : ''}<th>Last interaction</th><th>Status</th><th></th><th></th></tr></thead>
-    <tbody>${list.map(rowHtml).join('')}</tbody>
+    <colgroup><col class="col-name"><col class="col-prog"><col class="${closed ? 'col-reason' : 'col-meet'}"><col class="col-date"><col class="col-status"><col class="col-open"><col class="col-del"></colgroup>
+    <thead><tr>${th('name', 'Company')}${th('progress', 'Progress')}${closed ? th('reason', 'Reason') : th('meeting', 'Next meeting')}${th('last', 'Last interaction')}${th('status', 'Status')}<th></th><th></th></tr></thead>
+    <tbody>${sortCompanies(list, sort, { today: today() }).map(rowHtml).join('')}</tbody>
   </table>${emptyText ? `<div class="empty">${emptyText}</div>` : ''}</div>`;
 }
 
@@ -52,6 +58,11 @@ const redrawRow = c => { const tr = rowOf(c); if (tr) tr.outerHTML = rowHtml(c);
 
 export function init() {
   const main = mainEl();
+  delegate(main, 'click', 'th[data-sort]', (e, el) => {
+    sort = nextSort(sort, el.dataset.sort);
+    try { localStorage.setItem(SORT_KEY, JSON.stringify(sort)); } catch { /* not remembered */ }
+    emit('render');
+  });
   delegate(main, 'click', 'tr.row .open', (e, el) => { location.hash = '#/c/' + companyOf(el).id; });
   delegate(main, 'click', 'tr.row .del', (e, el) => {
     const c = companyOf(el);
@@ -64,6 +75,7 @@ export function init() {
     if (field === 'lastInteraction') el.nextElementSibling.outerHTML = agoHtml(c.lastInteraction);
   });
   on('company:changed', redrawRow);
+  on('meeting:changed', c => { const cell = rowOf(c)?.querySelector('.meet'); if (cell) cell.outerHTML = meetingHtml(c); });
   // a new stage reaches every company: redraw all rows, then bring the popover back
   on('stages:changed', ({ c }) => {
     if (location.hash) return;

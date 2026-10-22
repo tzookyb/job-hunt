@@ -3,6 +3,7 @@ import { esc, today, daysBetween } from '../util.js';
 import { STATUSES, statusLabel, isClosed } from '../config.js';
 import { getState } from '../store.js';
 import { progress } from '../model/progress.js';
+import { nextMeeting } from '../model/meetings.js';
 
 // The company that a clicked/edited element belongs to (nearest [data-id]).
 export function companyOf(el) {
@@ -21,6 +22,17 @@ export function agoHtml(date) {
   const days = daysBetween(date, today());
   const text = days === 0 ? 'today' : days === 1 ? 'yesterday' : days > 0 ? `${days} days ago` : `in ${-days} days`;
   return `<span class="ago ${days >= 7 ? 'stale' : ''}">${text}</span>`;
+}
+
+// Next meeting cell: "Tomorrow · 10:30" + stage name; highlighted for today and tomorrow.
+export function meetingHtml(c) {
+  const m = nextMeeting(c, today());
+  if (!m) return '<div class="meet none">—</div>';
+  const d = new Date(m.when);
+  const days = daysBetween(today(), m.when.slice(0, 10));
+  const day = days === 0 ? 'Today' : days === 1 ? 'Tomorrow' : d.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
+  const time = m.when.length > 10 ? ' · ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : '';
+  return `<div class="meet ${days <= 1 ? 'soon' : ''}" title="${esc(stageName(m.stage))} — ${esc(d.toLocaleString())}"><b>${day}${time}</b><small>${esc(stageName(m.stage))}</small></div>`;
 }
 
 // bar · percent · "x/y · next: <stage>"
