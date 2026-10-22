@@ -24,6 +24,16 @@
 </header>
 <main id="main"></main>
 
+<dialog id="newDlg">
+  <form>
+    <div class="dlg-head"><h3>Add company</h3><button type="button" class="icon" id="newClose" title="Close">✕</button></div>
+    <input id="newName" class="field" placeholder="Company name" autocomplete="off">
+    <span class="hint">I’ll try to find the website, Glassdoor page and logo, then open the company.</span>
+    <div class="row2"><button type="button" class="btn ghost" id="newCancel">Cancel</button><button class="btn primary">Add</button></div>
+  </form>
+</dialog>
+<div id="loader" hidden><div class="ld-box"><div class="spin"></div><div id="ldText"></div><button class="btn ghost" id="ldSkip">Skip</button></div></div>
+
 <dialog id="stagesDlg">
   <div class="dlg-head"><h3>Hiring Stages</h3><button class="icon" id="dlgClose" title="Close">✕</button></div>
   <p class="hint">Shared by all companies. New companies get this order, with only the switched-on stages turned on. Each company can reorder and switch stages on or off for itself.</p>

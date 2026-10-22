@@ -9,7 +9,8 @@ import * as stageList from './views/stageList.js';
 import * as notes from './views/notes.js';
 import * as popover from './views/popover.js';
 import * as stagesDialog from './views/stagesDialog.js';
+import * as addCompany from './views/addCompany.js';
 
-[header, fields, sheet, detail, stageList, popover, stagesDialog, notes, router].forEach(m => m.init());
+[header, fields, sheet, detail, stageList, popover, stagesDialog, addCompany, notes, router].forEach(m => m.init());
 await load();
 router.route();

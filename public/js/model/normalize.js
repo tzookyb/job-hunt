@@ -26,7 +26,7 @@ export function normalize(raw) {
       if (!c.order.includes(id)) c.order.push(id);
       c.stages[id] = { ...blankStage(defaultOn(id)), ...c.stages[id] };
     }
-    for (const f of ['name', 'position', 'website', 'careersUrl', 'comments', 'lastInteraction', 'closeReason', 'contact', 'recruiterUrl', 'glassdoorUrl']) c[f] = c[f] || '';
+    for (const f of ['name', 'position', 'website', 'careersUrl', 'comments', 'lastInteraction', 'closeReason', 'contact', 'recruiterUrl', 'glassdoorUrl', 'logo']) c[f] = c[f] || '';
     c.notes = Array.isArray(c.notes) ? c.notes : [];
     c.status = OLD_STATUS[c.status] || c.status;
     if (!STATUSES.some(([k]) => k === c.status)) c.status = 'active';

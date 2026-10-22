@@ -4,10 +4,11 @@ import { JsonStore } from './storage.js';
 import { apiRoutes } from './routes.js';
 import { serveStatic } from './static.js';
 import { send } from './http.js';
+import { createLookup } from './lookup/index.js';
 
-export function createApp(config) {
+export function createApp(config, { lookup = createLookup() } = {}) {
   const store = new JsonStore({ file: config.dataFile, previousFile: config.previousFile });
-  const routes = apiRoutes({ store, config });
+  const routes = apiRoutes({ store, lookup, config });
   const statics = serveStatic(config.publicDir);
 
   return http.createServer(async (req, res) => {

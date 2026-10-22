@@ -16,6 +16,12 @@ export const stageName = id => (getState().stages.find(s => s.id === id) || {}).
 export const statusOptions = value =>
   STATUSES.map(([k, label]) => `<option value="${k}" ${k === value ? 'selected' : ''}>${label}</option>`).join('');
 
+// The company's logo, with its initial underneath as a fallback when there's no logo or it fails to load.
+export function logoHtml(c, cls = '') {
+  const initial = esc((c.name || '?').trim().charAt(0).toUpperCase() || '?');
+  return `<span class="lg ${cls}"><span>${initial}</span>${c.logo ? `<img src="${esc(c.logo)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ''}</span>`;
+}
+
 // "3 days ago" next to a date; amber once it's a week old.
 export function agoHtml(date) {
   if (!date) return '<span class="ago"></span>';

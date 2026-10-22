@@ -7,7 +7,7 @@ import { on, emit } from '../bus.js';
 import { matches } from '../model/search.js';
 import { sortCompanies, nextSort } from '../model/sort.js';
 import { removeCompany } from '../model/company.js';
-import { companyOf, statusOptions, progressInner, agoHtml, meetingHtml } from './common.js';
+import { companyOf, statusOptions, progressInner, agoHtml, meetingHtml, logoHtml } from './common.js';
 import { reopen, popoverCompanyId } from './popover.js';
 
 const SORT_KEY = 'jobTrackerSort';
@@ -16,12 +16,13 @@ let closedOpen = true;
 let sort = { key: null, dir: 1 };
 try { sort = JSON.parse(localStorage.getItem(SORT_KEY)) || sort; } catch { /* keep default */ }
 
-const th = (key, label) => `<th data-sort="${key}" class="${sort.key === key ? (sort.dir > 0 ? 'sorted-asc' : 'sorted-desc') : ''}">${label}</th>`;
+const th = (key, label, cls = '') => `<th data-sort="${key}" class="${cls} ${sort.key === key ? (sort.dir > 0 ? 'sorted-asc' : 'sorted-desc') : ''}">${label}</th>`;
 
 function rowHtml(c) {
   const closed = isClosed(c);
   return `<tr class="row st-${c.status}" data-id="${c.id}">
-    <td><input data-f="name" value="${esc(c.name)}" placeholder="Company"></td>
+    <td class="stk stk1">${logoHtml(c)}</td>
+    <td class="stk stk2"><input data-f="name" value="${esc(c.name)}" placeholder="Company"></td>
     <td><button class="prog ${popoverCompanyId() === c.id ? 'open' : ''}">${progressInner(c)}</button></td>
     <td>${closed ? `<input data-f="closeReason" value="${esc(c.closeReason)}" placeholder="Why? e.g. no feedback, salary, ghosted…">` : meetingHtml(c)}</td>
     <td><div class="datecell"><input type="date" data-f="lastInteraction" value="${esc(c.lastInteraction)}">${agoHtml(c.lastInteraction)}</div></td>
@@ -33,8 +34,8 @@ function rowHtml(c) {
 
 function tableHtml(list, closed, emptyText = '') {
   return `<div class="sheet-wrap"><table class="sheet ${closed ? 'closedtbl' : ''}">
-    <colgroup><col class="col-name"><col class="col-prog"><col class="${closed ? 'col-reason' : 'col-meet'}"><col class="col-date"><col class="col-status"><col class="col-open"><col class="col-del"></colgroup>
-    <thead><tr>${th('name', 'Company')}${th('progress', 'Progress')}${closed ? th('reason', 'Reason') : th('meeting', 'Next meeting')}${th('last', 'Last interaction')}${th('status', 'Status')}<th></th><th></th></tr></thead>
+    <colgroup><col class="col-logo"><col class="col-name"><col class="col-prog"><col class="${closed ? 'col-reason' : 'col-meet'}"><col class="col-date"><col class="col-status"><col class="col-open"><col class="col-del"></colgroup>
+    <thead><tr><th class="stk stk1"></th>${th('name', 'Company', 'stk stk2')}${th('progress', 'Progress')}${closed ? th('reason', 'Reason') : th('meeting', 'Next meeting')}${th('last', 'Last interaction')}${th('status', 'Status')}<th></th><th></th></tr></thead>
     <tbody>${sortCompanies(list, sort, { today: today() }).map(rowHtml).join('')}</tbody>
   </table>${emptyText ? `<div class="empty">${emptyText}</div>` : ''}</div>`;
 }
@@ -73,6 +74,7 @@ export function init() {
     if (!rowOf(c)) return;
     if (field === 'status') emit('render');   // may move between the two tables
     if (field === 'lastInteraction') el.nextElementSibling.outerHTML = agoHtml(c.lastInteraction);
+    if (field === 'name') { const lg = $('.lg', rowOf(c)); if (lg) lg.outerHTML = logoHtml(c); }
   });
   on('company:changed', redrawRow);
   on('meeting:changed', c => { const cell = rowOf(c)?.querySelector('.meet'); if (cell) cell.outerHTML = meetingHtml(c); });

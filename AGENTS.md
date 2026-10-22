@@ -51,6 +51,7 @@ edit as you go. Every change persists locally to a JSON file. Single user, runs 
 | `server/storage.js` | `JsonStore`: reads/writes the data file. |
 | `server/static.js` | Serves `public/` (known file types only, no path traversal). |
 | `server/http.js` | `send`, `sendJson`, `readBody`. |
+| `server/lookup/` | Naive company lookup (see below). `index.js` builds it with an injectable `get`. |
 | `public/index.html` | Page shell: header, `<main>`, dialogs, one module script. |
 | `public/favicon.svg` | Crosshair-target icon (navy square, blue rings). |
 | `public/css/` | `base.css` (tokens, buttons, header), `sheet.css`, `stages.css`, `detail.css`, `dialogs.css`. |
@@ -71,6 +72,7 @@ edit as you go. Every change persists locally to a JSON file. Single user, runs 
 |---|---|
 | `GET /api/data` | Returns `data.json`, or `{}` if nothing has been saved yet. |
 | `PUT /api/data` | Validates the JSON, copies the current file to `data.backup.json`, then writes via temp file + rename (atomic). |
+| `GET /api/lookup?name=X` | Naive lookup → `{ website, logo, glassdoorUrl, source }`; prints a line to the terminal. |
 | `GET /*` | Static files from `public/`. |
 
 The server listens on `127.0.0.1` only: it's a personal tool, not something to expose on a network.
@@ -95,7 +97,7 @@ The server listens on `127.0.0.1` only: it's a personal tool, not something to e
     lastInteraction: 'YYYY-MM-DD',       // set by hand, or to today when a stage is ticked done
     closeReason,                          // why a rejected/withdrawn/closed process ended
     contact,                              // point of contact: free text (name, email, phone)
-    recruiterUrl, glassdoorUrl,
+    recruiterUrl, glassdoorUrl, logo,     // logo = image URL
     status: 'interested'|'approached'|'active'|'rejected'|'withdrawn',   // 'active' shows as "In process"
     order: [stageId...],                  // this company's own stage order
     stages: { [stageId]: { enabled, done, comment, meeting: 'YYYY-MM-DDTHH:mm' } },   // enabled = applies to this company
@@ -134,11 +136,27 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
   relevant switch (off = greyed and excluded from progress), reorder by ⋮⋮ drag or ↑↓, and "+ Add stage" (adds to
   the shared list; every company gets it, but it's switched on only for the company it was added from).
 - **Hiring Stages dialog:** rename, reorder and delete shared stages; a switch for "on by default for new companies"; "Apply this order to all companies".
+- **+ Add Company:** asks for the name, then a loader (with Skip) runs `/api/lookup`, fills only empty fields and
+  opens the company page. "↻ Look up" on the company page runs it again.
+- **Logos:** a frozen logo column (initial as fallback) next to the frozen Company column; a big logo on the
+  company page, set via "Logo URL".
 - **Search** filters by every word across all text, stage comments and notes. `/` focuses it.
 - **Company page** (`#/c/<id>`): fields (incl. Last interaction, and Reason when closed), the stage list and Notes:
   titled free-text sections whose title suggests stage names. `Esc` goes back.
 - **Saving:** every edit autosaves; the top-right status says where. Without the server it falls back to
   `localStorage['jobTracker']` and says so in red.
+
+## Company lookup
+
+- **Website:** DuckDuckGo Instant Answer → Wikidata "official website" (P856) → guessing `name.{com,io,ai,co.il,…}`
+  (kept only if the page title mentions the name and it isn't a domain-for-sale page). A domain must look like the
+  name (`plausible()`), and directory sites (Wikipedia, LinkedIn, Glassdoor, x.com…) are excluded by whole hostname.
+- **Logo:** the homepage's best `<link rel=icon|apple-touch-icon>`, checked to be an image, else Google's s2
+  favicon service.
+- **Glassdoor:** a `<name> site:glassdoor.com` search on Bing, then DuckDuckGo, links unwrapped from their
+  redirect formats.
+- **Testing:** there's no internet in the test environment; `test/server/fakeNet.js` answers requests with canned
+  responses. In the browser, stub `/api/lookup` with Playwright's `page.route`.
 
 ## Ideas not done yet
 
@@ -148,6 +166,7 @@ From the owner's list: save without the server (File System Access API), stage r
 
 Newest first.
 
+- **2026-10-22 11:26:** Add-company flow with a naive lookup (website, logo, Glassdoor) and logo columns.
 - **2026-10-22 11:20:** Button copy ("Hiring Stages", "+ Add Company"); logo next to the app name.
 
 - **2026-10-22 11:14:** Stage defaults. The data is in live use (the owner had renamed a stage to "HR Initial"), so

@@ -1,8 +1,6 @@
-// Top bar: save status, search and "+ Company".
+// Top bar: save status and search.
 import { $ } from '../dom.js';
-import { getState, save } from '../store.js';
 import { on, emit } from '../bus.js';
-import { newCompany } from '../model/company.js';
 
 const typing = () => /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
 
@@ -13,14 +11,8 @@ export function init() {
     el.classList.toggle('err', error);
   });
   $('#q').addEventListener('input', () => emit('render'));
-  $('#add').addEventListener('click', () => {
-    const c = newCompany(getState());
-    getState().companies.unshift(c);
-    save();
-    $('#q').value = '';
-    location.hash = '#/c/' + c.id;
-  });
   document.addEventListener('keydown', e => {
+    if (document.querySelector('dialog[open]')) return;
     if (e.key === '/' && !typing() && !location.hash) { e.preventDefault(); $('#q').focus(); }
     if (e.key === 'Escape' && location.hash && !typing()) location.hash = '';
   });
