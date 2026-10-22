@@ -15,6 +15,7 @@ export function normalize(raw) {
     d.stageDefaultsV2 = true;
   }
   if (!Array.isArray(d.companies)) d.companies = [];
+  if (!Array.isArray(d.bookmarks)) d.bookmarks = [];
   if (!d.stageDefaultsV2) { upgradeStageDefaults(d); migrated = true; }
   d.stages.forEach(s => { s.defaultOn = !!s.defaultOn; });
   const ids = d.stages.map(s => s.id);

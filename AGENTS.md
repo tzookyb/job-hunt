@@ -54,15 +54,15 @@ edit as you go. Every change persists locally to a JSON file. Single user, runs 
 | `server/lookup/` | Naive company lookup (see below). `index.js` builds it with an injectable `get`. |
 | `public/index.html` | Page shell: header, `<main>`, dialogs, one module script. |
 | `public/favicon.svg` | Crosshair-target icon (navy square, blue rings). |
-| `public/css/` | `base.css` (tokens, buttons, header), `sheet.css`, `stages.css`, `detail.css`, `dialogs.css`. |
+| `public/css/` | `base.css` (tokens, buttons, header), `sheet.css`, `stages.css`, `detail.css`, `dialogs.css`, `drawer.css`. |
 | `public/js/main.js` | Composition root: calls each feature's `init()`, loads data, routes. |
 | `public/js/store.js` | Owns the state; `load()`, debounced `save()` (350ms), `writeNow()`; server or localStorage. |
 | `public/js/api.js` | `fetch` wrappers for the server API. |
-| `public/js/bus.js` | Tiny pub/sub: `status`, `render`, `field`, `company:changed`, `stages:changed`, `meeting:changed`. |
+| `public/js/bus.js` | Tiny pub/sub: `status`, `render`, `route`, `field`, `company:changed`, `stages:changed`, `meeting:changed`. |
 | `public/js/dom.js` | `$`, `$$`, `delegate()`, `autosize()`. |
 | `public/js/router.js` | `#/c/<id>` → company page, otherwise the sheet. |
 | `public/js/config.js` | Default stages, statuses. |
-| `public/js/model/` | Pure logic, unit-tested: `normalize`, `company`, `stages`, `progress`, `meetings`, `search`, `sort`. |
+| `public/js/model/` | Pure logic, unit-tested: `normalize`, `company`, `stages`, `progress`, `meetings`, `search`, `sort`, `contacts`, `bookmarks`. |
 | `public/js/views/` | One file per UI feature, each with an `init()` that registers its own delegated listeners. |
 | `test/` | `node --test` suites; `test/helpers.js` starts the app against a temp data folder. |
 
@@ -104,6 +104,7 @@ The server listens on `127.0.0.1` only: it's a personal tool, not something to e
     stages: { [stageId]: { enabled, done, comment, meeting: 'YYYY-MM-DDTHH:mm' } },   // enabled = applies to this company
     notes: [{ id, title, body }],
   }],
+  bookmarks: [{ id, title, url }],
   updatedAt, stageDefaultsV2: true,
 }
 ```
@@ -151,11 +152,17 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
   company page: click it to paste an image URL (`views/logoEditor.js`; Enter saves, Esc restores, empty removes).
 - **Research** (`views/research.js`): 8 sites from `config.RESEARCH` (field, label, domain, tooltip). Hover a name
   for what the site is for; an empty field's 🔍 opens a Google `site:` search.
+- **Bookmarks drawer** (`views/bookmarks.js`): 🔖 at the right end of the top bar, or `B`. Add, edit inline, delete,
+  drag to reorder. Hidden on company pages.
 - **Search** filters by every word across all text, contacts, research links, stage comments and notes. `/` focuses it.
 - **Company page** (`#/c/<id>`): fields (incl. Last interaction, and Reason when closed), the stage list and Notes:
   titled free-text sections whose title suggests stage names. `Esc` goes back.
 - **Saving:** every edit autosaves; the top-right status says where. Without the server it falls back to
   `localStorage['jobTracker']` and says so in red.
+
+### Saved in the browser only (`localStorage`)
+
+`jobTrackerSort` (sort), `jobHuntDrawer` (drawer open), `jobTracker` (data fallback when there's no server).
 
 ## Company lookup
 
@@ -178,6 +185,7 @@ From the owner's list: save without the server (File System Access API), stage r
 
 Newest first.
 
+- **2026-10-22 12:06:** Bookmarks drawer, button at the end of the top bar.
 - **2026-10-22 11:58:** Research section with 8 sites; the lookup tries to fill all of them.
 - **2026-10-22 11:52:** WhatsApp computed from the phone (separate field removed and upgraded), one reused tab.
 - **2026-10-22 11:44:** Role per contact.

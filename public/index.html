@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="css/stages.css">
 <link rel="stylesheet" href="css/detail.css">
 <link rel="stylesheet" href="css/dialogs.css">
+<link rel="stylesheet" href="css/drawer.css">
 </head>
 <body>
 <header>
@@ -21,8 +22,19 @@
     <button class="btn primary" id="add">+ Add Company</button>
   </div>
   <span id="saveStatus"></span>
+  <button class="btn" id="bmBtn" title="Bookmarks (B)">🔖 Bookmarks</button>
 </header>
 <main id="main"></main>
+
+<aside id="drawer" aria-label="Bookmarks">
+  <div class="dr-head"><h3>🔖 Bookmarks</h3><button class="icon" id="bmClose" title="Close (Esc)">✕</button></div>
+  <form id="bmForm">
+    <input id="bmUrl" class="field" placeholder="Paste a URL" autocomplete="off">
+    <input id="bmTitle" class="field" placeholder="Title (optional)" autocomplete="off">
+    <button class="btn primary">Add</button>
+  </form>
+  <div id="bmList"></div>
+</aside>
 
 <dialog id="newDlg">
   <form>
