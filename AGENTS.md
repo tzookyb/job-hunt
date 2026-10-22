@@ -128,9 +128,13 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
 
 ## UI
 
-- **Sheet:** deliberately minimal: Company, Progress (bar · % · "x/y · next: <stage>", relevant stages only), Next
-  meeting (earliest upcoming meeting on a relevant stage; amber for today/tomorrow), Last interaction (date + "x days ago", amber after 7 days), Status, ⤢ open, ✕ delete. Website, position and comments
-  live on the company page only.
+- **Sheet** (`views/sheet.js`, columns in `views/columns.js`): deliberately minimal.
+  - Logo and Company are frozen on the left and read-only; clicking either opens the company page.
+  - Movable columns: Progress (bar · % · "x/y · next: <stage>", relevant stages only), Next meeting (earliest
+    upcoming meeting on a relevant stage; amber for today/tomorrow), Last interaction (date + "x days ago", amber
+    after 7 days) and Status. Drag a header to reorder them (both tables; remembered in
+    `localStorage['jobHuntCols']`).
+  - ✕ deletes. Website, position and comments live on the company page only. Up to 1600px wide.
 - **Statuses:** Interested (thinking of applying, grey stripe) · Approached me (they reached out, blue stripe) · In
   process · Rejected · Withdrew. Offer and "Closed / done" were dropped by the owner.
 - **Rejected & closed** (rejected, withdrawn) move to a collapsible table below, with an editable Reason
@@ -150,7 +154,7 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
   has data). Empty links are greyed out; clicking one focuses its field.
 - **+ Add Company:** asks for the name, then a loader (with Skip) runs `/api/lookup`, fills only empty fields and
   opens the company page. "↻ Look up" on the company page runs it again.
-- **Logos:** a frozen logo column (initial as fallback) next to the frozen Company column; a big logo on the
+- **Logos:** a logo column (initial as fallback); a big logo on the
   company page: click it to paste an image URL (`views/logoEditor.js`; Enter saves, Esc restores, empty removes).
 - **Research** (`views/research.js`): 8 sites from `config.RESEARCH` (field, label, domain, tooltip). Hover a name
   for what the site is for; an empty field's 🔍 opens a Google `site:` search.
@@ -165,7 +169,7 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
 
 ### Saved in the browser only (`localStorage`)
 
-`jobTrackerSort` (sort), `jobHuntDrawer` (drawer open), `jobTracker` (data fallback when there's no server).
+`jobTrackerSort` (sort), `jobHuntCols` (column order), `jobHuntDrawer` (drawer open), `jobTracker` (data fallback when there's no server).
 
 ## Backups
 
@@ -216,6 +220,8 @@ From the owner's list: save without the server (File System Access API), stage r
 
 Newest first.
 
+- **2026-10-22 12:36:** Company name read-only in the sheet, ⤢ removed (logo/name open the page), draggable column
+  order, wider table.
 - **2026-10-22 12:30:** Lookup reworked around Wikidata IDs after bulk searching triggered bot checks and a CAPTCHA.
 - **2026-10-22 12:14:** Automatic backups (6h interval, 7-day retention, only while the app is used) and ⤓.
 - **2026-10-22 12:06:** Bookmarks drawer, button at the end of the top bar.

@@ -46,6 +46,6 @@ body.in-detail .tools, body.in-detail #bmBtn{display:none}
 .switch input:checked + span{background:#2b4a7d}
 .switch input:checked + span::after{left:15px;background:#e5e8ee}
 
-main{padding:16px 20px;max-width:1100px;margin:0 auto}
+main{padding:16px 20px;max-width:1600px;margin:0 auto}
 .empty{padding:24px;text-align:center;color:var(--muted)}
 .empty.small{padding:14px;text-align:left}
