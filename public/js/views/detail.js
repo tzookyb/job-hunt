@@ -4,7 +4,8 @@ import { mainEl, delegate, $, $$, autosize } from '../dom.js';
 import { getState, save } from '../store.js';
 import { on, emit } from '../bus.js';
 import { findCompany, removeCompany } from '../model/company.js';
-import { companyOf, statusOptions, progressInner } from './common.js';
+import { isClosed, statusLabel } from '../config.js';
+import { companyOf, statusOptions, progressInner, agoHtml } from './common.js';
 import { linkInput } from './fields.js';
 import { stageListHtml } from './stageList.js';
 import { notesHtml } from './notes.js';
@@ -26,7 +27,8 @@ export function renderDetail(id) {
     <div class="dprog st-${c.status}">${progressInner(c)}</div>
     <div class="grid">
       <label>Position<input class="field" data-f="position" value="${esc(c.position)}" placeholder="Role"></label>
-      <span></span>
+      <label>Last interaction<input class="field" type="date" data-f="lastInteraction" value="${esc(c.lastInteraction)}">${agoHtml(c.lastInteraction)}</label>
+      ${isClosed(c) ? `<label class="full">Reason (${esc(statusLabel(c.status))})<input class="field" data-f="closeReason" value="${esc(c.closeReason)}" placeholder="Why did it end?"></label>` : ''}
       <label>Website${linkInput(c, 'website', 'website')}</label>
       <label>Careers / job post${linkInput(c, 'careersUrl', 'link to the position')}</label>
       <label class="full">Comments<textarea class="field" data-f="comments" rows="2" placeholder="General notes about the position">${esc(c.comments)}</textarea></label>
@@ -55,8 +57,15 @@ export function init() {
     const dp = $('.dprog', main);
     dp.className = `dprog st-${c.status}`;
     dp.innerHTML = progressInner(c);
+    const li = $('input[data-f=lastInteraction]', main);
+    li.value = c.lastInteraction;
+    li.nextElementSibling.outerHTML = agoHtml(c.lastInteraction);
   });
-  on('field', ({ c, field }) => { if (field === 'status' && visible(c)) renderDetail(c.id); });
+  on('field', ({ c, field, el }) => {
+    if (!visible(c)) return;
+    if (field === 'status') renderDetail(c.id);   // shows or hides Reason
+    if (field === 'lastInteraction') el.nextElementSibling.outerHTML = agoHtml(c.lastInteraction);
+  });
   on('stages:changed', ({ c }) => {
     if (!visible(c)) return;
     renderDetail(c.id);

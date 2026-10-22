@@ -1,5 +1,5 @@
 // Building blocks shared by several views.
-import { esc } from '../util.js';
+import { esc, today, daysBetween } from '../util.js';
 import { STATUSES, statusLabel, isClosed } from '../config.js';
 import { getState } from '../store.js';
 import { progress } from '../model/progress.js';
@@ -14,6 +14,14 @@ export const stageName = id => (getState().stages.find(s => s.id === id) || {}).
 
 export const statusOptions = value =>
   STATUSES.map(([k, label]) => `<option value="${k}" ${k === value ? 'selected' : ''}>${label}</option>`).join('');
+
+// "3 days ago" next to a date; amber once it's a week old.
+export function agoHtml(date) {
+  if (!date) return '<span class="ago"></span>';
+  const days = daysBetween(date, today());
+  const text = days === 0 ? 'today' : days === 1 ? 'yesterday' : days > 0 ? `${days} days ago` : `in ${-days} days`;
+  return `<span class="ago ${days >= 7 ? 'stale' : ''}">${text}</span>`;
+}
 
 // bar · percent · "x/y · next: <stage>"
 export function progressInner(c) {

@@ -12,6 +12,8 @@
 .grid label{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--muted)}
 .grid label > *{color:var(--text);font-size:14px}
 .grid .full{grid-column:1/-1}
+.grid label > .ago{color:var(--muted);font-size:12px;padding:0}
+.grid label > .ago.stale{color:var(--warn)}
 .lc{display:flex;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:8px}
 .lc:focus-within{border-color:var(--accent)}
 .lc input{flex:1;border:0;background:transparent;padding:8px 10px;outline:none;min-width:0}

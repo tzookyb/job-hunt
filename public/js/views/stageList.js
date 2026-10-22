@@ -1,10 +1,11 @@
 // A company's stages in its own order: done ✓, comment, "relevant" switch, reorder (drag ⋮⋮ or ↑↓) and
 // "+ Add stage". Used by the progress popover and the company page.
-import { esc } from '../util.js';
+import { esc, today } from '../util.js';
 import { mainEl, delegate, $$ } from '../dom.js';
 import { getState, save } from '../store.js';
 import { emit } from '../bus.js';
 import { addStage, moveBy, moveTo } from '../model/stages.js';
+import { setStageDone } from '../model/company.js';
 import { companyOf, stageName } from './common.js';
 
 export function stageListHtml(c) {
@@ -32,7 +33,7 @@ const changed = c => { save(); emit('company:changed', c); };
 function initEditing(main) {
   delegate(main, 'change', 'input[data-sd]', (e, el) => {
     const c = companyOf(el);
-    c.stages[el.dataset.sd].done = el.checked;
+    setStageDone(c, el.dataset.sd, el.checked, today());
     changed(c);
   });
   delegate(main, 'change', 'input[data-se]', (e, el) => {

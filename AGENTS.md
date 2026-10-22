@@ -85,6 +85,8 @@ The server listens on `127.0.0.1` only: it's a personal tool, not something to e
   stages: [{ id, name }],                 // shared list, in display order
   companies: [{
     id, name, position, website, careersUrl, comments, createdAt,
+    lastInteraction: 'YYYY-MM-DD',       // set by hand, or to today when a stage is ticked done
+    closeReason,                          // why a rejected/withdrawn/closed process ended
     status: 'active'|'offer'|'rejected'|'withdrawn'|'closed',
     order: [stageId...],                  // this company's own stage order
     stages: { [stageId]: { enabled, done, comment } },   // enabled = this stage applies to the company
@@ -99,8 +101,12 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
 
 ## UI
 
-- **Sheet:** Company, Position, Progress (bar · % · "x/y · next: <stage>", counting relevant stages only), Status,
-  ⤢ open, ✕ delete. Closed statuses are dimmed.
+- **Sheet:** deliberately minimal: Company, Progress (bar · % · "x/y · next: <stage>", relevant stages only), Last
+  interaction (date + "x days ago", amber after 7 days), Status, ⤢ open, ✕ delete. Website, position and comments
+  live on the company page only.
+- **Rejected & closed** (rejected, withdrawn, closed) move to a collapsible table below, with an editable Reason
+  column. Changing the status moves the row.
+- **Last interaction:** ticking a stage sets it to today; adding a company does not (owner's rule).
 - **Progress popover:** hovering a Progress cell opens the company's stage list (`views/popover.js`). It stays open
   while focused or dragging, closes on Esc, outside click, scroll or mouse-out.
 - **Stage list** (popover and company page, `views/stageList.js`): done ✓, comment, relevant switch (off = greyed
@@ -108,7 +114,7 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
   gets it, switched off for closed ones).
 - **Stages dialog:** rename, reorder and delete shared stages; "Apply this order to all companies".
 - **Search** filters by every word across all text, stage comments and notes. `/` focuses it.
-- **Company page** (`#/c/<id>`): fields, the stage list (done, comment, relevant switch) and Notes: titled free-text
+- **Company page** (`#/c/<id>`): fields (incl. Last interaction, and Reason when closed), the stage list (done, comment, relevant switch) and Notes: titled free-text
   sections, whose title suggests stage names. `Esc` goes back.
 - **Saving:** every edit autosaves; the top-right status says where. Without the server it falls back to
   `localStorage['jobTracker']` and says so in red.
@@ -117,6 +123,7 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
 
 Newest first.
 
+- **2026-10-22 10:16:** Minimal sheet columns, Last interaction, separate Rejected & closed table with Reason.
 - **2026-10-22 10:14:** Shared, growable stage list with per-company order and relevance; progress popover on hover;
   Stages dialog. Owner wants stages mostly common, greyed out where a company doesn't have them.
 - **2026-10-22 10:05:** First UI: sheet, search, company page with stages and notes, autosave, localStorage
