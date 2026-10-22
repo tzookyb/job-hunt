@@ -27,11 +27,15 @@ edit as you go. Every change persists locally to a JSON file. Single user, runs 
   on the server. Anyone with Node ≥ 18 can clone and `npm start`.
 - **Small, single-purpose modules.** One responsibility per file; features plug in rather than growing a central
   switch statement. Pure logic (data model, calculations) stays free of DOM and I/O so it can be unit-tested.
-- **The data file is sacred.** Never overwrite, reset or "clean up" real data. Schema changes must be backward
-  compatible.
+- **The data file is sacred.** The owner uses the app live every day. Never overwrite, reset or "clean up" his
+  `data.json`. Schema changes must be backward compatible: extend `normalize()` so old data still loads, and use a
+  one-time upgrade (set a flag, return `migrated: true` so the page saves once) when data has to change shape.
+- **Back up before touching code:** copy `data.json` to a dated file first.
 - **Test every change.** `npm test` for unit/integration tests; check UI changes in a headless browser against a
   throwaway data folder, never the real one.
 - **UI text in plain English.** Dark theme.
+- **Report briefly** what changed, and whether the owner only needs to refresh the tab (front-end change) or also
+  restart the server (`server/` change).
 
 ## Layout
 
@@ -124,10 +128,15 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
 - **Saving:** every edit autosaves; the top-right status says where. Without the server it falls back to
   `localStorage['jobTracker']` and says so in red.
 
+## Ideas not done yet
+
+From the owner's list: save without the server (File System Access API), stage reminders, CSV export.
+
 ## Work log
 
 Newest first.
 
+- **2026-10-22 10:45:** Handoff: working rules for future sessions (the owner keeps tweaking the app day to day).
 - **2026-10-22 10:30:** README: how to run, where data is saved, why there's a server. Owner asked why a server is
   needed: browsers can't write files. Alternatives offered, none chosen yet: File System Access API (Chromium only,
   re-grant each session), localStorage + export/import, auto-starting the server at login.
