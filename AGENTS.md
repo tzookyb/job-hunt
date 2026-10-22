@@ -159,7 +159,7 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
 - **Progress popover** (`views/popover.js`): hovering a Progress cell opens the company's stage list. It stays open
   while focused or dragging, closes on Esc, outside click, scroll or mouse-out.
 - **Search:** every word must match somewhere: all fields, contacts, research links, stage comments and notes.
-- **+ Add Company** (`views/addCompany.js`): asks for the name, then a loader (with Skip) runs `/api/lookup`, fills
+- **+ Add Company** (`views/addCompany.js`): asks for the name and a status (defaults to Interested), then a loader (with Skip) runs `/api/lookup`, fills
   only empty fields and opens the company page.
 - **Hiring Stages dialog** (`views/stagesDialog.js`): rename, reorder and delete shared stages; a switch for "on by
   default for new companies"; "Apply this order to all companies".
@@ -289,6 +289,7 @@ Learned on 2026-10-22 by running real lookups through the owner's running app:
 
 Newest first.
 
+- **2026-10-22 21:40:** Status picker in the Add company dialog, defaulting to Interested.
 - **2026-10-22 21:30:** 24-hour time everywhere; the "when?" picker became date + typed 24-hour time.
 - **2026-10-22 21:20:** Lookup: research links also from the company's own website and from guessed addresses
   (Finder, Levels.fyi, Comparably). Owner: Wikidata alone wasn't finding much beyond Glassdoor; no API keys for now.

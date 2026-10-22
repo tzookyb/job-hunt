@@ -40,7 +40,10 @@
 <dialog id="newDlg">
   <form>
     <div class="dlg-head"><h3>Add company</h3><button type="button" class="icon" id="newClose" title="Close">✕</button></div>
-    <input id="newName" class="field" placeholder="Company name" autocomplete="off">
+    <div class="new-row">
+      <input id="newName" class="field" placeholder="Company name" autocomplete="off">
+      <select id="newStatus" class="field" title="Status"></select>
+    </div>
     <span class="hint">I’ll try to find the website, logo and research links (Glassdoor, LinkedIn…), then open the company.</span>
     <div class="row2"><button type="button" class="btn ghost" id="newCancel">Cancel</button><button class="btn primary">Add</button></div>
   </form>

@@ -4,7 +4,9 @@ import { $ } from '../dom.js';
 import * as api from '../api.js';
 import { getState, getMode, save } from '../store.js';
 import { newCompany } from '../model/company.js';
-import { RESEARCH } from '../config.js';
+import { RESEARCH, STATUSES } from '../config.js';
+
+const NEW_STATUS = 'interested';   // most companies start as "thinking of applying"
 
 const LOOKUP_TIMEOUT = 60_000;
 const FIELDS = [['website', 'website'], ['logo', 'logo'], ...RESEARCH.map(r => [r.field, r.label])];
@@ -54,7 +56,13 @@ export async function runLookup(c) {
 
 export function init() {
   const dlg = $('#newDlg');
-  $('#add').addEventListener('click', () => { $('#newName').value = ''; dlg.showModal(); $('#newName').focus(); });
+  $('#newStatus').innerHTML = STATUSES.map(([k, label]) => `<option value="${k}">${label}</option>`).join('');
+  $('#add').addEventListener('click', () => {
+    $('#newName').value = '';
+    $('#newStatus').value = NEW_STATUS;
+    dlg.showModal();
+    $('#newName').focus();
+  });
   $('#newCancel').addEventListener('click', () => dlg.close());
   $('#newClose').addEventListener('click', () => dlg.close());
   $('#ldSkip').addEventListener('click', () => controller?.abort());
@@ -63,7 +71,7 @@ export function init() {
     const name = $('#newName').value.trim();
     if (!name) return $('#newName').focus();
     dlg.close();
-    const c = newCompany(getState(), { name });
+    const c = newCompany(getState(), { name, status: $('#newStatus').value });
     getState().companies.unshift(c);
     $('#q').value = '';
     save();
