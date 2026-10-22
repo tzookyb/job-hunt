@@ -44,6 +44,7 @@ edit as you go. Every change persists locally to a JSON file. Single user, runs 
 | `AGENTS.md` | This file. |
 | `CLAUDE.md` | Points Claude Code at this file. |
 | `README.md` | User-facing: how to run, where data lives. |
+| `start.command` | macOS double-click launcher (login + interactive zsh, so `node` from nvm/Homebrew is found). |
 | `server/index.js` | Entry point (`npm start`). |
 | `server/config.js` | Port (`PORT` env, default 4317) and paths; `DATA_DIR` env overrides the data folder. |
 | `server/app.js` | Builds the HTTP server from its parts (so tests can start it on a random port). |
@@ -234,6 +235,17 @@ Learned on 2026-10-22 by running real lookups through the owner's running app:
 - **Testing:** there's no internet in the test environment; `test/server/fakeNet.js` answers requests with canned
   responses. In the browser, stub `/api/lookup` with Playwright's `page.route`.
 
+## Running it
+
+- `npm start`, then http://localhost:4317. Only one server can hold the port: `EADDRINUSE` means an older one is
+  still running — stop it first (it may be writing to an old data location).
+- macOS: `start.command`. A plain `#!/bin/zsh` script didn't find `node` on the owner's Mac (it comes from his shell
+  profile), hence `#!/bin/zsh -il` and a fallback over common install folders. It keeps the window open after the
+  server stops, so errors stay readable.
+- On a freshly set-up Mac, Node may simply not be installed: `brew install node` (or the nodejs.org installer).
+- If `npm start` hangs with no output at all, check for a hidden macOS privacy prompt ("iTerm would like to access
+  files in your Documents folder") — the process blocks until it's answered.
+
 ## Testing recipe
 
 - `npm test` runs everything under `test/` with `node:test` (no dependencies). Model tests import the browser's pure
@@ -256,6 +268,7 @@ Learned on 2026-10-22 by running real lookups through the owner's running app:
 
 Newest first.
 
+- **2026-10-22 16:10:** `start.command` launcher for macOS; notes on starting the server on a fresh Mac.
 - **2026-10-22 16:04:** Personal data moved to `user-data/` (`DATA_DIR` overrides it), so the app is portable and
   shareable without the owner's data. Owner's existing files were moved in by hand: `data.json`, `data.backup.json`,
   `backups/`, and the first day's dated safety copies → `backups/manual/`.

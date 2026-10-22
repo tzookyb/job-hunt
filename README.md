@@ -13,6 +13,8 @@ npm start
 
 Then open http://localhost:4317. To use another port: `PORT=5000 npm start`.
 
+On a Mac you can also double-click `start.command` (or right-click → Open With → iTerm).
+
 ## Where is my data?
 
 All your personal data lives in the `user-data/` folder, separate from the app code (and ignored by git):
