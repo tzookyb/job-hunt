@@ -41,7 +41,7 @@ test('lookup finds the website, logo and Glassdoor', async () => {
   const r = await lookup('Acme');
   assert.equal(r.website, 'https://www.acme.io');
   assert.equal(r.logo, 'https://www.acme.io/icon.svg');
-  assert.equal(r.glassdoorUrl, 'https://www.glassdoor.com/Reviews/Acme-Reviews-E123.htm');
+  assert.equal(r.glassdoorUrl, 'https://www.glassdoor.com/Overview/Working-at-Acme-EI_IE123.11,15.htm');
   assert.equal(r.source, 'duckduckgo');
 });
 

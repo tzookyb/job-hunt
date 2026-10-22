@@ -159,7 +159,7 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
 - **Logo:** the homepage's best `<link rel=icon|apple-touch-icon>`, checked to be an image, else Google's s2
   favicon service.
 - **Glassdoor:** a `<name> site:glassdoor.com` search on Bing, then DuckDuckGo, links unwrapped from their
-  redirect formats.
+  redirect formats. Glassdoor links are always normalized to the Overview ("About") tab (`toOverview()`).
 - **Testing:** there's no internet in the test environment; `test/server/fakeNet.js` answers requests with canned
   responses. In the browser, stub `/api/lookup` with Playwright's `page.route`.
 
@@ -171,6 +171,7 @@ From the owner's list: save without the server (File System Access API), stage r
 
 Newest first.
 
+- **2026-10-22 11:40:** Glassdoor links go to the Overview tab.
 - **2026-10-22 11:36:** Logo URL field replaced by click-to-paste on the big logo.
 - **2026-10-22 11:33:** Multiple contacts with call / WhatsApp / LinkedIn buttons; Recruiter LinkedIn field removed,
   its data upgraded into contacts.
