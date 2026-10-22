@@ -113,7 +113,8 @@ The server listens on `127.0.0.1` only: it's a personal tool, not something to e
     lastInteraction: 'YYYY-MM-DD',       // set by hand, or to today when a stage is ticked done
     closeReason,                          // why a rejected/withdrawn/closed process ended
     logo,                                 // image URL
-    glassdoorUrl, linkedinUrl, finderUrl, crunchbaseUrl, levelsUrl, blindUrl, indeedUrl, comparablyUrl,
+    glassdoorUrl, linkedinUrl, finderUrl, crunchbaseUrl, levelsUrl, blindUrl, comparablyUrl,
+    // (older data may still hold indeedUrl: the Indeed field was removed from the UI, its values are left alone)
     contacts: [{ id, name, role, phone, linkedin }],   // phone in international format
     status: 'interested'|'approached'|'active'|'rejected'|'withdrawn',   // 'active' shows as "In process"
     order: [stageId...],                  // this company's own stage order
@@ -179,7 +180,7 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
   WhatsApp Web buttons computed from it (local 05x numbers fall back to +9725x) · LinkedIn chat. WhatsApp links use
   `target="whatsapp"`, so they reuse one tab (a tab opened by hand can't be reused — browser limit). ＋ adds a
   contact, ✕ removes one (asks if it has data). Empty links are greyed out; clicking one focuses its field.
-- **Research** (`views/research.js`): 8 sites from `config.RESEARCH` (field, label, domain, tooltip). Hover a name
+- **Research** (`views/research.js`): 7 sites from `config.RESEARCH` (field, label, domain, tooltip). Hover a name
   for what the site is for; an empty field's 🔍 opens a Google `site:` search.
 - **Stages** (`views/stageList.js`, shared with the popover): done ✓, a "when?" meeting (date + 24-hour time box;
   an invalid time turns red and isn't saved), comment, relevant
@@ -225,7 +226,6 @@ Learned on 2026-10-22 by running real lookups through the owner's running app:
      |---|---|---|
      | P4264 | LinkedIn | `linkedin.com/company/$1/` |
      | P8060 | Glassdoor | `glassdoor.com/Overview/-EI_IE$1.htm` |
-     | P10285 | Indeed | `indeed.com/cmp/$1` |
      | P2088 | Crunchbase | `crunchbase.com/organization/$1` |
      | P10206 | Comparably | `comparably.com/companies/$1` |
      | P10146 | Levels.fyi | `levels.fyi/company/$1/` |
@@ -243,7 +243,7 @@ Learned on 2026-10-22 by running real lookups through the owner's running app:
      unchecked when nothing else found them (owner's call). Blind: `teamblind.com/company/<Name>` with the name as
      typed, spaces → dashes (e.g. `Fiverr` → `/company/Fiverr`).
 
-  Startup Nation Finder and Blind have no Wikidata property; Blind, Indeed and Crunchbase block automated visits, so
+  Startup Nation Finder and Blind have no Wikidata property; Blind and Crunchbase block automated visits, so
   they mostly come from the company website (Blind: else the naive address) or stay empty (the UI's 🔍 search link covers them). The terminal report
   says where each link came from.
 - **Possible next step (needs a key, owner declined for now):** a search API restricted to one site per query —
@@ -291,6 +291,9 @@ Learned on 2026-10-22 by running real lookups through the owner's running app:
 ## Work log
 
 Newest first.
+
+- **2026-10-22 21:40:** Removed the Indeed research field (owner: irrelevant to him). Existing `indeedUrl` values in
+  saved data are left in place, just no longer shown, searched or looked up.
 
 - **2026-10-22 21:35:** Blind falls back to the naive `teamblind.com/company/<Name>` address when not found.
 - **2026-10-22 21:40:** Status picker in the Add company dialog, defaulting to Interested.

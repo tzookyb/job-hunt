@@ -18,8 +18,8 @@ step.
 - **Closed processes out of the way.** Rejected and withdrawn companies move to their own collapsible table, with
   a Reason column.
 - **Add a company by name.** A naive lookup fills in the website, logo and research links (Glassdoor, LinkedIn,
-  Crunchbase, Levels.fyi, Indeed, Comparably…), mostly from Wikidata. Anything it can't find gets a one-click search.
-- **A page per company:** points of contact (📞 call and WhatsApp Web links generated from the phone number), eight
+  Crunchbase, Levels.fyi, Blind, Comparably…), mostly from Wikidata. Anything it can't find gets a one-click search.
+- **A page per company:** points of contact (📞 call and WhatsApp Web links generated from the phone number), seven
   research sites with explanations, the stage list, and free-text note sections for interview prep.
 - **Safe stage changes.** Deleting a stage that companies have data on lists them first, so you can sort things out
   before deleting.

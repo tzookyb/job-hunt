@@ -26,6 +26,5 @@ export const RESEARCH = [
   { field: 'crunchbaseUrl', label: 'Crunchbase', domain: 'crunchbase.com/organization', tip: 'Funding rounds, investors and acquisitions. Helps judge runway and how stable the company is.' },
   { field: 'levelsUrl', label: 'Levels.fyi', domain: 'levels.fyi/companies', tip: 'Salary and equity by level. Useful before salary talks; best coverage for bigger tech companies.' },
   { field: 'blindUrl', label: 'Blind', domain: 'teamblind.com/company', tip: 'Anonymous posts by verified employees. Candid talk about culture, layoffs and pay, mostly at larger companies.' },
-  { field: 'indeedUrl', label: 'Indeed', domain: 'indeed.com/cmp', tip: 'A second source of employee reviews and ratings, with decent coverage of larger employers.' },
   { field: 'comparablyUrl', label: 'Comparably', domain: 'comparably.com/companies', tip: 'Culture, leadership and pay ratings from employees. Mostly US companies.' },
 ];

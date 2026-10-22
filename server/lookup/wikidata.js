@@ -6,7 +6,6 @@ import { norm, plausible } from './names.js';
 export const WD_IDS = {
   P4264: ['linkedinUrl', 'https://www.linkedin.com/company/$1/'],
   P8060: ['glassdoorUrl', 'https://www.glassdoor.com/Overview/-EI_IE$1.htm'],
-  P10285: ['indeedUrl', 'https://www.indeed.com/cmp/$1'],
   P2088: ['crunchbaseUrl', 'https://www.crunchbase.com/organization/$1'],
   P10206: ['comparablyUrl', 'https://www.comparably.com/companies/$1'],
   P10146: ['levelsUrl', 'https://www.levels.fyi/company/$1/'],

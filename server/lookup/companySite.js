@@ -1,5 +1,5 @@
 // Research links from the company's own website. Most sites link their LinkedIn page (and sometimes Glassdoor,
-// Crunchbase or Indeed) in the footer or on About / Careers pages. It's the company's own site, so there are no bot
+// or Crunchbase) in the footer or on About / Careers pages. It's the company's own site, so there are no bot
 // checks, and its links can be trusted to be about this company.
 import { SITES, matchSite } from './research.js';
 

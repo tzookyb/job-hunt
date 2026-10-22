@@ -17,7 +17,7 @@ function company(id, name, color, extra, plan) {
   return {
     id, name, logo: logo(name[0], color), position: 'Senior Frontend Engineer', website: '', careersUrl: '', comments: '',
     status: 'active', closeReason: '', lastInteraction: '', createdAt: Date.now(),
-    glassdoorUrl: '', linkedinUrl: '', finderUrl: '', crunchbaseUrl: '', levelsUrl: '', blindUrl: '', indeedUrl: '', comparablyUrl: '',
+    glassdoorUrl: '', linkedinUrl: '', finderUrl: '', crunchbaseUrl: '', levelsUrl: '', blindUrl: '', comparablyUrl: '',
     contacts: [{ id: id + 'p', name: '', role: '', phone: '', linkedin: '' }],
     order: stages.map(s => s.id),
     stages: Object.fromEntries(stages.map((s, i) => [s.id, {

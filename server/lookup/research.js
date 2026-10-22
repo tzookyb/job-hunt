@@ -12,7 +12,6 @@ export const SITES = [
   { field: 'crunchbaseUrl', domain: 'crunchbase.com', re: re(`https?://(?:www\\.)?crunchbase\\.com/organization/(${SEG})`), clean: (u, m) => `https://www.crunchbase.com/organization/${m[1]}` },
   { field: 'levelsUrl', domain: 'levels.fyi', hint: 'salaries', re: re(`https?://(?:www\\.)?levels\\.fyi/companies/(${SEG})`), clean: (u, m) => `https://www.levels.fyi/companies/${m[1]}` },
   { field: 'blindUrl', domain: 'teamblind.com', hint: 'company reviews', re: re(`https?://(?:www\\.)?teamblind\\.com/company/(${SEG})`), clean: (u, m) => `https://www.teamblind.com/company/${m[1]}` },
-  { field: 'indeedUrl', domain: 'indeed.com', hint: 'company reviews', re: re(`https?://((?:[a-z]{2,3}\\.)?indeed\\.com)/cmp/(${SEG})`), clean: (u, m) => `https://${m[1]}/cmp/${m[2]}` },
   { field: 'comparablyUrl', domain: 'comparably.com', re: re(`https?://(?:www\\.)?comparably\\.com/companies/(${SEG})`), clean: (u, m) => `https://www.comparably.com/companies/${m[1]}` },
 ];
 
