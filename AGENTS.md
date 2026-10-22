@@ -83,8 +83,12 @@ The server listens on `127.0.0.1` only: it's a personal tool, not something to e
 
 - **Features plug in.** A view module exports render helpers plus `init()`, which registers delegated listeners on
   `#main` (`dom.delegate`). `main.js` lists the modules; nothing else has to change to add one.
-- **Views talk through the bus**, not by importing each other: emit `render` to redraw the current view,
-  `company:changed` after a stage edit (views patch just that company), `field` after a `data-f` edit.
+- **Views talk through the bus**, not by importing each other:
+  - `render` → redraw the current view; `route` ← emitted by the router (`{ detail }`);
+  - `field` ← after any `data-f` edit (`{ c, field, el }`);
+  - `company:changed` ← after a stage edit (views patch just that company); `meeting:changed` patches only the Next
+    meeting cell (so the popover being typed in isn't redrawn);
+  - `stages:changed` ← a stage was added from a company (`{ c }`); `status` → the save-status text.
 - **`data-f="<field>"` inputs are bound automatically** by `views/fields.js`.
 - **Model code is pure** (no DOM, no fetch) and lives in `public/js/model/`, so `node --test` can import it.
 
@@ -126,55 +130,62 @@ The server listens on `127.0.0.1` only: it's a personal tool, not something to e
 `normalize()` also fills defaults for anything missing, so partial or old data always loads. It also keeps every
 company's `order` and `stages` in sync with the shared list (unknown stages are appended).
 
-## UI
+## UI map
 
+### Main screen
 - **Sheet** (`views/sheet.js`, columns in `views/columns.js`): deliberately minimal.
   - Logo and Company are frozen on the left and read-only; clicking either opens the company page.
   - Movable columns: Progress (bar · % · "x/y · next: <stage>", relevant stages only), Next meeting (earliest
     upcoming meeting on a relevant stage; amber for today/tomorrow), Last interaction (date + "x days ago", amber
-    after 7 days) and Status. Drag a header to reorder them (both tables; remembered in
-    `localStorage['jobHuntCols']`).
+    after 7 days) and Status. Drag a header to reorder them (both tables; remembered per browser).
   - ✕ deletes. Website, position and comments live on the company page only. Up to 1600px wide.
 - **Statuses:** Interested (thinking of applying, grey stripe) · Approached me (they reached out, blue stripe) · In
   process · Rejected · Withdrew. Offer and "Closed / done" were dropped by the owner.
-- **Rejected & closed** (rejected, withdrawn) move to a collapsible table below, with an editable Reason
-  column in place of Next meeting. Changing the status moves the row.
+- **Rejected & closed** (rejected, withdrawn) move to a collapsible table below, with an editable Reason column in
+  place of Next meeting. Changing the status moves the row.
 - **Sorting:** click a header; again to flip. Empty values always go last. Last interaction and Progress start
-  descending. Remembered per browser in `localStorage['jobTrackerSort']`.
+  descending.
 - **Last interaction:** ticking a stage sets it to today; adding a company does not (owner's rule).
-- **Progress popover:** hovering a Progress cell opens the company's stage list (`views/popover.js`). It stays open
+- **Progress popover** (`views/popover.js`): hovering a Progress cell opens the company's stage list. It stays open
   while focused or dragging, closes on Esc, outside click, scroll or mouse-out.
-- **Stage list** (popover and company page, `views/stageList.js`): done ✓, a "when?" meeting date-time, comment,
-  relevant switch (off = greyed and excluded from progress), reorder by ⋮⋮ drag or ↑↓, and "+ Add stage" (adds to
-  the shared list; every company gets it, but it's switched on only for the company it was added from).
+- **Search:** every word must match somewhere: all fields, contacts, research links, stage comments and notes.
+- **+ Add Company** (`views/addCompany.js`): asks for the name, then a loader (with Skip) runs `/api/lookup`, fills
+  only empty fields and opens the company page.
 - **Hiring Stages dialog** (`views/stagesDialog.js`): rename, reorder and delete shared stages; a switch for "on by
   default for new companies"; "Apply this order to all companies".
   - Deleting a stage that companies have data on (✓, meeting or comment, even if switched off — `stageUsage()`)
     shows a warning listing them and what each would lose. Clicking one opens it with the stage highlighted
     (`focusStageOnOpen`); "Delete anyway, lose this data" deletes after a second confirmation. A stage with no
     data gets a short confirmation. Recovery after a delete is only from `backups/`.
+- **Bookmarks drawer** (`views/bookmarks.js`): 🔖 at the right end of the top bar. Add, edit inline, delete, drag to
+  reorder. Hidden on company pages.
+- **⤓ Back up now** (`views/backupButton.js`): flushes any pending save, then `POST /api/backup`.
+
+### Company page (`#/c/<id>`, `views/detail.js`)
+- **Header:** ← All, a big logo (click to paste an image URL — `views/logoEditor.js`; Enter saves, Esc restores,
+  empty removes), the name, the status and "↻ Look up" (fills only empty fields).
+- **Fields:** position, last interaction, Reason (when closed), website, careers link, comments.
 - **Points of contact** (`views/contacts.js`): name · role · phone (international format) with 📞 (`tel:`) and
   WhatsApp Web buttons computed from it (local 05x numbers fall back to +9725x) · LinkedIn chat. WhatsApp links use
-  `target="whatsapp"`, so they reuse one tab (a tab opened by hand can't be reused — browser limit). ＋ adds a contact, ✕ removes one (asks if it
-  has data). Empty links are greyed out; clicking one focuses its field.
-- **+ Add Company:** asks for the name, then a loader (with Skip) runs `/api/lookup`, fills only empty fields and
-  opens the company page. "↻ Look up" on the company page runs it again.
-- **Logos:** a logo column (initial as fallback); a big logo on the
-  company page: click it to paste an image URL (`views/logoEditor.js`; Enter saves, Esc restores, empty removes).
+  `target="whatsapp"`, so they reuse one tab (a tab opened by hand can't be reused — browser limit). ＋ adds a
+  contact, ✕ removes one (asks if it has data). Empty links are greyed out; clicking one focuses its field.
 - **Research** (`views/research.js`): 8 sites from `config.RESEARCH` (field, label, domain, tooltip). Hover a name
   for what the site is for; an empty field's 🔍 opens a Google `site:` search.
-- **⤓ Back up now** (`views/backupButton.js`): flushes any pending save, then `POST /api/backup`.
-- **Bookmarks drawer** (`views/bookmarks.js`): 🔖 at the right end of the top bar, or `B`. Add, edit inline, delete,
-  drag to reorder. Hidden on company pages.
-- **Search** filters by every word across all text, contacts, research links, stage comments and notes. `/` focuses it.
-- **Company page** (`#/c/<id>`): fields (incl. Last interaction, and Reason when closed), the stage list and Notes:
-  titled free-text sections whose title suggests stage names. `Esc` goes back.
-- **Saving:** every edit autosaves; the top-right status says where. Without the server it falls back to
-  `localStorage['jobTracker']` and says so in red.
+- **Stages** (`views/stageList.js`, shared with the popover): done ✓, a "when?" meeting date-time, comment, relevant
+  switch (off = greyed and excluded from progress), reorder by ⋮⋮ drag or ↑↓, and "+ Add stage" (adds to the shared
+  list; every company gets it, switched on only for the company it was added from).
+- **Notes** (`views/notes.js`): titled free-text sections; titles suggest stage names.
+
+### Keys
+`/` search · `B` bookmarks · `Esc` closes the popover, drawer or dialog, or leaves the company page.
+
+### Saving
+Every edit autosaves (350ms debounce); the top-right status says where. Without the server the page falls back to
+`localStorage['jobTracker']` and says so in red.
 
 ### Saved in the browser only (`localStorage`)
-
-`jobTrackerSort` (sort), `jobHuntCols` (column order), `jobHuntDrawer` (drawer open), `jobTracker` (data fallback when there's no server).
+`jobTrackerSort` (sort), `jobHuntCols` (column order), `jobHuntDrawer` (drawer open), `jobTracker` (data fallback
+when there's no server).
 
 ## Backups
 
@@ -217,14 +228,29 @@ Learned on 2026-10-22 by running real lookups through the owner's running app:
 - **Testing:** there's no internet in the test environment; `test/server/fakeNet.js` answers requests with canned
   responses. In the browser, stub `/api/lookup` with Playwright's `page.route`.
 
-## Ideas not done yet
+## Testing recipe
 
-From the owner's list: save without the server (File System Access API), stage reminders, CSV export.
+- `npm test` runs everything under `test/` with `node:test` (no dependencies). Model tests import the browser's pure
+  modules directly; server tests start the app on a random port against a temp folder (`test/helpers.js`); lookup
+  tests use `test/server/fakeNet.js` instead of the internet.
+- UI: run the server against a throwaway data folder (`PORT=4399`) and drive it with Playwright (Chromium). Stub
+  `/api/lookup` with `page.route`. Treat any `pageerror` or console error as a failure.
+- When stopping a test server, use `pkill -f '^node .*server/index[.]js'`: a plain `pkill -f server` also kills the
+  shell running the command.
+
+## Known gaps and ideas
+
+- Adding a company whose name already exists creates a duplicate without warning.
+- No button to look up logos and links for all existing companies at once.
+- WhatsApp could open in the desktop app (`whatsapp://send?phone=`) instead of WhatsApp Web.
+- From the owner's original list: save without the server (File System Access API), stage reminders, CSV export.
+- Possible: an "archive stage" option, to hide a stage while keeping its data, instead of deleting it.
 
 ## Work log
 
 Newest first.
 
+- **2026-10-22 12:44:** Full handoff pass on this file: UI map, keys, bus events, testing recipe, known gaps.
 - **2026-10-22 12:42:** Stage-delete warning listing affected companies, with jump-to-company and delete anyway.
 - **2026-10-22 12:36:** Company name read-only in the sheet, ⤢ removed (logo/name open the page), draggable column
   order, wider table.
@@ -240,7 +266,6 @@ Newest first.
   its data upgraded into contacts.
 - **2026-10-22 11:26:** Add-company flow with a naive lookup (website, logo, Glassdoor) and logo columns.
 - **2026-10-22 11:20:** Button copy ("Hiring Stages", "+ Add Company"); logo next to the app name.
-
 - **2026-10-22 11:14:** Stage defaults. The data is in live use (the owner had renamed a stage to "HR Initial"), so
   the change ships as a one-time upgrade in `normalize()` rather than an edit to `data.json`, which an open tab could
   overwrite. Tell the owner to refresh every open tab.
