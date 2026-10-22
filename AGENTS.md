@@ -180,12 +180,12 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
   WhatsApp Web buttons computed from it (local 05x numbers fall back to +9725x) · LinkedIn chat. WhatsApp links use
   `target="whatsapp"`, so they reuse one tab (a tab opened by hand can't be reused — browser limit). ＋ adds a
   contact, ✕ removes one (asks if it has data). Empty links are greyed out; clicking one focuses its field.
-- **Research** (`views/research.js`): 6 sites from `config.RESEARCH` (field, label, domain, tooltip). Hover a name
-  for what the site is for; an empty field's 🔍 opens a Google `site:` search.
 - **Stages** (`views/stageList.js`, shared with the popover): done ✓, a "when?" meeting (date + 24-hour time box;
   an invalid time turns red and isn't saved), comment, relevant
   switch (off = greyed and excluded from progress), reorder by ⋮⋮ drag or ↑↓, and "+ Add stage" (adds to the shared
   list; every company gets it, switched on only for the company it was added from).
+- **Research** (`views/research.js`): 6 sites from `config.RESEARCH` (field, label, domain, tooltip). Hover a name
+  for what the site is for; an empty field's 🔍 opens a Google `site:` search.
 - **Notes** (`views/notes.js`): titled free-text sections; titles suggest stage names.
 
 ### Keys
@@ -292,6 +292,8 @@ Learned on 2026-10-22 by running real lookups through the owner's running app:
 ## Work log
 
 Newest first.
+
+- **2026-10-22 22:10:** Company page order: Stages now come before Research.
 
 - **2026-10-22 22:00:** LinkedIn falls back to the naive `linkedin.com/company/<slug>/about/` address.
 

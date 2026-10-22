@@ -43,9 +43,9 @@ export function renderDetail(id) {
       ${contactsHtml(c)}
       <label class="full">Comments<textarea class="field" data-f="comments" rows="2" placeholder="General notes about the position">${esc(c.comments)}</textarea></label>
     </div>
-    ${researchHtml(c)}
     <h2>Stages</h2>
     ${stageListHtml(c)}
+    ${researchHtml(c)}
     ${notesHtml(c)}
     <div class="dangerzone"><button class="btn ghost danger del-company">Delete company</button></div>
   </div>`;
