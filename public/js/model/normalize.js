@@ -20,7 +20,7 @@ export function normalize(raw) {
       if (!c.order.includes(id)) c.order.push(id);
       c.stages[id] = { ...blankStage(), ...c.stages[id] };
     }
-    for (const f of ['name', 'position', 'website', 'careersUrl', 'comments', 'lastInteraction', 'closeReason']) c[f] = c[f] || '';
+    for (const f of ['name', 'position', 'website', 'careersUrl', 'comments', 'lastInteraction', 'closeReason', 'contact', 'recruiterUrl', 'glassdoorUrl']) c[f] = c[f] || '';
     c.notes = Array.isArray(c.notes) ? c.notes : [];
     if (!STATUSES.some(([k]) => k === c.status)) c.status = 'active';
   }

@@ -14,3 +14,7 @@ test('every word must match somewhere, case-insensitive', () => {
 });
 
 test('an empty query matches everything', () => assert.ok(matches(c, '  ')));
+
+test('contact and links are searchable', () => {
+  assert.ok(matches({ ...c, contact: 'Dana Recruiter', recruiterUrl: '', glassdoorUrl: '', closeReason: '' }, 'dana'));
+});

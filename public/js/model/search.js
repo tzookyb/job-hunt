@@ -1,7 +1,7 @@
 // Free-text search: every word must appear somewhere in the company's text.
 
 export function searchText(c) {
-  return [c.name, c.website, c.careersUrl, c.position, c.comments,
+  return [c.name, c.website, c.careersUrl, c.glassdoorUrl, c.recruiterUrl, c.contact, c.position, c.comments, c.closeReason,
     ...Object.values(c.stages).map(s => s.comment),
     ...c.notes.flatMap(n => [n.title, n.body])].join(' ').toLowerCase();
 }

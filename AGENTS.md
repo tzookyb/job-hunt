@@ -87,6 +87,8 @@ The server listens on `127.0.0.1` only: it's a personal tool, not something to e
     id, name, position, website, careersUrl, comments, createdAt,
     lastInteraction: 'YYYY-MM-DD',       // set by hand, or to today when a stage is ticked done
     closeReason,                          // why a rejected/withdrawn/closed process ended
+    contact,                              // point of contact: free text (name, email, phone)
+    recruiterUrl, glassdoorUrl,
     status: 'active'|'offer'|'rejected'|'withdrawn'|'closed',
     order: [stageId...],                  // this company's own stage order
     stages: { [stageId]: { enabled, done, comment, meeting: 'YYYY-MM-DDTHH:mm' } },   // enabled = applies to this company
@@ -125,6 +127,7 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
 
 Newest first.
 
+- **2026-10-22 10:19:** Point of contact, Recruiter LinkedIn and Glassdoor fields on the company page.
 - **2026-10-22 10:18:** Meeting per stage, Next meeting column, sortable columns (`model/sort.js`, `model/meetings.js`).
 - **2026-10-22 10:16:** Minimal sheet columns, Last interaction, separate Rejected & closed table with Reason.
 - **2026-10-22 10:14:** Shared, growable stage list with per-company order and relevance; progress popover on hover;

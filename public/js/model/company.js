@@ -5,7 +5,7 @@ import { blankStage } from './normalize.js';
 export function newCompany(state, fields = {}) {
   // a new company is not an interaction: lastInteraction stays empty until something happens
   const c = { id: uid(), name: '', position: '', website: '', careersUrl: '', comments: '', status: 'active',
-    lastInteraction: '', closeReason: '',
+    lastInteraction: '', closeReason: '', contact: '', recruiterUrl: '', glassdoorUrl: '',
     order: state.stages.map(s => s.id), stages: {}, notes: [], createdAt: Date.now(), ...fields };
   for (const s of state.stages) c.stages[s.id] = blankStage();
   return c;

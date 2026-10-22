@@ -31,6 +31,9 @@ export function renderDetail(id) {
       ${isClosed(c) ? `<label class="full">Reason (${esc(statusLabel(c.status))})<input class="field" data-f="closeReason" value="${esc(c.closeReason)}" placeholder="Why did it end?"></label>` : ''}
       <label>Website${linkInput(c, 'website', 'website')}</label>
       <label>Careers / job post${linkInput(c, 'careersUrl', 'link to the position')}</label>
+      <label>Point of contact<input class="field" data-f="contact" value="${esc(c.contact)}" placeholder="Name, email, phone"></label>
+      <label>Recruiter LinkedIn${linkInput(c, 'recruiterUrl', 'linkedin.com/in/…')}</label>
+      <label>Glassdoor${linkInput(c, 'glassdoorUrl', 'glassdoor.com/…')}</label>
       <label class="full">Comments<textarea class="field" data-f="comments" rows="2" placeholder="General notes about the position">${esc(c.comments)}</textarea></label>
     </div>
     <h2>Stages</h2>
