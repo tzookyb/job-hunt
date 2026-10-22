@@ -1,5 +1,25 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><title>Job tracker</title></head>
-<body>The server is running. The app is coming next.</body>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Job tracker</title>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/sheet.css">
+<link rel="stylesheet" href="css/stages.css">
+<link rel="stylesheet" href="css/detail.css">
+</head>
+<body>
+<header>
+  <h1>Job tracker</h1>
+  <div class="tools">
+    <input id="q" type="search" placeholder="Search companies, roles, notes…  ( / )">
+    <span id="count" class="muted"></span>
+    <button class="btn primary" id="add">+ Company</button>
+  </div>
+  <span id="saveStatus"></span>
+</header>
+<main id="main"></main>
+<script type="module" src="js/main.js"></script>
+</body>
 </html>

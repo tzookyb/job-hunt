@@ -1,0 +1,15 @@
+/* a company's stage list */
+.stagelist{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 6px 10px}
+.stbl{border-collapse:collapse;width:100%}
+.stbl th{font-size:11px;color:var(--muted);text-align:left;font-weight:600;padding:4px 8px;border-bottom:1px solid var(--line);text-transform:uppercase;letter-spacing:.5px}
+.stbl td{padding:3px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.srow.off > td{opacity:.35}
+.srow.off > td.rel{opacity:1}
+.srow.off .sname{text-decoration:line-through}
+.srow.done .sname{color:var(--ok)}
+.num{color:var(--muted);width:24px;font-variant-numeric:tabular-nums}
+.sname{white-space:nowrap}
+.stbl td > input[type=checkbox]{accent-color:var(--ok);width:16px;height:16px;cursor:pointer;margin:0;vertical-align:middle}
+.scomment{width:100%;background:transparent;border:0;border-bottom:1px dashed transparent;padding:5px 2px;outline:none}
+.scomment:hover{border-bottom-color:var(--line2)}
+.scomment:focus{border-bottom-color:var(--accent)}
