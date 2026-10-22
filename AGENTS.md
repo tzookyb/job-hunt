@@ -97,7 +97,7 @@ The server listens on `127.0.0.1` only: it's a personal tool, not something to e
     lastInteraction: 'YYYY-MM-DD',       // set by hand, or to today when a stage is ticked done
     closeReason,                          // why a rejected/withdrawn/closed process ended
     glassdoorUrl, logo,                   // logo = image URL
-    contacts: [{ id, name, role, phone, whatsapp, linkedin }],
+    contacts: [{ id, name, role, phone, linkedin }],   // phone in international format
     status: 'interested'|'approached'|'active'|'rejected'|'withdrawn',   // 'active' shows as "In process"
     order: [stageId...],                  // this company's own stage order
     stages: { [stageId]: { enabled, done, comment, meeting: 'YYYY-MM-DDTHH:mm' } },   // enabled = applies to this company
@@ -114,6 +114,8 @@ The server listens on `127.0.0.1` only: it's a personal tool, not something to e
   `migrated: true`, so the page saves once after loading.
 - **Contacts (v3):** the old `contact` text and `recruiterUrl` become `contacts[0]`, and the old fields are deleted.
   Every company keeps at least one (blank) contact row.
+- **Old WhatsApp links:** a contact's old `whatsapp` link becomes its `phone` if the phone was empty, then the field
+  is removed.
 - **Removed statuses** (`OLD_STATUS` in `config.js`): `offer` loads as `active`, `closed` as `withdrawn`. Unknown
   statuses become `active`.
 
@@ -138,8 +140,9 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
   relevant switch (off = greyed and excluded from progress), reorder by ⋮⋮ drag or ↑↓, and "+ Add stage" (adds to
   the shared list; every company gets it, but it's switched on only for the company it was added from).
 - **Hiring Stages dialog:** rename, reorder and delete shared stages; a switch for "on by default for new companies"; "Apply this order to all companies".
-- **Points of contact** (`views/contacts.js`): name · role · phone with 📞 (`tel:`) · WhatsApp link (or `wa.me` built
-  from the phone; local 05x numbers become +9725x) · LinkedIn chat. ＋ adds a contact, ✕ removes one (asks if it
+- **Points of contact** (`views/contacts.js`): name · role · phone (international format) with 📞 (`tel:`) and
+  WhatsApp Web buttons computed from it (local 05x numbers fall back to +9725x) · LinkedIn chat. WhatsApp links use
+  `target="whatsapp"`, so they reuse one tab (a tab opened by hand can't be reused — browser limit). ＋ adds a contact, ✕ removes one (asks if it
   has data). Empty links are greyed out; clicking one focuses its field.
 - **+ Add Company:** asks for the name, then a loader (with Skip) runs `/api/lookup`, fills only empty fields and
   opens the company page. "↻ Look up" on the company page runs it again.
@@ -171,6 +174,7 @@ From the owner's list: save without the server (File System Access API), stage r
 
 Newest first.
 
+- **2026-10-22 11:52:** WhatsApp computed from the phone (separate field removed and upgraded), one reused tab.
 - **2026-10-22 11:44:** Role per contact.
 - **2026-10-22 11:40:** Glassdoor links go to the Overview tab.
 - **2026-10-22 11:36:** Logo URL field replaced by click-to-paste on the big logo.

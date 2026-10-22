@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { phoneDigits, contactLinks, upgradeContacts } from '../../public/js/model/contacts.js';
+import { phoneDigits, contactLinks, upgradeContacts, upgradeWhatsapp } from '../../public/js/model/contacts.js';
 import { normalize } from '../../public/js/model/normalize.js';
 
 test('phone digits: international, 00-prefixed and local numbers', () => {
@@ -10,10 +10,23 @@ test('phone digits: international, 00-prefixed and local numbers', () => {
   assert.equal(phoneDigits('123'), '');
 });
 
-test('links: WhatsApp from its own link, else built from the phone', () => {
-  assert.equal(contactLinks({ phone: '054-1234567', whatsapp: '', linkedin: '' }).whatsapp, 'https://wa.me/972541234567');
-  assert.equal(contactLinks({ phone: '', whatsapp: 'wa.me/123456789', linkedin: '' }).whatsapp, 'https://wa.me/123456789');
-  assert.deepEqual(contactLinks({ phone: '', whatsapp: '', linkedin: '' }), { phone: '', whatsapp: '', linkedin: '' });
+test('call and WhatsApp Web links are computed from the phone', () => {
+  for (const phone of ['+972 54-123-4567', '00972541234567', '054-1234567']) {
+    assert.deepEqual(contactLinks({ phone, linkedin: '' }), {
+      phone: 'tel:+972541234567', whatsapp: 'https://web.whatsapp.com/send?phone=972541234567', linkedin: '',
+    });
+  }
+  assert.equal(contactLinks({ phone: '+1 (415) 555-0100', linkedin: '' }).phone, 'tel:+14155550100');
+  assert.deepEqual(contactLinks({ phone: '', linkedin: 'linkedin.com/in/dana' }), { phone: '', whatsapp: '', linkedin: 'https://linkedin.com/in/dana' });
+});
+
+test('an old WhatsApp link becomes the phone when there was none', () => {
+  const x = { phone: '', whatsapp: 'https://wa.me/972541234567' };
+  assert.equal(upgradeWhatsapp(x), true);
+  assert.deepEqual(x, { phone: '+972541234567' });
+  const keep = { phone: '+1 555', whatsapp: 'https://wa.me/972541234567' };
+  upgradeWhatsapp(keep);
+  assert.equal(keep.phone, '+1 555');
 });
 
 test('old contact + recruiter LinkedIn become the first contact, once', () => {

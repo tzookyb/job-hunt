@@ -11,10 +11,12 @@ const ICON = {
   whatsapp: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.6-.3z"/></svg>',
   linkedin: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4V21H3zM9.5 9.5h3.8v1.6h.06c.53-1 1.83-2.06 3.77-2.06C21.2 9.04 22 11.6 22 15v6h-4v-5.3c0-1.27-.02-2.9-1.77-2.9-1.77 0-2.04 1.38-2.04 2.8V21h-4z"/></svg>',
 };
-const TITLES = { phone: 'Call', whatsapp: 'Open WhatsApp', linkedin: 'Open LinkedIn' };
+const TITLES = { phone: 'Call', whatsapp: 'Open in WhatsApp Web (reuses the WhatsApp tab this app opened)', linkedin: 'Open LinkedIn' };
+// A named target: every WhatsApp link opens in the same tab instead of a new one each time.
+const TARGET = { phone: '', whatsapp: 'target="whatsapp"', linkedin: 'target="_blank" rel="noopener"' };
 
 // A button is greyed out when its field is empty; clicking it then focuses that field.
-const iconLink = (links, kind) => `<a class="ci ${links[kind] ? '' : 'off'}" data-ci="${kind}" href="${esc(links[kind] || '#')}" ${kind === 'phone' ? '' : 'target="_blank" rel="noopener"'} title="${TITLES[kind]}">${ICON[kind]}</a>`;
+const iconLink = (links, kind) => `<a class="ci ${links[kind] ? '' : 'off'}" data-ci="${kind}" href="${esc(links[kind] || '#')}" ${TARGET[kind]} title="${TITLES[kind]}">${ICON[kind]}</a>`;
 
 const input = (x, f, placeholder, type = 'text') => `<input data-ct="${x.id}" data-cf="${f}" type="${type}" value="${esc(x[f])}" placeholder="${placeholder}">`;
 
@@ -23,8 +25,7 @@ function contactHtml(x) {
   return `<div class="contact" data-ctid="${x.id}">
     <div class="lc">${input(x, 'name', 'Name')}</div>
     <div class="lc">${input(x, 'role', 'Role')}</div>
-    <div class="lc">${input(x, 'phone', 'Phone', 'tel')}${iconLink(L, 'phone')}</div>
-    <div class="lc">${input(x, 'whatsapp', 'WhatsApp chat link')}${iconLink(L, 'whatsapp')}</div>
+    <div class="lc cphone">${input(x, 'phone', '+972 54 123 4567', 'tel')}${iconLink(L, 'phone')}${iconLink(L, 'whatsapp')}</div>
     <div class="lc">${input(x, 'linkedin', 'LinkedIn chat')}${iconLink(L, 'linkedin')}</div>
     <button class="icon del-contact" title="Remove contact">✕</button>
   </div>`;
