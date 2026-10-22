@@ -147,7 +147,12 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
 - **Stage list** (popover and company page, `views/stageList.js`): done ✓, a "when?" meeting date-time, comment,
   relevant switch (off = greyed and excluded from progress), reorder by ⋮⋮ drag or ↑↓, and "+ Add stage" (adds to
   the shared list; every company gets it, but it's switched on only for the company it was added from).
-- **Hiring Stages dialog:** rename, reorder and delete shared stages; a switch for "on by default for new companies"; "Apply this order to all companies".
+- **Hiring Stages dialog** (`views/stagesDialog.js`): rename, reorder and delete shared stages; a switch for "on by
+  default for new companies"; "Apply this order to all companies".
+  - Deleting a stage that companies have data on (✓, meeting or comment, even if switched off — `stageUsage()`)
+    shows a warning listing them and what each would lose. Clicking one opens it with the stage highlighted
+    (`focusStageOnOpen`); "Delete anyway, lose this data" deletes after a second confirmation. A stage with no
+    data gets a short confirmation. Recovery after a delete is only from `backups/`.
 - **Points of contact** (`views/contacts.js`): name · role · phone (international format) with 📞 (`tel:`) and
   WhatsApp Web buttons computed from it (local 05x numbers fall back to +9725x) · LinkedIn chat. WhatsApp links use
   `target="whatsapp"`, so they reuse one tab (a tab opened by hand can't be reused — browser limit). ＋ adds a contact, ✕ removes one (asks if it
@@ -220,6 +225,7 @@ From the owner's list: save without the server (File System Access API), stage r
 
 Newest first.
 
+- **2026-10-22 12:42:** Stage-delete warning listing affected companies, with jump-to-company and delete anyway.
 - **2026-10-22 12:36:** Company name read-only in the sheet, ⤢ removed (logo/name open the page), draggable column
   order, wider table.
 - **2026-10-22 12:30:** Lookup reworked around Wikidata IDs after bulk searching triggered bot checks and a CAPTCHA.

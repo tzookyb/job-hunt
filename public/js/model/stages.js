@@ -21,6 +21,15 @@ export function addStage(state, name, forCompany = null) {
   return s;
 }
 
+// Companies that would lose something if stage `id` were deleted: a ✓, a meeting or a comment — even where the
+// stage is switched off. → [{ company, done, meeting, comment }]
+export function stageUsage(state, id) {
+  return state.companies
+    .map(c => ({ company: c, ...c.stages[id] }))
+    .filter(x => x.done || x.meeting || x.comment)
+    .map(({ company, done, meeting, comment }) => ({ company, done: !!done, meeting: meeting || '', comment: comment || '' }));
+}
+
 export function deleteStage(state, id) {
   state.stages = state.stages.filter(s => s.id !== id);
   for (const c of state.companies) {

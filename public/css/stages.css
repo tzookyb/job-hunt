@@ -37,3 +37,7 @@
 .smeet:hover{border-bottom-color:var(--line2)}
 .smeet:focus{border-bottom-color:var(--accent);color:var(--text)}
 .smeet.has{color:var(--text)}
+
+/* a stage you jumped to from the delete warning */
+.srow.flash > td{animation:flash 2.4s ease-out}
+@keyframes flash{0%,40%{background:#3a2e12}100%{background:transparent}}

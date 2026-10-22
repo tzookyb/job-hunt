@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { normalize } from '../../public/js/model/normalize.js';
-import { addStage, deleteStage, moveBy, moveTo, applyOrderToAll } from '../../public/js/model/stages.js';
+import { addStage, deleteStage, moveBy, moveTo, applyOrderToAll, stageUsage } from '../../public/js/model/stages.js';
 
 const state = () => normalize({
   stageDefaultsV2: true,
@@ -50,4 +50,17 @@ test('apply the shared order to every company', () => {
   s.companies[0].order = ['b', 'a'];
   applyOrderToAll(s);
   assert.deepEqual(s.companies[0].order, ['a', 'b']);
+});
+
+test('stage usage lists companies that would lose a ✓, meeting or comment — even where switched off', () => {
+  const s = state();
+  const [open, gone] = s.companies;
+  open.stages.b = { enabled: false, done: false, comment: 'prep notes', meeting: '' };
+  gone.stages.b = { enabled: true, done: true, comment: '', meeting: '2026-10-24T10:30' };
+  const usage = stageUsage(s, 'b');
+  assert.deepEqual(usage.map(u => [u.company.id, u.done, u.meeting, u.comment]), [
+    ['open', false, '', 'prep notes'],
+    ['gone', true, '2026-10-24T10:30', ''],
+  ]);
+  assert.deepEqual(stageUsage(s, 'a'), []);
 });

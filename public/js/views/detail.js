@@ -15,6 +15,9 @@ import { stageListHtml } from './stageList.js';
 import { notesHtml } from './notes.js';
 
 let currentId = null;
+let focusStage = null;   // after jumping here from the stage-delete warning: highlight that stage
+
+export const focusStageOnOpen = id => { focusStage = id; };
 
 export function renderDetail(id) {
   const c = findCompany(getState(), id);
@@ -48,6 +51,13 @@ export function renderDetail(id) {
   </div>`;
   $$('textarea', main).forEach(autosize);
   syncResearchLinks(main, c);
+  if (focusStage) {
+    const row = $(`.srow[data-stage="${focusStage}"]`, main);
+    if (row) { row.classList.add('flash'); setTimeout(() => row.scrollIntoView({ block: 'center', behavior: 'smooth' }), 50); }
+    // the page can render twice while navigating (dialog close + hashchange): keep the highlight for both
+    const id = focusStage;
+    setTimeout(() => { if (focusStage === id) focusStage = null; }, 1500);
+  }
 }
 
 const visible = c => location.hash.startsWith('#/c/') && currentId === c.id;
