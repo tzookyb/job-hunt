@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="css/sheet.css">
 <link rel="stylesheet" href="css/stages.css">
 <link rel="stylesheet" href="css/detail.css">
+<link rel="stylesheet" href="css/dialogs.css">
 </head>
 <body>
 <header>
@@ -15,11 +16,20 @@
   <div class="tools">
     <input id="q" type="search" placeholder="Search companies, roles, notes…  ( / )">
     <span id="count" class="muted"></span>
+    <button class="btn" id="stagesBtn">Stages</button>
     <button class="btn primary" id="add">+ Company</button>
   </div>
   <span id="saveStatus"></span>
 </header>
 <main id="main"></main>
+
+<dialog id="stagesDlg">
+  <div class="dlg-head"><h3>Stages</h3><button class="icon" id="dlgClose" title="Close">✕</button></div>
+  <p class="hint">Shared by all companies. New companies get this order. Each company can reorder and switch stages on or off for itself.</p>
+  <div id="gsList"></div>
+  <div class="addstage"><input id="gsNew" class="newstage" placeholder="+ New stage — Enter to add"></div>
+  <div class="dlg-foot"><button class="btn ghost" id="applyOrder">Apply this order to all companies</button></div>
+</dialog>
 <script type="module" src="js/main.js"></script>
 </body>
 </html>

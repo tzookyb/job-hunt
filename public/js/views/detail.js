@@ -57,4 +57,9 @@ export function init() {
     dp.innerHTML = progressInner(c);
   });
   on('field', ({ c, field }) => { if (field === 'status' && visible(c)) renderDetail(c.id); });
+  on('stages:changed', ({ c }) => {
+    if (!visible(c)) return;
+    renderDetail(c.id);
+    $('.newstage', main).focus();
+  });
 }

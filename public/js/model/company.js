@@ -4,7 +4,7 @@ import { blankStage } from './normalize.js';
 
 export function newCompany(state, fields = {}) {
   const c = { id: uid(), name: '', position: '', website: '', careersUrl: '', comments: '', status: 'active',
-    stages: {}, notes: [], createdAt: Date.now(), ...fields };
+    order: state.stages.map(s => s.id), stages: {}, notes: [], createdAt: Date.now(), ...fields };
   for (const s of state.stages) c.stages[s.id] = blankStage();
   return c;
 }

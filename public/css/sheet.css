@@ -15,7 +15,8 @@ tr.closed:hover > td > *{opacity:1}
 .col-open,.col-del{width:38px}.col-prog{width:30%}.col-status{width:150px}
 
 /* progress */
-.prog{display:flex;align-items:center;gap:8px;width:100%;padding:9px 10px}
+.prog{display:flex;align-items:center;gap:8px;width:100%;background:transparent;border:0;padding:9px 10px;cursor:default;text-align:left}
+.prog:hover,.prog.open{background:var(--focus-bg)}
 .bar{flex:0 0 90px;height:6px;border-radius:4px;background:#252b36;overflow:hidden}
 .bar > span{display:block;height:100%;background:var(--accent);border-radius:4px;transition:width .25s}
 .st-rejected .bar > span{background:var(--bad)}

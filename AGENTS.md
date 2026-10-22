@@ -47,15 +47,15 @@ edit as you go. Every change persists locally to a JSON file. Single user, runs 
 | `server/static.js` | Serves `public/` (known file types only, no path traversal). |
 | `server/http.js` | `send`, `sendJson`, `readBody`. |
 | `public/index.html` | Page shell: header, `<main>`, one module script. |
-| `public/css/` | `base.css` (tokens, buttons, header), `sheet.css`, `stages.css`, `detail.css`. |
+| `public/css/` | `base.css` (tokens, buttons, header), `sheet.css`, `stages.css`, `detail.css`, `dialogs.css`. |
 | `public/js/main.js` | Composition root: calls each feature's `init()`, loads data, routes. |
 | `public/js/store.js` | Owns the state; `load()`, debounced `save()` (350ms), `writeNow()`; server or localStorage. |
 | `public/js/api.js` | `fetch` wrappers for the server API. |
-| `public/js/bus.js` | Tiny pub/sub: `status`, `render`, `field`, `company:changed`. |
+| `public/js/bus.js` | Tiny pub/sub: `status`, `render`, `field`, `company:changed`, `stages:changed`. |
 | `public/js/dom.js` | `$`, `$$`, `delegate()`, `autosize()`. |
 | `public/js/router.js` | `#/c/<id>` → company page, otherwise the sheet. |
 | `public/js/config.js` | Default stages, statuses. |
-| `public/js/model/` | Pure logic, unit-tested: `normalize`, `company`, `progress`, `search`. |
+| `public/js/model/` | Pure logic, unit-tested: `normalize`, `company`, `stages`, `progress`, `search`. |
 | `public/js/views/` | One file per UI feature, each with an `init()` that registers its own delegated listeners. |
 | `test/` | `node --test` suites; `test/helpers.js` starts the app against a temp data folder. |
 
@@ -86,6 +86,7 @@ The server listens on `127.0.0.1` only: it's a personal tool, not something to e
   companies: [{
     id, name, position, website, careersUrl, comments, createdAt,
     status: 'active'|'offer'|'rejected'|'withdrawn'|'closed',
+    order: [stageId...],                  // this company's own stage order
     stages: { [stageId]: { enabled, done, comment } },   // enabled = this stage applies to the company
     notes: [{ id, title, body }],
   }],
@@ -93,12 +94,19 @@ The server listens on `127.0.0.1` only: it's a personal tool, not something to e
 }
 ```
 
-`normalize()` fills defaults for anything missing, so partial or old data always loads.
+`normalize()` fills defaults for anything missing, so partial or old data always loads. It also keeps every
+company's `order` and `stages` in sync with the shared list (unknown stages are appended).
 
 ## UI
 
 - **Sheet:** Company, Position, Progress (bar · % · "x/y · next: <stage>", counting relevant stages only), Status,
   ⤢ open, ✕ delete. Closed statuses are dimmed.
+- **Progress popover:** hovering a Progress cell opens the company's stage list (`views/popover.js`). It stays open
+  while focused or dragging, closes on Esc, outside click, scroll or mouse-out.
+- **Stage list** (popover and company page, `views/stageList.js`): done ✓, comment, relevant switch (off = greyed
+  and excluded from progress), reorder by ⋮⋮ drag or ↑↓, and "+ Add stage" (adds to the shared list; every company
+  gets it, switched off for closed ones).
+- **Stages dialog:** rename, reorder and delete shared stages; "Apply this order to all companies".
 - **Search** filters by every word across all text, stage comments and notes. `/` focuses it.
 - **Company page** (`#/c/<id>`): fields, the stage list (done, comment, relevant switch) and Notes: titled free-text
   sections, whose title suggests stage names. `Esc` goes back.
@@ -109,6 +117,8 @@ The server listens on `127.0.0.1` only: it's a personal tool, not something to e
 
 Newest first.
 
+- **2026-10-22 10:14:** Shared, growable stage list with per-company order and relevance; progress popover on hover;
+  Stages dialog. Owner wants stages mostly common, greyed out where a company doesn't have them.
 - **2026-10-22 10:05:** First UI: sheet, search, company page with stages and notes, autosave, localStorage
   fallback. Model tests. Checked in headless Chromium against a temp data folder.
 - **2026-10-22 09:52:** Zero-dependency server with atomic JSON storage and static file serving. Tests for storage

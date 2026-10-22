@@ -11,14 +11,13 @@ export function companyOf(el) {
 }
 
 export const stageName = id => (getState().stages.find(s => s.id === id) || {}).name || '?';
-export const stageOrder = () => getState().stages.map(s => s.id);
 
 export const statusOptions = value =>
   STATUSES.map(([k, label]) => `<option value="${k}" ${k === value ? 'selected' : ''}>${label}</option>`).join('');
 
 // bar · percent · "x/y · next: <stage>"
 export function progressInner(c) {
-  const p = progress(c, stageOrder());
+  const p = progress(c);
   let text = `${p.done}/${p.total}`;
   if (isClosed(c)) text += ` · ${statusLabel(c.status)}${p.next ? ' at ' + stageName(p.next) : ''}`;
   else if (p.next) text += ` · next: ${stageName(p.next)}`;

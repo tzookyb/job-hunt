@@ -7,6 +7,7 @@ import { on, emit } from '../bus.js';
 import { matches } from '../model/search.js';
 import { removeCompany } from '../model/company.js';
 import { companyOf, statusOptions, progressInner } from './common.js';
+import { reopen, popoverCompanyId } from './popover.js';
 
 const query = () => $('#q').value;
 
@@ -14,7 +15,7 @@ function rowHtml(c) {
   return `<tr class="row st-${c.status} ${isClosed(c) ? 'closed' : ''}" data-id="${c.id}">
     <td><input data-f="name" value="${esc(c.name)}" placeholder="Company"></td>
     <td><input data-f="position" value="${esc(c.position)}" placeholder="Role"></td>
-    <td><div class="prog">${progressInner(c)}</div></td>
+    <td><button class="prog ${popoverCompanyId() === c.id ? 'open' : ''}">${progressInner(c)}</button></td>
     <td><select data-f="status">${statusOptions(c.status)}</select></td>
     <td><button class="icon open" title="Open company page">⤢</button></td>
     <td><button class="icon del" title="Delete">✕</button></td>
@@ -49,4 +50,10 @@ export function init() {
     if (tr && field === 'status') tr.outerHTML = rowHtml(c);
   });
   on('company:changed', c => { const tr = rowOf(c); if (tr) tr.outerHTML = rowHtml(c); });
+  // a new stage reaches every company: redraw all rows, then bring the popover back
+  on('stages:changed', ({ c }) => {
+    if (location.hash) return;
+    getState().companies.forEach(x => { const tr = rowOf(x); if (tr) tr.outerHTML = rowHtml(x); });
+    reopen(c);
+  });
 }
