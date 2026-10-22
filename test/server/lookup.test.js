@@ -51,7 +51,8 @@ test('lookup: website from DuckDuckGo, research links from Wikidata IDs, no sear
     linkedinUrl: 'https://www.linkedin.com/company/acme-inc/',
     glassdoorUrl: 'https://www.glassdoor.com/Overview/-EI_IE123.htm',
     crunchbaseUrl: 'https://www.crunchbase.com/organization/acme',
-    blindUrl: 'https://www.teamblind.com/company/Acme',   // naive fallback
+    comparablyUrl: 'https://www.comparably.com/companies/acme',   // naive fallbacks
+    blindUrl: 'https://www.teamblind.com/company/Acme',
   });
   assert.equal(r.log.linkedinUrl, 'wikidata');
   assert.ok(!get.calls.some(u => /bing\.com|html\.duckduckgo/.test(u)), 'no search-engine scraping');
@@ -116,7 +117,7 @@ test('lookup: guessed addresses are kept only when the page names the company', 
   const r = await createLookup({ get, log: () => {} })('Acme Labs');
   assert.equal(r.links.levelsUrl, 'https://www.levels.fyi/companies/acme-labs');
   assert.match(r.log.levelsUrl, /guessed address/);
-  assert.equal(r.links.comparablyUrl, undefined);
+  assert.match(r.log.comparablyUrl, /naive/);   // the JS shell didn't verify, so it falls back to the naive address
 });
 
 test('guessing stops at the first block', async () => {
@@ -126,11 +127,12 @@ test('guessing stops at the first block', async () => {
   assert.equal(get.calls.filter(u => u.includes('levels.fyi')).length, 1);
 });
 
-test('Blind and Crunchbase fall back to naive addresses built from the name', async () => {
+test('Blind, Crunchbase and Comparably fall back to naive addresses built from the name', async () => {
   const r = await createLookup({ get: fakeGet([]), log: () => {} })('Fiverr');
   assert.equal(r.links.blindUrl, 'https://www.teamblind.com/company/Fiverr');
   assert.equal(r.links.crunchbaseUrl, 'https://www.crunchbase.com/organization/fiverr');
   assert.match(r.log.crunchbaseUrl, /naive/);
+  assert.equal(r.links.comparablyUrl, 'https://www.comparably.com/companies/fiverr');
   assert.match(r.log.blindUrl, /naive/);
   const r2 = await createLookup({ get: fakeGet([]), log: () => {} })(' Acme  Labs ');
   assert.equal(r2.links.blindUrl, 'https://www.teamblind.com/company/Acme-Labs');

@@ -3,7 +3,7 @@
 //
 // Research links, most reliable first: Wikidata IDs → links on the company's own website → guessed addresses on
 // sites with predictable URLs → ONE DuckDuckGo search for Glassdoor if it's still missing → naive, unchecked
-// addresses for sites that block bots (Crunchbase, Blind).
+// addresses for sites we can't check (Crunchbase, Comparably, Blind).
 // Lesson learned (see AGENTS.md): search engines answer automated searches with bot checks after the first one.
 // Don't add parallel or bulk searching back.
 import { httpGet } from './fetch.js';
