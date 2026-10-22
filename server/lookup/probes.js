@@ -39,8 +39,10 @@ export async function probe(get, name, key, p) {
 // else found them, fill in the naive address and let the user correct it.
 //   Blind uses the display name: "Fiverr" → teamblind.com/company/Fiverr
 //   Crunchbase uses a lowercase slug: "Fiverr" → crunchbase.com/organization/fiverr
+//   LinkedIn uses a lowercase slug too: "HoneyBook" → linkedin.com/company/honeybook/about/
 //   Comparably too (after the guessed-address check above fails): "HoneyBook" → comparably.com/companies/honeybook
 export const NAIVE = [
+  { field: 'linkedinUrl', url: name => `https://www.linkedin.com/company/${slugs(name)[0]}/about/` },
   { field: 'crunchbaseUrl', url: name => `https://www.crunchbase.com/organization/${slugs(name)[0]}` },
   { field: 'comparablyUrl', url: name => `https://www.comparably.com/companies/${slugs(name)[0]}` },
   { field: 'blindUrl', url: name => `https://www.teamblind.com/company/${encodeURIComponent(name.trim().replace(/\s+/g, '-'))}` },

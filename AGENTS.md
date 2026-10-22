@@ -239,12 +239,13 @@ Learned on 2026-10-22 by running real lookups through the owner's running app:
   4. **One DuckDuckGo search** for Glassdoor, only if it's still missing.
   5. **Naive addresses** (`probes.js`, `NAIVE`) for sites that block bots but have a fixed pattern — filled
      unchecked when nothing else found them (owner's call). Blind: `teamblind.com/company/<Name>` with the name as
-     typed, spaces → dashes (`Fiverr` → `/company/Fiverr`). Crunchbase: `crunchbase.com/organization/<slug>`,
+     typed, spaces → dashes (`Fiverr` → `/company/Fiverr`). LinkedIn: `linkedin.com/company/<slug>/about/`,
+     lowercase with dashes (`HoneyBook` → `/company/honeybook/about/`). Crunchbase: `crunchbase.com/organization/<slug>`,
      lowercase with dashes (`Fiverr` → `/organization/fiverr`). Comparably: `comparably.com/companies/<slug>`, same
      slug (`HoneyBook` → `/companies/honeybook`), used when the guessed-address check fails.
 
   Blind has no Wikidata property; Blind and Crunchbase block automated visits, so
-  they mostly come from the company website (Blind, Crunchbase, Comparably: else the naive address) or stay empty (the UI's 🔍 search link covers them). The terminal report
+  they mostly come from the company website (LinkedIn, Blind, Crunchbase, Comparably: else the naive address) or stay empty (the UI's 🔍 search link covers them). The terminal report
   says where each link came from.
 - **Possible next step (needs a key, owner declined for now):** a search API restricted to one site per query —
   Tavily (1,000 free credits/month, no card) or Brave ($5 free credit/month, card required). Google's Custom Search
@@ -291,6 +292,8 @@ Learned on 2026-10-22 by running real lookups through the owner's running app:
 ## Work log
 
 Newest first.
+
+- **2026-10-22 22:00:** LinkedIn falls back to the naive `linkedin.com/company/<slug>/about/` address.
 
 - **2026-10-22 21:55:** Comparably falls back to the naive `comparably.com/companies/<slug>` address.
 

@@ -127,11 +127,12 @@ test('guessing stops at the first block', async () => {
   assert.equal(get.calls.filter(u => u.includes('levels.fyi')).length, 1);
 });
 
-test('Blind, Crunchbase and Comparably fall back to naive addresses built from the name', async () => {
+test('LinkedIn, Blind, Crunchbase and Comparably fall back to naive addresses built from the name', async () => {
   const r = await createLookup({ get: fakeGet([]), log: () => {} })('Fiverr');
   assert.equal(r.links.blindUrl, 'https://www.teamblind.com/company/Fiverr');
   assert.equal(r.links.crunchbaseUrl, 'https://www.crunchbase.com/organization/fiverr');
   assert.match(r.log.crunchbaseUrl, /naive/);
+  assert.equal(r.links.linkedinUrl, 'https://www.linkedin.com/company/fiverr/about/');
   assert.equal(r.links.comparablyUrl, 'https://www.comparably.com/companies/fiverr');
   assert.match(r.log.blindUrl, /naive/);
   const r2 = await createLookup({ get: fakeGet([]), log: () => {} })(' Acme  Labs ');
