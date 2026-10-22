@@ -110,16 +110,20 @@ test('lookup: links found on the company\'s own website, even with another slug'
 
 test('lookup: guessed addresses are kept only when the page names the company', async () => {
   const get = fakeGet([
-    ['https://finder.startupnationcentral.org/company_page/acme-labs', html('<title>Acme Labs — Developer tools | Finder</title>')],
-    ['https://www.levels.fyi/companies/acme-labs', { status: 403, body: 'blocked' }],
+    ['https://www.levels.fyi/companies/acme-labs', html('<title>Acme Labs Salaries | Levels.fyi</title>')],
     ['https://www.comparably.com/companies/', html('<title>comparably-companies-ui</title>An unknown error occurred')],
   ]);
   const r = await createLookup({ get, log: () => {} })('Acme Labs');
-  assert.equal(r.links.finderUrl, 'https://finder.startupnationcentral.org/company_page/acme-labs');
-  assert.match(r.log.finderUrl, /guessed address/);
-  assert.equal(r.links.levelsUrl, undefined);
-  assert.equal(get.calls.filter(u => u.includes('levels.fyi')).length, 1, 'stops at the first block');
+  assert.equal(r.links.levelsUrl, 'https://www.levels.fyi/companies/acme-labs');
+  assert.match(r.log.levelsUrl, /guessed address/);
   assert.equal(r.links.comparablyUrl, undefined);
+});
+
+test('guessing stops at the first block', async () => {
+  const get = fakeGet([['https://www.levels.fyi/companies/', { status: 403, body: 'blocked' }]]);
+  const r = await createLookup({ get, log: () => {} })('Acme Labs');
+  assert.equal(r.links.levelsUrl, undefined);
+  assert.equal(get.calls.filter(u => u.includes('levels.fyi')).length, 1);
 });
 
 test('Blind falls back to a naive address built from the name', async () => {

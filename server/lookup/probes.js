@@ -3,7 +3,6 @@
 import { norm } from './names.js';
 
 export const PROBES = [
-  { field: 'finderUrl', url: slug => `https://finder.startupnationcentral.org/company_page/${slug}` },
   { field: 'levelsUrl', url: slug => `https://www.levels.fyi/companies/${slug}` },
   { field: 'comparablyUrl', url: slug => `https://www.comparably.com/companies/${slug}` },
 ];

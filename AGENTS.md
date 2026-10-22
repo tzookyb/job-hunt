@@ -113,8 +113,8 @@ The server listens on `127.0.0.1` only: it's a personal tool, not something to e
     lastInteraction: 'YYYY-MM-DD',       // set by hand, or to today when a stage is ticked done
     closeReason,                          // why a rejected/withdrawn/closed process ended
     logo,                                 // image URL
-    glassdoorUrl, linkedinUrl, finderUrl, crunchbaseUrl, levelsUrl, blindUrl, comparablyUrl,
-    // (older data may still hold indeedUrl: the Indeed field was removed from the UI, its values are left alone)
+    glassdoorUrl, linkedinUrl, crunchbaseUrl, levelsUrl, blindUrl, comparablyUrl,
+    // (older data may still hold indeedUrl / finderUrl: those fields were removed from the UI, values left alone)
     contacts: [{ id, name, role, phone, linkedin }],   // phone in international format
     status: 'interested'|'approached'|'active'|'rejected'|'withdrawn',   // 'active' shows as "In process"
     order: [stageId...],                  // this company's own stage order
@@ -180,7 +180,7 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
   WhatsApp Web buttons computed from it (local 05x numbers fall back to +9725x) · LinkedIn chat. WhatsApp links use
   `target="whatsapp"`, so they reuse one tab (a tab opened by hand can't be reused — browser limit). ＋ adds a
   contact, ✕ removes one (asks if it has data). Empty links are greyed out; clicking one focuses its field.
-- **Research** (`views/research.js`): 7 sites from `config.RESEARCH` (field, label, domain, tooltip). Hover a name
+- **Research** (`views/research.js`): 6 sites from `config.RESEARCH` (field, label, domain, tooltip). Hover a name
   for what the site is for; an empty field's 🔍 opens a Google `site:` search.
 - **Stages** (`views/stageList.js`, shared with the popover): done ✓, a "when?" meeting (date + 24-hour time box;
   an invalid time turns red and isn't saved), comment, relevant
@@ -232,18 +232,16 @@ Learned on 2026-10-22 by running real lookups through the owner's running app:
   2. **The company's own website** (`companySite.js`): the homepage plus `/about`, `/careers`, `/company`, scanned
      for links matching `SITES` (escaped `\/` in inline JSON is handled). No name check: a company's site only
      links to itself. Best source for LinkedIn.
-  3. **Guessed addresses** (`probes.js`, `PROBES`): Startup Nation Finder, Levels.fyi, Comparably. Tries
+  3. **Guessed addresses** (`probes.js`, `PROBES`): Levels.fyi, Comparably. Tries
      `name-with-dashes`, `namejoined`, `firstword`; keeps a page only if it's a 200 HTML page whose title names the
-     company. Stops at the first 403/429/999 (the site blocks bots). Expectations, checked 2026-10-22: Finder pages
-     answer with a proper title (note: Startup Nation Central stopped operating Finder on 2026-08-31, data is
-     frozen); Comparably serves a JS shell ("comparably-companies-ui"), so it rarely verifies; Levels.fyi refused an
+     company. Stops at the first 403/429/999 (the site blocks bots). Expectations, checked 2026-10-22: Comparably serves a JS shell ("comparably-companies-ui"), so it rarely verifies; Levels.fyi refused an
      automated fetch.
   4. **One DuckDuckGo search** for Glassdoor, only if it's still missing.
   5. **Naive addresses** (`probes.js`, `NAIVE`) for sites that block bots but have a fixed pattern — filled
      unchecked when nothing else found them (owner's call). Blind: `teamblind.com/company/<Name>` with the name as
      typed, spaces → dashes (e.g. `Fiverr` → `/company/Fiverr`).
 
-  Startup Nation Finder and Blind have no Wikidata property; Blind and Crunchbase block automated visits, so
+  Blind has no Wikidata property; Blind and Crunchbase block automated visits, so
   they mostly come from the company website (Blind: else the naive address) or stay empty (the UI's 🔍 search link covers them). The terminal report
   says where each link came from.
 - **Possible next step (needs a key, owner declined for now):** a search API restricted to one site per query —
@@ -292,6 +290,9 @@ Learned on 2026-10-22 by running real lookups through the owner's running app:
 
 Newest first.
 
+- **2026-10-22 21:45:** Removed Startup Nation Finder: Startup Nation Central stopped operating it on 2026-08-31.
+  Existing `finderUrl` values are left in saved data, no longer shown.
+
 - **2026-10-22 21:40:** Removed the Indeed research field (owner: irrelevant to him). Existing `indeedUrl` values in
   saved data are left in place, just no longer shown, searched or looked up.
 
@@ -299,7 +300,7 @@ Newest first.
 - **2026-10-22 21:40:** Status picker in the Add company dialog, defaulting to Interested.
 - **2026-10-22 21:30:** 24-hour time everywhere; the "when?" picker became date + typed 24-hour time.
 - **2026-10-22 21:20:** Lookup: research links also from the company's own website and from guessed addresses
-  (Finder, Levels.fyi, Comparably). Owner: Wikidata alone wasn't finding much beyond Glassdoor; no API keys for now.
+  (Levels.fyi, Comparably; Finder at first). Owner: Wikidata alone wasn't finding much beyond Glassdoor; no API keys for now.
 - **2026-10-22 17:30:** Ported to a public GitHub repo: this history was rebuilt commit by commit from the session
   logs, with the code split into modules. Added a sample-data demo, README screenshots and a showcase README.
   Personal data stays out of git (`user-data/`, `.demo-data/` ignored).
