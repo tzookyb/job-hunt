@@ -39,12 +39,30 @@ edit as you go. Every change persists locally to a JSON file. Single user, runs 
 |---|---|
 | `AGENTS.md` | This file. |
 | `CLAUDE.md` | Points Claude Code at this file. |
-| `server/` | Local Node server (not written yet). |
-| `public/` | Browser app (not written yet). |
-| `test/` | `node --test` suites. |
+| `server/index.js` | Entry point (`npm start`). |
+| `server/config.js` | Port (`PORT` env, default 4317), folders and data file paths. |
+| `server/app.js` | Builds the HTTP server from its parts (so tests can start it on a random port). |
+| `server/routes.js` | API route table: `"METHOD /path": handler`. |
+| `server/storage.js` | `JsonStore`: reads/writes the data file. |
+| `server/static.js` | Serves `public/` (known file types only, no path traversal). |
+| `server/http.js` | `send`, `sendJson`, `readBody`. |
+| `public/` | Browser app (placeholder page for now). |
+| `test/` | `node --test` suites; `test/helpers.js` starts the app against a temp data folder. |
+
+## Server API
+
+| Endpoint | Behaviour |
+|---|---|
+| `GET /api/data` | Returns `data.json`, or `{}` if nothing has been saved yet. |
+| `PUT /api/data` | Validates the JSON, copies the current file to `data.backup.json`, then writes via temp file + rename (atomic). |
+| `GET /*` | Static files from `public/`. |
+
+The server listens on `127.0.0.1` only: it's a personal tool, not something to expose on a network.
 
 ## Work log
 
 Newest first.
 
+- **2026-10-22 09:52:** Zero-dependency server with atomic JSON storage and static file serving. Tests for storage
+  and the API (`npm test`).
 - **2026-10-22 09:41:** Project scaffold: package.json (ESM, `npm start`, `npm test`), MIT license, agent context.
