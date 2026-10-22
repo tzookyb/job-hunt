@@ -39,6 +39,7 @@ edit as you go. Every change persists locally to a JSON file. Single user, runs 
 |---|---|
 | `AGENTS.md` | This file. |
 | `CLAUDE.md` | Points Claude Code at this file. |
+| `README.md` | User-facing: how to run, where data lives. |
 | `server/index.js` | Entry point (`npm start`). |
 | `server/config.js` | Port (`PORT` env, default 4317), folders and data file paths. |
 | `server/app.js` | Builds the HTTP server from its parts (so tests can start it on a random port). |
@@ -127,6 +128,9 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
 
 Newest first.
 
+- **2026-10-22 10:30:** README: how to run, where data is saved, why there's a server. Owner asked why a server is
+  needed: browsers can't write files. Alternatives offered, none chosen yet: File System Access API (Chromium only,
+  re-grant each session), localStorage + export/import, auto-starting the server at login.
 - **2026-10-22 10:19:** Point of contact, Recruiter LinkedIn and Glassdoor fields on the company page.
 - **2026-10-22 10:18:** Meeting per stage, Next meeting column, sortable columns (`model/sort.js`, `model/meetings.js`).
 - **2026-10-22 10:16:** Minimal sheet columns, Last interaction, separate Rejected & closed table with Reason.
