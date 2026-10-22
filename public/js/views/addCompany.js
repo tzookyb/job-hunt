@@ -4,9 +4,10 @@ import { $ } from '../dom.js';
 import * as api from '../api.js';
 import { getState, getMode, save } from '../store.js';
 import { newCompany } from '../model/company.js';
+import { RESEARCH } from '../config.js';
 
 const LOOKUP_TIMEOUT = 30_000;
-const FIELDS = [['website', 'website'], ['logo', 'logo'], ['glassdoorUrl', 'Glassdoor']];
+const FIELDS = [['website', 'website'], ['logo', 'logo'], ...RESEARCH.map(r => [r.field, r.label])];
 let controller = null;
 
 function showLoader(text) {
@@ -30,7 +31,10 @@ function hideLoader(message) {
 // Copies found values into empty fields; returns the labels of what was filled.
 export function fillEmpty(c, info) {
   const filled = [];
-  for (const [field, label] of FIELDS) if (info[field] && !c[field]) { c[field] = info[field]; filled.push(label); }
+  for (const [field, label] of FIELDS) {
+    const value = info[field] || info.links?.[field];
+    if (value && !c[field]) { c[field] = value; filled.push(label); }
+  }
   return filled;
 }
 

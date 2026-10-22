@@ -9,6 +9,7 @@ import { companyOf, statusOptions, progressInner, agoHtml, logoHtml } from './co
 import { runLookup } from './addCompany.js';
 import { contactsHtml } from './contacts.js';
 import { logoEditorHtml } from './logoEditor.js';
+import { researchHtml, syncResearchLinks } from './research.js';
 import { linkInput } from './fields.js';
 import { stageListHtml } from './stageList.js';
 import { notesHtml } from './notes.js';
@@ -27,7 +28,7 @@ export function renderDetail(id) {
       ${logoEditorHtml(c)}
       <input class="title" data-f="name" value="${esc(c.name)}" placeholder="Company name">
       <select data-f="status">${statusOptions(c.status)}</select>
-      <button class="btn ghost lookup" title="Fill empty website, logo and Glassdoor">↻ Look up</button>
+      <button class="btn ghost lookup" title="Fill empty website, logo and research links">↻ Look up</button>
     </div>
     <div class="dprog st-${c.status}">${progressInner(c)}</div>
     <div class="grid">
@@ -36,16 +37,17 @@ export function renderDetail(id) {
       ${isClosed(c) ? `<label class="full">Reason (${esc(statusLabel(c.status))})<input class="field" data-f="closeReason" value="${esc(c.closeReason)}" placeholder="Why did it end?"></label>` : ''}
       <label>Website${linkInput(c, 'website', 'website')}</label>
       <label>Careers / job post${linkInput(c, 'careersUrl', 'link to the position')}</label>
-      <label>Glassdoor${linkInput(c, 'glassdoorUrl', 'glassdoor.com/…')}</label>
       ${contactsHtml(c)}
       <label class="full">Comments<textarea class="field" data-f="comments" rows="2" placeholder="General notes about the position">${esc(c.comments)}</textarea></label>
     </div>
+    ${researchHtml(c)}
     <h2>Stages</h2>
     ${stageListHtml(c)}
     ${notesHtml(c)}
     <div class="dangerzone"><button class="btn ghost danger del-company">Delete company</button></div>
   </div>`;
   $$('textarea', main).forEach(autosize);
+  syncResearchLinks(main, c);
 }
 
 const visible = c => location.hash.startsWith('#/c/') && currentId === c.id;

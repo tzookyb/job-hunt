@@ -26,6 +26,11 @@ h2{font-size:13px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted
 .note input{flex:1;background:transparent;border:0;font-weight:600;font-size:15px;outline:none;padding:4px 0}
 .note textarea{width:100%;background:transparent;border:0;outline:none;resize:none;min-height:70px;padding:6px 0;line-height:1.55}
 .dangerzone{margin:36px 0 60px;text-align:right}
+/* research links with hover explanations */
+.pname{position:relative;align-self:flex-start;cursor:help;border-bottom:1px dotted var(--line2)}
+.grid label > .pname{color:var(--muted);font-size:12px}
+.pname:hover::after{content:attr(data-tip);position:absolute;left:0;top:calc(100% + 6px);z-index:10;width:300px;padding:8px 10px;border-radius:8px;background:#0d1529;border:1px solid var(--line2);box-shadow:0 8px 24px rgba(0,0,0,.5);color:var(--text);font-size:12px;line-height:1.45;white-space:normal}
+
 /* click-to-paste logo */
 .logo-wrap{position:relative;display:inline-flex}
 .logo-btn{background:none;border:0;padding:0;cursor:pointer;border-radius:13px}

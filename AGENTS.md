@@ -72,7 +72,7 @@ edit as you go. Every change persists locally to a JSON file. Single user, runs 
 |---|---|
 | `GET /api/data` | Returns `data.json`, or `{}` if nothing has been saved yet. |
 | `PUT /api/data` | Validates the JSON, copies the current file to `data.backup.json`, then writes via temp file + rename (atomic). |
-| `GET /api/lookup?name=X` | Naive lookup → `{ website, logo, glassdoorUrl, source }`; prints a line to the terminal. |
+| `GET /api/lookup?name=X` | Naive lookup → `{ website, logo, links: { <field>: url }, source }`; prints a line to the terminal. |
 | `GET /*` | Static files from `public/`. |
 
 The server listens on `127.0.0.1` only: it's a personal tool, not something to expose on a network.
@@ -96,7 +96,8 @@ The server listens on `127.0.0.1` only: it's a personal tool, not something to e
     id, name, position, website, careersUrl, comments, createdAt,
     lastInteraction: 'YYYY-MM-DD',       // set by hand, or to today when a stage is ticked done
     closeReason,                          // why a rejected/withdrawn/closed process ended
-    glassdoorUrl, logo,                   // logo = image URL
+    logo,                                 // image URL
+    glassdoorUrl, linkedinUrl, finderUrl, crunchbaseUrl, levelsUrl, blindUrl, indeedUrl, comparablyUrl,
     contacts: [{ id, name, role, phone, linkedin }],   // phone in international format
     status: 'interested'|'approached'|'active'|'rejected'|'withdrawn',   // 'active' shows as "In process"
     order: [stageId...],                  // this company's own stage order
@@ -148,7 +149,9 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
   opens the company page. "↻ Look up" on the company page runs it again.
 - **Logos:** a frozen logo column (initial as fallback) next to the frozen Company column; a big logo on the
   company page: click it to paste an image URL (`views/logoEditor.js`; Enter saves, Esc restores, empty removes).
-- **Search** filters by every word across all text, stage comments and notes. `/` focuses it.
+- **Research** (`views/research.js`): 8 sites from `config.RESEARCH` (field, label, domain, tooltip). Hover a name
+  for what the site is for; an empty field's 🔍 opens a Google `site:` search.
+- **Search** filters by every word across all text, contacts, research links, stage comments and notes. `/` focuses it.
 - **Company page** (`#/c/<id>`): fields (incl. Last interaction, and Reason when closed), the stage list and Notes:
   titled free-text sections whose title suggests stage names. `Esc` goes back.
 - **Saving:** every edit autosaves; the top-right status says where. Without the server it falls back to
@@ -161,8 +164,9 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
   name (`plausible()`), and directory sites (Wikipedia, LinkedIn, Glassdoor, x.com…) are excluded by whole hostname.
 - **Logo:** the homepage's best `<link rel=icon|apple-touch-icon>`, checked to be an image, else Google's s2
   favicon service.
-- **Glassdoor:** a `<name> site:glassdoor.com` search on Bing, then DuckDuckGo, links unwrapped from their
-  redirect formats. Glassdoor links are always normalized to the Overview ("About") tab (`toOverview()`).
+- **Research links** (`server/lookup/research.js`, `SITES`): per site, a `<name> site:<domain>` search on Bing, then
+  DuckDuckGo, links unwrapped from their redirect formats. A result counts only if it's a company page whose path
+  contains the name. Glassdoor links are always normalized to the Overview ("About") tab (`toOverview()`).
 - **Testing:** there's no internet in the test environment; `test/server/fakeNet.js` answers requests with canned
   responses. In the browser, stub `/api/lookup` with Playwright's `page.route`.
 
@@ -174,6 +178,7 @@ From the owner's list: save without the server (File System Access API), stage r
 
 Newest first.
 
+- **2026-10-22 11:58:** Research section with 8 sites; the lookup tries to fill all of them.
 - **2026-10-22 11:52:** WhatsApp computed from the phone (separate field removed and upgraded), one reused tab.
 - **2026-10-22 11:44:** Role per contact.
 - **2026-10-22 11:40:** Glassdoor links go to the Overview tab.

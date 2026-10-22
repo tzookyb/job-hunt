@@ -2,11 +2,13 @@
 import { uid } from '../util.js';
 import { blankStage } from './normalize.js';
 import { blankContact } from './contacts.js';
+import { RESEARCH } from '../config.js';
 
 export function newCompany(state, fields = {}) {
   // a new company is not an interaction: lastInteraction stays empty until something happens
   const c = { id: uid(), name: '', position: '', website: '', careersUrl: '', comments: '', status: 'active',
-    lastInteraction: '', closeReason: '', glassdoorUrl: '', logo: '', contacts: [blankContact()],
+    lastInteraction: '', closeReason: '', logo: '', contacts: [blankContact()],
+    ...Object.fromEntries(RESEARCH.map(r => [r.field, ''])),
     order: state.stages.map(s => s.id), stages: {}, notes: [], createdAt: Date.now(), ...fields };
   for (const s of state.stages) c.stages[s.id] = blankStage(s.defaultOn);
   return c;

@@ -29,11 +29,13 @@ test('search result links are unwrapped', () => {
   assert.match(unwrapLinks(bing), / https:\/\/acme\.io\/jobs /);
 });
 
-test('lookup finds the website, logo and Glassdoor', async () => {
+test('lookup finds the website, logo and research links', async () => {
   const get = fakeGet([
     ['https://api.duckduckgo.com/', json({ Infobox: { content: [{ data_type: 'official_website', label: 'Website', value: 'https://www.acme.io/' }] } })],
     ['https://www.wikidata.org/', json({ search: [] })],
-    ['https://www.bing.com/search', html('<a href="https://www.glassdoor.com/Reviews/Acme-Reviews-E123.htm">')],
+    [/bing\.com\/search.*glassdoor/, html('<a href="https://www.glassdoor.com/Reviews/Acme-Reviews-E123.htm">')],
+    [/bing\.com\/search.*linkedin/, html('<a href="https://il.linkedin.com/company/acme-inc?trk=x">')],
+    [/bing\.com\/search.*teamblind/, html('<a href="https://www.teamblind.com/company/Monday">')],   // another company
     ['https://www.acme.io/icon.svg', image],
     ['https://www.acme.io', html('<title>Acme</title><link rel="icon" href="/icon.svg">')],
   ]);
@@ -41,7 +43,9 @@ test('lookup finds the website, logo and Glassdoor', async () => {
   const r = await lookup('Acme');
   assert.equal(r.website, 'https://www.acme.io');
   assert.equal(r.logo, 'https://www.acme.io/icon.svg');
-  assert.equal(r.glassdoorUrl, 'https://www.glassdoor.com/Overview/Working-at-Acme-EI_IE123.11,15.htm');
+  assert.equal(r.links.glassdoorUrl, 'https://www.glassdoor.com/Overview/Working-at-Acme-EI_IE123.11,15.htm');
+  assert.equal(r.links.linkedinUrl, 'https://www.linkedin.com/company/acme-inc/');
+  assert.equal(r.links.blindUrl, undefined);
   assert.equal(r.source, 'duckduckgo');
 });
 
