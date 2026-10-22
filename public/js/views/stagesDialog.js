@@ -7,6 +7,7 @@ import { getState, save } from '../store.js';
 import { emit } from '../bus.js';
 import { addStage, deleteStage, moveBy, applyOrderToAll, stageUsage } from '../model/stages.js';
 import { focusStageOnOpen } from './detail.js';
+import { TIME_24 } from '../model/meetings.js';
 
 const dlg = () => $('#stagesDlg');
 const warning = () => $('#gsWarn');
@@ -25,7 +26,7 @@ function render() {
 function describe({ done, meeting, comment }) {
   const what = [];
   if (done) what.push('marked done');
-  if (meeting) what.push('meeting ' + new Date(meeting).toLocaleString(undefined, { day: 'numeric', month: 'short', ...(meeting.length > 10 ? { hour: '2-digit', minute: '2-digit' } : {}) }));
+  if (meeting) what.push('meeting ' + new Date(meeting).toLocaleString(undefined, { day: 'numeric', month: 'short', ...(meeting.length > 10 ? TIME_24 : {}) }));
   if (comment) what.push(`comment “${comment.length > 40 ? comment.slice(0, 40) + '…' : comment}”`);
   return what.join(' · ');
 }

@@ -32,3 +32,17 @@ test('next meeting: earliest upcoming one on a relevant stage', () => {
   assert.deepEqual(nextMeeting(c, '2026-10-22'), { when: '2026-10-24T15:30', stage: 'd' });
   assert.equal(nextMeeting(c, '2026-11-01'), null);
 });
+
+test('24-hour time typing', async () => {
+  const { parseTime, combineMeeting } = await import('../../public/js/model/meetings.js');
+  assert.equal(parseTime('9'), '09:00');
+  assert.equal(parseTime('930'), '09:30');
+  assert.equal(parseTime('21:05'), '21:05');
+  assert.equal(parseTime('21.05'), '21:05');
+  assert.equal(parseTime(''), '');
+  assert.equal(parseTime('25:00'), null);
+  assert.equal(parseTime('9pm'), null);
+  assert.equal(combineMeeting('2026-10-24', '14:00'), '2026-10-24T14:00');
+  assert.equal(combineMeeting('2026-10-24', ''), '2026-10-24');
+  assert.equal(combineMeeting('', '14:00'), '');
+});

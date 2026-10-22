@@ -3,7 +3,7 @@ import { esc, today, daysBetween } from '../util.js';
 import { STATUSES, statusLabel, isClosed } from '../config.js';
 import { getState } from '../store.js';
 import { progress } from '../model/progress.js';
-import { nextMeeting } from '../model/meetings.js';
+import { nextMeeting, TIME_24 } from '../model/meetings.js';
 
 // The company that a clicked/edited element belongs to (nearest [data-id]).
 export function companyOf(el) {
@@ -37,8 +37,8 @@ export function meetingHtml(c) {
   const d = new Date(m.when);
   const days = daysBetween(today(), m.when.slice(0, 10));
   const day = days === 0 ? 'Today' : days === 1 ? 'Tomorrow' : d.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
-  const time = m.when.length > 10 ? ' · ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : '';
-  return `<div class="meet ${days <= 1 ? 'soon' : ''}" title="${esc(stageName(m.stage))} — ${esc(d.toLocaleString())}"><b>${day}${time}</b><small>${esc(stageName(m.stage))}</small></div>`;
+  const time = m.when.length > 10 ? ' · ' + d.toLocaleTimeString(undefined, TIME_24) : '';
+  return `<div class="meet ${days <= 1 ? 'soon' : ''}" title="${esc(stageName(m.stage))} — ${esc(d.toLocaleString(undefined, { dateStyle: 'medium', ...(m.when.length > 10 ? { timeStyle: 'short', hourCycle: 'h23' } : {}) }))}"><b>${day}${time}</b><small>${esc(stageName(m.stage))}</small></div>`;
 }
 
 // bar · percent · "x/y · next: <stage>"

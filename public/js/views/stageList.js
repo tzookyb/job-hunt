@@ -6,6 +6,7 @@ import { getState, save } from '../store.js';
 import { emit } from '../bus.js';
 import { addStage, moveBy, moveTo } from '../model/stages.js';
 import { setStageDone } from '../model/company.js';
+import { parseTime, combineMeeting } from '../model/meetings.js';
 import { companyOf, stageName } from './common.js';
 
 export function stageListHtml(c) {
@@ -19,7 +20,7 @@ export function stageListHtml(c) {
           <td class="num">${x.enabled ? ++n : '–'}</td>
           <td><input type="checkbox" data-sd="${id}" ${x.done ? 'checked' : ''} ${x.enabled ? '' : 'disabled'}></td>
           <td class="sname">${esc(stageName(id))}</td>
-          <td><input type="datetime-local" class="smeet ${x.meeting ? 'has' : ''}" data-sm="${id}" value="${esc(x.meeting || '')}" title="Scheduled meeting for this stage"></td>
+          <td><span class="swhen ${x.meeting ? 'has' : ''}" data-sm="${id}" title="Scheduled meeting for this stage (24-hour time)"><input type="date" class="smeet sdate" value="${esc((x.meeting || '').slice(0, 10))}"><input class="smeet stime" value="${esc((x.meeting || '').slice(11, 16))}" placeholder="--:--" maxlength="5" inputmode="numeric" autocomplete="off"></span></td>
           <td><input class="scomment" data-sc="${id}" value="${esc(x.comment)}" placeholder="comment…"></td>
           <td class="rel"><label class="switch" title="Does this company have this stage?"><input type="checkbox" data-se="${id}" ${x.enabled ? 'checked' : ''}><span></span></label></td>
           <td class="mv"><button class="icon up" title="Move up">↑</button><button class="icon down" title="Move down">↓</button></td>
@@ -46,12 +47,23 @@ function initEditing(main) {
     companyOf(el).stages[el.dataset.sc].comment = el.value;
     save();
   });
-  delegate(main, 'input', 'input[data-sm]', (e, el) => {
-    const c = companyOf(el);
-    c.stages[el.dataset.sm].meeting = el.value;
-    el.classList.toggle('has', !!el.value);
+  // "when?": a date plus a 24-hour time box (the browser's own time picker follows the OS locale, often AM/PM)
+  const meetingFrom = box => {
+    const time = parseTime(box.querySelector('.stime').value);
+    return { time, value: combineMeeting(box.querySelector('.sdate').value, time || '') };
+  };
+  delegate(main, 'input', '.swhen input', (e, el) => {
+    const box = el.closest('.swhen'), c = companyOf(el), { time, value } = meetingFrom(box);
+    box.querySelector('.stime').classList.toggle('bad', time === null);
+    if (time === null) return;   // half-typed or invalid time: keep the last good value
+    c.stages[box.dataset.sm].meeting = value;
+    box.classList.toggle('has', !!value);
     save();
     emit('meeting:changed', c);   // updates the Next meeting cell without redrawing this list
+  });
+  delegate(main, 'focusout', '.stime', (e, el) => {
+    const t = parseTime(el.value);
+    if (t) el.value = t;   // "930" → "09:30"
   });
   delegate(main, 'keydown', '.newstage', (e, el) => {
     if (e.key !== 'Enter' || !el.value.trim()) return;

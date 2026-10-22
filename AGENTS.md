@@ -33,6 +33,9 @@ edit as you go. Every change persists locally to a JSON file. Single user, runs 
 - **Back up before touching code:** copy `user-data/data.json` to `user-data/backups/manual/` with a date first.
 - **Test every change.** `npm test` for unit/integration tests; check UI changes in a headless browser against a
   throwaway data folder, never the real one.
+- **Times are 24-hour** everywhere (owner's preference): display uses `TIME_24` (`hourCycle: 'h23'`), and the
+  stage "when?" field is a date input plus a typed `HH:MM` box, because the browser's own time picker follows the
+  OS locale (AM/PM on an English Mac). `parseTime()` accepts `9`, `930`, `9:30`, `21.05`.
 - **UI text in plain English.** Dark theme with a dark-blue palette; colours are CSS tokens in `base.css`.
 - **Report briefly** what changed, and whether the owner only needs to refresh the tab (front-end change) or also
   restart the server (`server/` change).
@@ -178,7 +181,8 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
   contact, ✕ removes one (asks if it has data). Empty links are greyed out; clicking one focuses its field.
 - **Research** (`views/research.js`): 8 sites from `config.RESEARCH` (field, label, domain, tooltip). Hover a name
   for what the site is for; an empty field's 🔍 opens a Google `site:` search.
-- **Stages** (`views/stageList.js`, shared with the popover): done ✓, a "when?" meeting date-time, comment, relevant
+- **Stages** (`views/stageList.js`, shared with the popover): done ✓, a "when?" meeting (date + 24-hour time box;
+  an invalid time turns red and isn't saved), comment, relevant
   switch (off = greyed and excluded from progress), reorder by ⋮⋮ drag or ↑↓, and "+ Add stage" (adds to the shared
   list; every company gets it, switched on only for the company it was added from).
 - **Notes** (`views/notes.js`): titled free-text sections; titles suggest stage names.
@@ -285,6 +289,7 @@ Learned on 2026-10-22 by running real lookups through the owner's running app:
 
 Newest first.
 
+- **2026-10-22 21:30:** 24-hour time everywhere; the "when?" picker became date + typed 24-hour time.
 - **2026-10-22 21:20:** Lookup: research links also from the company's own website and from guessed addresses
   (Finder, Levels.fyi, Comparably). Owner: Wikidata alone wasn't finding much beyond Glassdoor; no API keys for now.
 - **2026-10-22 17:30:** Ported to a public GitHub repo: this history was rebuilt commit by commit from the session
