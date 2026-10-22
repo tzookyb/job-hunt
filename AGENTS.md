@@ -214,23 +214,37 @@ Learned on 2026-10-22 by running real lookups through the owner's running app:
   (`plausible()`); directory sites are excluded by whole hostname (so `x.com` doesn't match `wix.com`).
 - **Logo:** the homepage's best `<link rel=icon|apple-touch-icon>`, checked to be an image, else Google's s2
   favicon service.
-- **Research links come mainly from Wikidata IDs** (`server/lookup/wikidata.js`, `WD_IDS`):
+- **Research links, most reliable first** (`server/lookup/index.js`; no API keys — the owner chose not to set any up):
+  1. **Wikidata IDs** (`wikidata.js`, `WD_IDS`). In practice useful mostly for Glassdoor; coverage is patchy.
 
-  | Property | Site | URL pattern |
-  |---|---|---|
-  | P4264 | LinkedIn | `linkedin.com/company/$1/` |
-  | P8060 | Glassdoor | `glassdoor.com/Overview/-EI_IE$1.htm` |
-  | P10285 | Indeed | `indeed.com/cmp/$1` |
-  | P2088 | Crunchbase | `crunchbase.com/organization/$1` |
-  | P10206 | Comparably | `comparably.com/companies/$1` |
-  | P10146 | Levels.fyi | `levels.fyi/company/$1/` |
+     | Property | Site | URL pattern |
+     |---|---|---|
+     | P4264 | LinkedIn | `linkedin.com/company/$1/` |
+     | P8060 | Glassdoor | `glassdoor.com/Overview/-EI_IE$1.htm` |
+     | P10285 | Indeed | `indeed.com/cmp/$1` |
+     | P2088 | Crunchbase | `crunchbase.com/organization/$1` |
+     | P10206 | Comparably | `comparably.com/companies/$1` |
+     | P10146 | Levels.fyi | `levels.fyi/company/$1/` |
+  2. **The company's own website** (`companySite.js`): the homepage plus `/about`, `/careers`, `/company`, scanned
+     for links matching `SITES` (escaped `\/` in inline JSON is handled). No name check: a company's site only
+     links to itself. Best source for LinkedIn.
+  3. **Guessed addresses** (`probes.js`, `PROBES`): Startup Nation Finder, Levels.fyi, Comparably. Tries
+     `name-with-dashes`, `namejoined`, `firstword`; keeps a page only if it's a 200 HTML page whose title names the
+     company. Stops at the first 403/429/999 (the site blocks bots). Expectations, checked 2026-10-22: Finder pages
+     answer with a proper title (note: Startup Nation Central stopped operating Finder on 2026-08-31, data is
+     frozen); Comparably serves a JS shell ("comparably-companies-ui"), so it rarely verifies; Levels.fyi refused an
+     automated fetch.
+  4. **One DuckDuckGo search** for Glassdoor, only if it's still missing.
 
-  Startup Nation Finder and Blind have no Wikidata property. Coverage is patchy: many companies have only one or
-  two IDs; empty fields fall back to the 🔍 search link in the UI.
-- **Scraping search engines failed and is deliberately minimal now:**
+  Startup Nation Finder and Blind have no Wikidata property; Blind, Indeed and Crunchbase block automated visits, so
+  they mostly come from the company website or stay empty (the UI's 🔍 search link covers them). The terminal report
+  says where each link came from.
+- **Possible next step (needs a key, owner declined for now):** a search API restricted to one site per query —
+  Tavily (1,000 free credits/month, no card) or Brave ($5 free credit/month, card required). Google's Custom Search
+  API is closed to new users and shuts down 2027-01-01.
+- **Scraping search engines failed and is deliberately minimal:**
   - DuckDuckGo's HTML endpoint answers the first automated search, then returns 202 bot checks.
   - Bing returns pages without result markup; Bing's `format=rss` ignores `site:`.
-  - Only one DuckDuckGo search per lookup remains, for Glassdoor, and only when Wikidata has no Glassdoor ID.
   - **Don't add parallel or bulk searching back.** It gets the owner's connection flagged with CAPTCHAs.
 - **Glassdoor URLs** are always normalized to the Overview ("About") tab (`toOverview()`).
 - A lookup takes roughly 5–20s. The client waits up to 60s and has a Skip button.
@@ -271,6 +285,8 @@ Learned on 2026-10-22 by running real lookups through the owner's running app:
 
 Newest first.
 
+- **2026-10-22 21:20:** Lookup: research links also from the company's own website and from guessed addresses
+  (Finder, Levels.fyi, Comparably). Owner: Wikidata alone wasn't finding much beyond Glassdoor; no API keys for now.
 - **2026-10-22 17:30:** Ported to a public GitHub repo: this history was rebuilt commit by commit from the session
   logs, with the code split into modules. Added a sample-data demo, README screenshots and a showcase README.
   Personal data stays out of git (`user-data/`, `.demo-data/` ignored).

@@ -91,3 +91,32 @@ test('GET /api/lookup', async () => {
     assert.deepEqual(await (await fetch(app.base + '/api/lookup?name=acme')).json(), { website: 'https://acme.io' });
   } finally { await app.close(); }
 });
+
+test('lookup: links found on the company\'s own website, even with another slug', async () => {
+  const get = fakeGet([
+    ['https://api.duckduckgo.com/', json({ Results: [{ FirstURL: 'https://acme.io/' }] })],
+    ['https://acme.io/careers', html('<a href="https://www.glassdoor.com/Overview/Working-at-Acme-Group-EI_IE77.11,21.htm">Reviews</a>')],
+    ['https://acme.io/about', { status: 404, body: '' }],
+    ['https://acme.io', html('<footer><a href="https:\\/\\/www.linkedin.com\\/company\\/acme-group-ltd">in</a> <a href="https://www.crunchbase.com/organization/acme-group">cb</a></footer>')],
+  ]);
+  const r = await createLookup({ get, log: () => {} })('Acme');
+  assert.equal(r.links.linkedinUrl, 'https://www.linkedin.com/company/acme-group-ltd/');
+  assert.equal(r.links.crunchbaseUrl, 'https://www.crunchbase.com/organization/acme-group');
+  assert.equal(r.links.glassdoorUrl, 'https://www.glassdoor.com/Overview/Working-at-Acme-Group-EI_IE77.11,21.htm');
+  assert.equal(r.log.linkedinUrl, 'company website');
+  assert.ok(!get.calls.some(u => /html\.duckduckgo/.test(u)), 'no search needed when the website has Glassdoor');
+});
+
+test('lookup: guessed addresses are kept only when the page names the company', async () => {
+  const get = fakeGet([
+    ['https://finder.startupnationcentral.org/company_page/acme-labs', html('<title>Acme Labs — Developer tools | Finder</title>')],
+    ['https://www.levels.fyi/companies/acme-labs', { status: 403, body: 'blocked' }],
+    ['https://www.comparably.com/companies/', html('<title>comparably-companies-ui</title>An unknown error occurred')],
+  ]);
+  const r = await createLookup({ get, log: () => {} })('Acme Labs');
+  assert.equal(r.links.finderUrl, 'https://finder.startupnationcentral.org/company_page/acme-labs');
+  assert.match(r.log.finderUrl, /guessed address/);
+  assert.equal(r.links.levelsUrl, undefined);
+  assert.equal(get.calls.filter(u => u.includes('levels.fyi')).length, 1, 'stops at the first block');
+  assert.equal(r.links.comparablyUrl, undefined);
+});

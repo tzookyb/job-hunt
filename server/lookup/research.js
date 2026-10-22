@@ -16,11 +16,12 @@ export const SITES = [
   { field: 'comparablyUrl', domain: 'comparably.com', re: re(`https?://(?:www\\.)?comparably\\.com/companies/(${SEG})`), clean: (u, m) => `https://www.comparably.com/companies/${m[1]}` },
 ];
 
-// The first company page of `site` in `text` whose path contains the company's name.
-export function matchSite(text, site, key) {
+// The first company page of `site` in `text`. Unless `anyName` is set, its path must contain the company's name
+// (search results mention other companies too; the company's own website only links to itself).
+export function matchSite(text, site, key, { anyName = false } = {}) {
   for (const m of text.matchAll(site.re)) {
     const url = site.clean(m[0], m);
-    if (url && url.replace(/^https?:\/\/[^/]+/, '').toLowerCase().replace(/[^a-z0-9]/g, '').includes(key.slice(0, 5))) return url;
+    if (url && (anyName || url.replace(/^https?:\/\/[^/]+/, '').toLowerCase().replace(/[^a-z0-9]/g, '').includes(key.slice(0, 5)))) return url;
   }
   return '';
 }
