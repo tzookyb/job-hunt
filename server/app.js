@@ -6,6 +6,7 @@ import { serveStatic } from './static.js';
 import { send } from './http.js';
 import { createLookup } from './lookup/index.js';
 import { Backups } from './backups.js';
+import { checkRequest } from './guard.js';
 
 export function createApp(config, { lookup = createLookup(), backups } = {}) {
   const store = new JsonStore({ file: config.dataFile, previousFile: config.previousFile });
@@ -15,6 +16,8 @@ export function createApp(config, { lookup = createLookup(), backups } = {}) {
 
   return http.createServer(async (req, res) => {
     const url = new URL(req.url, 'http://localhost');
+    const blocked = checkRequest(req, url.pathname);
+    if (blocked) return send(res, 403, blocked);
     try {
       const route = routes[`${req.method} ${url.pathname}`];
       if (route) return await route(req, res, url);

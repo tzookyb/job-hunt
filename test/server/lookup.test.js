@@ -4,7 +4,7 @@ import { plausible, norm } from '../../server/lookup/names.js';
 import { iconCandidates } from '../../server/lookup/logo.js';
 import { unwrapLinks } from '../../server/lookup/search.js';
 import { createLookup } from '../../server/lookup/index.js';
-import { startApp } from '../helpers.js';
+import { startApp, api } from '../helpers.js';
 import { fakeGet, json, html, image } from './fakeNet.js';
 
 test('a plausible company domain looks like the name, and is not a directory site', () => {
@@ -89,8 +89,8 @@ test('lookup falls back to guessing domains and skips parked pages', async () =>
 test('GET /api/lookup', async () => {
   const app = await startApp({}, { lookup: async name => ({ website: 'https://' + name + '.io' }) });
   try {
-    assert.equal((await fetch(app.base + '/api/lookup')).status, 400);
-    assert.deepEqual(await (await fetch(app.base + '/api/lookup?name=acme')).json(), { website: 'https://acme.io' });
+    assert.equal((await api(app.base + '/api/lookup')).status, 400);
+    assert.deepEqual(await (await api(app.base + '/api/lookup?name=acme')).json(), { website: 'https://acme.io' });
   } finally { await app.close(); }
 });
 

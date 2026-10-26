@@ -22,3 +22,6 @@ export async function startApp(overrides = {}, deps = {}) {
   const base = `http://127.0.0.1:${server.address().port}`;
   return { config, base, close: () => new Promise(r => server.close(r)) };
 }
+
+// fetch() as the app's own page calls the API (with the header server/guard.js requires).
+export const api = (url, opts = {}) => fetch(url, { ...opts, headers: { 'X-Job-Hunt': '1', ...opts.headers } });

@@ -58,6 +58,7 @@ edit as you go. Every change persists locally to a JSON file. Single user, runs 
 | `server/backups.js` | `Backups`: activity-driven automatic backups (see below). |
 | `server/static.js` | Serves `public/` (known file types only, no path traversal). |
 | `server/http.js` | `send`, `sendJson`, `readBody`. |
+| `server/guard.js` | `checkRequest()`: refuses requests from other websites (see **Security**). |
 | `server/lookup/` | Naive company lookup (see below). `index.js` builds it with an injectable `get`. |
 | `public/index.html` | Page shell: header, `<main>`, dialogs, one module script. |
 | `public/favicon.svg` | Crosshair-target icon (navy square, blue rings). |
@@ -88,6 +89,20 @@ App code and personal data are kept apart: everything personal is in `user-data/
 without it to give the app to someone (they start empty); copy `user-data/` alone to move the data.
 
 The server listens on `127.0.0.1` only: it's a personal tool, not something to expose on a network.
+
+## Security
+
+Listening on `127.0.0.1` keeps other computers out, but **any website open in the owner's browser can still send
+requests to `localhost:4317`**. `server/guard.js` runs before every route (`app.js`) and answers 403 unless:
+
+- the `Host` header is `localhost`, `127.0.0.1` or `[::1]` on the server's own port (blocks DNS rebinding);
+- every `/api/` request carries `X-Job-Hunt: 1`. A cross-site page can't add a custom header without a CORS
+  preflight, and the server never approves one. `public/js/api.js` adds it to every call; tests use `api()` from
+  `test/helpers.js`; `curl` needs `-H 'X-Job-Hunt: 1'`;
+- when the browser sends `Origin` / `Sec-Fetch-Site`, they say the request came from this page.
+
+A tab left open from before this change gets 403 until it's refreshed (the page shows "Refresh the page").
+**Any new endpoint is covered automatically** as long as it lives under `/api/`. Never add CORS headers.
 
 ## Front-end conventions
 
@@ -269,6 +284,102 @@ Learned on 2026-10-22 by running real lookups through the owner's running app:
 - **Testing:** there's no internet in the test environment; `test/server/fakeNet.js` answers requests with canned
   responses. In the browser, stub `/api/lookup` with Playwright's `page.route`.
 
+## AI lookup — spec (planned, not built yet)
+
+Agreed with the owner on 2026-10-26. Goal: an AI-assisted company lookup that fills the links, writes a short
+description of what the company does, judges how it fits the owner's experience and needs, and analyzes the job
+post (requirements vs. the owner's profile). The user brings his
+own API key for whichever AI provider he wants; **the key stays local and safe**. Build it step by step, one step
+per commit, each with tests; the app must keep working exactly as now when no key is set.
+
+**Security rules (non-negotiable):**
+- **The key never reaches the browser.** The page sends it to the server once; the server never returns it (only
+  `hasKey` and the last 4 characters). Never in `localStorage`, never in `data.json` (so never in backups), never
+  in a log line or an error message (scrub provider errors before printing or returning them).
+- **Key storage, first match wins:** `JOB_HUNT_AI_KEY` env var → macOS Keychain via the built-in `security` CLI
+  (service `job-hunt`, account = provider) → `user-data/secrets.json` written with mode `0600`. Not in `data.json`,
+  so the existing backups (which copy only `data.json`) never include it. **The key is never a command-line
+  argument** (any local process can read argv with `ps`): `set` feeds `add-generic-password -U -s … -a … -w "<key>"`
+  to `security -i` over stdin, quoted with `\` escapes, then reads it back to confirm (`-i` can exit 0 after a
+  failed command). Reads use `find-generic-password … -w` (no secret in argv); exit 44 = not found. Keys must be
+  printable ASCII without spaces, 8–1024 chars. If the Keychain refuses, the key goes to the file and a warning
+  (no key in it) is logged. Saving to the Keychain removes any older copy from the file. Reads are cached in memory.
+- **AI output is untrusted data.** Pages the model reads can contain prompt injection. The model gets no tools that
+  write anything; it returns JSON against a fixed schema; the server validates it; the client fills only empty
+  fields (`fillEmpty`) and renders everything through `esc()`.
+- **Every URL the model returns is verified:** `https:` only, must match that site's regex in `research.js`
+  (`SITES[].re`), and the site's own website must answer. Models invent LinkedIn/Glassdoor URLs confidently.
+- Zero dependencies still holds: Node 18's global `fetch`, `child_process.execFile` for the Keychain.
+
+**Providers — free tiers only** (owner's decision: anyone using the app must be able to get a key
+without paying or adding a card). The table in `server/ai/providers.js` is the only list; there is no custom base
+URL. Each entry has a short "how to get a free key" guide that the ⚙ dialog shows when the provider is picked
+(what's free, 3 steps, a link to the key page opening in a new tab, a privacy note where the free tier has one).
+Free tiers change: check them, the key pages and model names against the providers' own pages when building:
+
+| Provider | Free tier | Key page | Default model |
+|---|---|---|---|
+| Google Gemini | Google account, no card; daily limits per model (Flash-Lite highest). Free-tier prompts may be used by Google outside the EU/UK. | aistudio.google.com/apikey | `gemini-3.5-flash-lite` |
+| Groq | No card, ~1,000 requests/day | console.groq.com/keys | `openai/gpt-oss-120b` |
+| OpenRouter | No card, 50 requests/day on free models. `openrouter/free` routes **only** to free models, so it can't cost money. Some free hosts may log prompts. | openrouter.ai/settings/keys | `openrouter/free` |
+| Mistral | "Experiment" plan: no card, verified phone; requests may be used for training. | via Mistral's "activate and generate API key" guide | `mistral-small-latest` |
+| Ollama | Runs locally, no key, nothing leaves the Mac | ollama.com/download | none (user types e.g. `llama3.1:8b`) |
+
+Left out on purpose: Anthropic and OpenAI (paid only); Cerebras (a $5/30-day trial that needs a card); GitHub
+Models (retired 2026-07-30); a custom base URL (could point at a paid or unknown endpoint).
+All listed providers speak OpenAI-style Chat Completions, so there is one adapter, `openaiCompatible.js` (at the
+preset `baseURL`), exporting `complete({ key, model, system, user, schema, signal }) → object`. A saved provider
+that isn't listed reads as "none".
+
+**Flow — keep the fetching, let the AI do the thinking** (not a pure replacement of the current lookup):
+1. *Gather* (existing code): website, logo, Wikidata, plus the plain text of the homepage, `/about`, `/careers`
+   (a few KB each, HTML stripped), **and the job post**: the text of `careersUrl` when it points at a specific
+   posting, or the text the user pasted into `jobText` (see **Job post**).
+2. *Analyze*: one request with that text + the owner's profile → summary, what they do, stage/size if stated, fit,
+   proposed research links, sources. Works with every provider, including local models; cheap (one small request).
+3. *Optional web search* (toggle, only for providers that offer it natively): to fill gaps. Costs more.
+No key → behave exactly as today.
+
+**Job post:** analyzed in the same single request as the company (no extra cost). Source, first match wins: the
+`jobText` field (a "Paste job post" textarea on the company page; needed because LinkedIn needs a login and many ATS
+pages — Comeet, Workday — render in JS) → the text fetched from `careersUrl`. If neither yields real text, `job` is
+`null` and the UI says "Paste the job post to analyze it". Job post text is untrusted like any page. The text that
+was analyzed is kept as `ai.job.snapshot` (capped ~20 KB) because postings disappear before interviews. If `position`
+is empty, it's filled from `job.title`.
+
+**Profile:** `user-data/profile.md`, edited in settings: CV highlights + what the user is looking for. The
+settings screen says plainly that it's sent to the chosen provider. Keeps the app portable for colleagues.
+
+**Result schema** (stored on the company as `ai`, added in `normalize()` with an empty default — no migration):
+`{ summary, whatTheyDo, stage, fit: { matches[], gaps[], flags[] }, job, links: {<field>: url}, sources[], model, at }`
+where `job` is `null` or `{ title, seniority, location, workMode, stack[], mustHave[], niceToHave[], matches[],
+gaps[], prep[], flags[], source: 'pasted'|'url', snapshot }` — `prep` = topics to study for this role's interviews,
+`flags` = red flags or unclear points worth asking about. `jobText` is a new company field ('' default in
+`normalize()`).
+Shown as an "AI notes" section on the company page with "↻ Re-analyze"; `at` + `model` say who wrote it and when.
+
+**API (all under `/api/`, so the guard covers them):**
+- `GET /api/settings` → `{ provider, model, hasKey, keyHint, keySource, webSearch, keys, providers }`.
+- `PUT /api/settings` → saves provider/model/webSearch; `apiKey` if present (empty string removes it).
+- `POST /api/settings/test` → one tiny request to check the key works → `{ ok, error }`.
+- `GET|PUT /api/profile` → `user-data/profile.md`.
+- `POST /api/ai/lookup` `{ name, website?, careersUrl?, jobText? }` (the page sends the company's current fields; the server never reads data.json for this) → `{ website, logo, links, log, source, ai }`; the current lookup stays at `/api/lookup`.
+
+**Steps:**
+0. ✅ Request guard (`server/guard.js`) — done 2026-10-26.
+1. Secret store (`server/ai/secrets.js`): env → Keychain (key over stdin to `security -i`) → 0600 file;
+   `get/set/remove/info`, `hint`, `scrub`. Tests use a fake Keychain runner and a temp folder; assert the key never
+   appears in any HTTP response or log.
+2. Settings + profile endpoints and a settings dialog (⚙ in the header) that lists the free providers, each with
+   its "how to get a free key" guide.
+3. The provider adapter + `POST /api/settings/test` + a Test button. Tests against a fake provider server on a
+   random port. Default models checked against the providers' docs.
+4. Page-text gathering (incl. the job post) + the analyze prompt + schema validation + URL verification
+   (`server/ai/lookup.js`).
+5. UI: "AI notes" section (company + **Job post** block: requirements, matches/gaps, prep, flags, and the snapshot
+   collapsed), "Paste job post" textarea, Add Company / ↻ Look up use the AI lookup when a key is set.
+6. Optional native web search per provider.
+
 ## Running it
 
 - `npm start`, then http://localhost:4317. Only one server can hold the port: `EADDRINUSE` means an older one is
@@ -302,6 +413,10 @@ Learned on 2026-10-22 by running real lookups through the owner's running app:
 ## Work log
 
 Newest first.
+
+- **2026-10-26 12:10:** Request guard (`server/guard.js`): 403 unless the Host is local, `/api/` calls carry
+  `X-Job-Hunt: 1`, and Origin/Sec-Fetch-Site (if sent) are this page. Client and tests send the header. Wrote the
+  **AI lookup — spec** section (planned feature, step 0 = this guard). Needs a server restart and a tab refresh.
 
 - **2026-10-26 10:15:** Add/edit the pending action from the sheet ("+ Action" on row hover, Edit in the card).
   Done now also sets Last interaction to today.

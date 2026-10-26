@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { Backups, backupTime } from '../../server/backups.js';
-import { tempDir, startApp } from '../helpers.js';
+import { tempDir, startApp, api } from '../helpers.js';
 
 const HOUR = 3600e3, DAY = 24 * HOUR;
 const pad = n => String(n).padStart(2, '0');
@@ -60,10 +60,10 @@ test('PUT backs up the version from before the save; POST /api/backup forces one
   const app = await startApp();
   try {
     await fs.writeFile(app.config.dataFile, '{"v":"before"}');
-    await fetch(app.base + '/api/data', { method: 'PUT', body: '{"v":"after"}' });
+    await api(app.base + '/api/data', { method: 'PUT', body: '{"v":"after"}' });
     const [first] = await fs.readdir(app.config.backupDir);
     assert.equal(await fs.readFile(path.join(app.config.backupDir, first), 'utf8'), '{"v":"before"}');
-    const r = await fetch(app.base + '/api/backup', { method: 'POST' });
+    const r = await api(app.base + '/api/backup', { method: 'POST' });
     assert.match((await r.json()).name, /^auto-.*\.json$/);
   } finally { await app.close(); }
 });

@@ -1,15 +1,15 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { startApp } from '../helpers.js';
+import { startApp, api } from '../helpers.js';
 
 test('data API round-trips JSON and rejects invalid bodies', async () => {
   const app = await startApp();
   try {
-    assert.deepEqual(await (await fetch(app.base + '/api/data')).json(), {});
-    const put = await fetch(app.base + '/api/data', { method: 'PUT', body: '{"companies":[]}' });
+    assert.deepEqual(await (await api(app.base + '/api/data')).json(), {});
+    const put = await api(app.base + '/api/data', { method: 'PUT', body: '{"companies":[]}' });
     assert.equal(put.status, 204);
-    assert.deepEqual(await (await fetch(app.base + '/api/data')).json(), { companies: [] });
-    assert.equal((await fetch(app.base + '/api/data', { method: 'PUT', body: 'nope' })).status, 400);
+    assert.deepEqual(await (await api(app.base + '/api/data')).json(), { companies: [] });
+    assert.equal((await api(app.base + '/api/data', { method: 'PUT', body: 'nope' })).status, 400);
   } finally { await app.close(); }
 });
 
