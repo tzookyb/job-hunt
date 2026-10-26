@@ -13,6 +13,23 @@ test('sorts by a column; empty values go last in both directions', () => {
   assert.equal(names({ key: 'name', dir: 1 }), 'abc');
 });
 
+test('ties: next meeting, then last interaction (recent first), then status, then name', () => {
+  const st = (id, done, meeting = '') => ({ [id]: { enabled: true, done, meeting } });
+  const half = (name, last, meeting, status = 'active') => co(name, {
+    order: ['a', 'b'], stages: { ...st('a', true), ...st('b', false, meeting) }, lastInteraction: last, status,
+  });
+  const list = [
+    half('Wiz', '2026-10-20'),
+    half('Tonkean', '2026-10-25'),
+    half('Gong', '2026-10-25'),
+    half('Visual Layer', '2026-10-25', '2026-10-26T10:00'),
+    co('Loora', { order: ['a'], stages: st('a', true), lastInteraction: '2026-10-26' }),
+    half('Acme', '2026-10-25', '', 'interested'),
+  ];
+  const names = sortCompanies(list, { key: 'progress', dir: -1 }, { today: '2026-10-26' }).map(c => c.name);
+  assert.deepEqual(names, ['Loora', 'Visual Layer', 'Acme', 'Gong', 'Tonkean', 'Wiz']);
+});
+
 test('clicking a header: new column starts in its natural direction, same column flips', () => {
   assert.deepEqual(nextSort({ key: null, dir: 1 }, 'name'), { key: 'name', dir: 1 });
   assert.deepEqual(nextSort({ key: 'name', dir: 1 }, 'last'), { key: 'last', dir: -1 });

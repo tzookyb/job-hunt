@@ -41,11 +41,16 @@ export function meetingHtml(c) {
   return `<div class="meet ${days <= 1 ? 'soon' : ''}" title="${esc(stageName(m.stage))} — ${esc(d.toLocaleString(undefined, { dateStyle: 'medium', ...(m.when.length > 10 ? { timeStyle: 'short', hourCycle: 'h23' } : {}) }))}"><b>${day}${time}</b><small>${esc(stageName(m.stage))}</small></div>`;
 }
 
-// bar · percent · "x/y · next: <stage>"
+// bar · percent · "x/y · <last done stage> - done. next: <stage>"
 export function progressInner(c) {
   const p = progress(c);
   let text = `${p.done}/${p.total}`;
   if (isClosed(c)) text += ` · ${statusLabel(c.status)}${p.next ? ' at ' + stageName(p.next) : ''}`;
-  else if (p.next) text += ` · next: ${stageName(p.next)}`;
+  else {
+    const parts = [];
+    if (p.last) parts.push(`${stageName(p.last)} - done`);
+    if (p.next) parts.push(`next: ${stageName(p.next)}`);
+    if (parts.length) text += ` · ${parts.join('. ')}`;
+  }
   return `<span class="bar"><span style="width:${p.pct}%"></span></span><span class="pct">${p.pct}%</span><span class="pn">${esc(text)}</span>`;
 }

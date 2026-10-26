@@ -146,7 +146,7 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
 ### Main screen
 - **Sheet** (`views/sheet.js`, columns in `views/columns.js`): deliberately minimal.
   - Logo and Company are frozen on the left and read-only; clicking either opens the company page.
-  - Movable columns: Progress (bar · % · "x/y · next: <stage>", relevant stages only), Next meeting (earliest
+  - Movable columns: Progress (bar · % · "x/y · <last done stage> - done. next: <stage>", relevant stages only), Next meeting (earliest
     upcoming meeting on a relevant stage; amber for today/tomorrow), Last interaction (date + "x days ago", amber
     after 7 days) and Status. Drag a header to reorder them (both tables; remembered per browser).
   - ✕ deletes. Website, position and comments live on the company page only. Up to 1600px wide.
@@ -155,7 +155,8 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
 - **Rejected & closed** (rejected, withdrawn) move to a collapsible table below, with an editable Reason column in
   place of Next meeting. Changing the status moves the row.
 - **Sorting:** click a header; again to flip. Empty values always go last. Last interaction and Progress start
-  descending.
+  descending. Ties always fall back (owner's rule, fixed direction): next meeting (soonest first) → last interaction
+  (most recent first) → status (Interested → Approached me → In process) → company name (A–Z).
 - **Last interaction:** ticking a stage sets it to today; adding a company does not (owner's rule).
 - **Progress popover** (`views/popover.js`): hovering a Progress cell opens the company's stage list. It stays open
   while focused or dragging, closes on Esc, outside click, scroll or mouse-out.
@@ -293,6 +294,8 @@ Learned on 2026-10-22 by running real lookups through the owner's running app:
 
 Newest first.
 
+- **2026-10-26 09:55:** Progress text names the last completed stage ("Applied - done. next: HR phone"; `progress()`
+  now returns `last`). Sorting breaks ties by next meeting → last interaction → status → name (`model/sort.js`).
 - **2026-10-22 22:10:** Company page order: Stages now come before Research.
 
 - **2026-10-22 22:00:** LinkedIn falls back to the naive `linkedin.com/company/<slug>/about/` address.

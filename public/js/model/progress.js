@@ -8,5 +8,6 @@ export function progress(c) {
     total: on.length,
     pct: on.length ? Math.round(done / on.length * 100) : 0,
     next: on.find(id => !c.stages[id].done) || null,
+    last: on.filter(id => c.stages[id].done).pop() || null,   // the latest completed stage
   };
 }
