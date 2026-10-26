@@ -61,7 +61,7 @@ edit as you go. Every change persists locally to a JSON file. Single user, runs 
 | `server/lookup/` | Naive company lookup (see below). `index.js` builds it with an injectable `get`. |
 | `public/index.html` | Page shell: header, `<main>`, dialogs, one module script. |
 | `public/favicon.svg` | Crosshair-target icon (navy square, blue rings). |
-| `public/css/` | `base.css` (tokens, buttons, header), `sheet.css`, `stages.css`, `detail.css`, `dialogs.css`, `drawer.css`. |
+| `public/css/` | `base.css` (tokens, buttons, header), `sheet.css`, `stages.css`, `detail.css`, `dialogs.css`, `drawer.css`, `action.css`. |
 | `public/js/main.js` | Composition root: calls each feature's `init()`, loads data, routes. |
 | `public/js/store.js` | Owns the state; `load()`, debounced `save()` (350ms), `writeNow()`; server or localStorage. |
 | `public/js/api.js` | `fetch` wrappers for the server API. |
@@ -69,7 +69,7 @@ edit as you go. Every change persists locally to a JSON file. Single user, runs 
 | `public/js/dom.js` | `$`, `$$`, `delegate()`, `autosize()`. |
 | `public/js/router.js` | `#/c/<id>` → company page, otherwise the sheet. |
 | `public/js/config.js` | Default stages, statuses. |
-| `public/js/model/` | Pure logic, unit-tested: `normalize`, `company`, `stages`, `progress`, `meetings`, `search`, `sort`, `contacts`, `bookmarks`. |
+| `public/js/model/` | Pure logic, unit-tested: `normalize`, `company`, `stages`, `progress`, `meetings`, `search`, `sort`, `contacts`, `bookmarks`, `action`. |
 | `public/js/views/` | One file per UI feature, each with an `init()` that registers its own delegated listeners. |
 | `test/` | `node --test` suites; `test/helpers.js` starts the app against a temp data folder. |
 | `user-data/` | **All personal data** (git-ignored, created on start): `data.json`, `data.backup.json`, `backups/`. |
@@ -120,6 +120,8 @@ The server listens on `127.0.0.1` only: it's a personal tool, not something to e
     order: [stageId...],                  // this company's own stage order
     stages: { [stageId]: { enabled, done, comment, meeting: 'YYYY-MM-DDTHH:mm' } },   // enabled = applies to this company
     notes: [{ id, title, body }],
+    action: { text, url, since },          // pending action ('' when none); since = day it was written
+    actionLog: [{ id, text, url, since, done }],   // finished actions, newest first
   }],
   bookmarks: [{ id, title, url }],
   updatedAt, stageDefaultsV2: true,
@@ -187,6 +189,11 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
   list; every company gets it, switched on only for the company it was added from).
 - **Research** (`views/research.js`): 6 sites from `config.RESEARCH` (field, label, domain, tooltip). Hover a name
   for what the site is for; an empty field's 🔍 opens a Google `site:` search.
+- **Pending action** (`views/action.js`, `model/action.js`): a box under the progress bar — what to do next plus an
+  optional link (e.g. a scheduling page). "✓ Done" moves it to a collapsible "Done actions" log (date done, struck
+  through, ✕ to remove). In the sheet, a company with a pending action gets a bold amber "⚑ Action" badge next to its
+  name; hovering (or clicking) it opens a card with the action, the link, Edit (→ company page) and ✓ Done. Clicking
+  the badge doesn't open the company. Done does not change Last interaction (not asked for). Searchable.
 - **Notes** (`views/notes.js`): titled free-text sections; titles suggest stage names.
 
 ### Keys
@@ -294,6 +301,9 @@ Learned on 2026-10-22 by running real lookups through the owner's running app:
 
 Newest first.
 
+- **2026-10-26 10:05:** Pending action per company (badge + hover card in the sheet, box + Done log on the company
+  page). New fields `action`, `actionLog` (filled by `normalize()`, no migration). Demo data has one. The hover card
+  is `position: fixed` in `#main` because `.sheet-wrap` scrolls (an absolute tooltip would be clipped).
 - **2026-10-26 09:55:** Progress text names the last completed stage ("Applied - done. next: HR phone"; `progress()`
   now returns `last`). Sorting breaks ties by next meeting → last interaction → status → name (`model/sort.js`).
 - **2026-10-22 22:10:** Company page order: Stages now come before Research.

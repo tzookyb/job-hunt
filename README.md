@@ -10,6 +10,9 @@ step.
 
 - **A sheet you edit as you go.** One row per company: progress, next meeting, last interaction and status. Every
   change autosaves.
+- **A pending action per company.** Write down the next thing to do (and paste a link, e.g. a scheduling page);
+  a bold ⚑ badge sits next to the company, hover it to see the action, open the link or mark it done. Done actions
+  are kept in a log on the company page.
 - **Hiring stages that match reality.** A shared stage list (Applied, HR, Tech phone, Home assignment…) that each
   company can reorder or switch off. Hover the Progress bar to tick stages, set a meeting ("when?"), add comments,
   drag to reorder, or add a stage on the spot.

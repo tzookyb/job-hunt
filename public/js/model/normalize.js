@@ -3,6 +3,7 @@
 import { uid } from '../util.js';
 import { DEFAULT_STAGES, STATUSES, OLD_STATUS, RESEARCH } from '../config.js';
 import { blankContact, upgradeContacts, upgradeWhatsapp } from './contacts.js';
+import { blankAction } from './action.js';
 
 export const blankStage = (enabled = true) => ({ enabled, done: false, comment: '' });
 
@@ -30,6 +31,8 @@ export function normalize(raw) {
     }
     for (const f of ['name', 'position', 'website', 'careersUrl', 'comments', 'lastInteraction', 'closeReason', 'logo', ...RESEARCH.map(r => r.field)]) c[f] = c[f] || '';
     c.notes = Array.isArray(c.notes) ? c.notes : [];
+    c.action = { ...blankAction(), ...(c.action && typeof c.action === 'object' ? c.action : {}) };
+    c.actionLog = Array.isArray(c.actionLog) ? c.actionLog : [];
     if (upgradeContacts(c)) migrated = true;
     if (!c.contacts.length) c.contacts.push(blankContact());
     c.contacts = c.contacts.map(x => ({ ...blankContact(), ...x }));

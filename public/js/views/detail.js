@@ -13,6 +13,7 @@ import { researchHtml, syncResearchLinks } from './research.js';
 import { linkInput } from './fields.js';
 import { stageListHtml } from './stageList.js';
 import { notesHtml } from './notes.js';
+import { actionBoxHtml } from './action.js';
 
 let currentId = null;
 let focusStage = null;   // after jumping here from the stage-delete warning: highlight that stage
@@ -34,6 +35,7 @@ export function renderDetail(id) {
       <button class="btn ghost lookup" title="Fill empty website, logo and research links">↻ Look up</button>
     </div>
     <div class="dprog st-${c.status}">${progressInner(c)}</div>
+    ${actionBoxHtml(c)}
     <div class="grid">
       <label>Position<input class="field" data-f="position" value="${esc(c.position)}" placeholder="Role"></label>
       <label>Last interaction<input class="field" type="date" data-f="lastInteraction" value="${esc(c.lastInteraction)}">${agoHtml(c.lastInteraction)}</label>

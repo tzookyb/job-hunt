@@ -13,6 +13,7 @@ import { removeCompany } from '../model/company.js';
 import { companyOf, agoHtml, meetingHtml, logoHtml } from './common.js';
 import { COLS, loadColumnOrder, saveColumnOrder } from './columns.js';
 import { reopen } from './popover.js';
+import { actionBadgeHtml } from './action.js';
 
 const SORT_KEY = 'jobTrackerSort';
 const query = () => $('#q').value;
@@ -32,7 +33,7 @@ function rowHtml(c, closed = isClosed(c)) {
   const open = `title="Open ${esc(c.name || 'company')}"`;
   return `<tr class="row st-${c.status}" data-id="${c.id}">
     <td class="stk stk1 goto" ${open}>${logoHtml(c)}</td>
-    <td class="stk stk2 goto" ${open}><span class="coname ${c.name ? '' : 'untitled'}">${esc(c.name || 'Untitled')}</span></td>
+    <td class="stk stk2 goto" ${open}><div class="cocell"><span class="coname ${c.name ? '' : 'untitled'}">${esc(c.name || 'Untitled')}</span>${actionBadgeHtml(c)}</div></td>
     ${colOrder.map(k => COLS[k].td(c, closed)).join('')}
     <td><button class="icon del" title="Delete">✕</button></td>
   </tr>`;
@@ -99,7 +100,7 @@ export function init() {
     emit('render');
   });
   initColumnDrag(main);
-  delegate(main, 'click', 'tr.row td.goto', (e, el) => { location.hash = '#/c/' + companyOf(el).id; });
+  delegate(main, 'click', 'tr.row td.goto', (e, el) => { if (e.target.closest('.act-btn')) return; location.hash = '#/c/' + companyOf(el).id; });
   delegate(main, 'click', 'tr.row .del', (e, el) => {
     const c = companyOf(el);
     if (!confirm(`Delete ${c.name || 'this company'}?`)) return;

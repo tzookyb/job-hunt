@@ -39,6 +39,8 @@ export function demoData() {
         contacts: [{ id: 'c1p', name: 'Maya Cohen', role: 'Recruiter', phone: '+972 54 000 0000', linkedin: '' }],
         notes: [{ id: 'n1', title: 'Tech phone', body: 'React rendering, hooks pitfalls, a small live-coding task (debounce).' }],
         comments: 'Developer tools. Hybrid, 3 days in the office.',
+        action: { text: 'Pick a slot for the tech interview', url: 'https://calendly.com/northwind-demo/tech', since: day(-1) },
+        actionLog: [{ id: 'a1', text: 'Send CV to Maya', url: '', since: day(-6), done: day(-5) }],
       }, [[0, 1], [0, 1, 2, 4, 5], { 2: [1, '10:30'] }, { 1: 'Friendly call, ~30 min' }]),
       company('c2', 'Bluefin AI', '#0d9488', { lastInteraction: day(-3), status: 'active' },
         [[0, 1, 2], [0, 1, 2, 3, 4, 5], { 3: [4, '23:59'] }, { 3: 'Build a small dashboard, 4 hours' }]),

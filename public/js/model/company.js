@@ -2,6 +2,7 @@
 import { uid } from '../util.js';
 import { blankStage } from './normalize.js';
 import { blankContact } from './contacts.js';
+import { blankAction } from './action.js';
 import { RESEARCH } from '../config.js';
 
 export function newCompany(state, fields = {}) {
@@ -9,7 +10,7 @@ export function newCompany(state, fields = {}) {
   const c = { id: uid(), name: '', position: '', website: '', careersUrl: '', comments: '', status: 'active',
     lastInteraction: '', closeReason: '', logo: '', contacts: [blankContact()],
     ...Object.fromEntries(RESEARCH.map(r => [r.field, ''])),
-    order: state.stages.map(s => s.id), stages: {}, notes: [], createdAt: Date.now(), ...fields };
+    order: state.stages.map(s => s.id), stages: {}, notes: [], action: blankAction(), actionLog: [], createdAt: Date.now(), ...fields };
   for (const s of state.stages) c.stages[s.id] = blankStage(s.defaultOn);
   return c;
 }
