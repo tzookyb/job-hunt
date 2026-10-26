@@ -27,6 +27,7 @@ test('done logs the action, newest first, and clears it', () => {
   assert.deepEqual({ ...e, id: 'x' }, { id: 'x', text: 'Second', url: 'https://cal.com/a', since: '2026-10-22', done: '2026-10-26' });
   assert.deepEqual(c.actionLog.map(x => x.text), ['Second', 'First']);
   assert.deepEqual(c.action, blankAction());
+  assert.equal(c.lastInteraction, '2026-10-26');
   assert.equal(completeAction(c, '2026-10-26'), null);   // nothing pending
   removeLogEntry(c, e.id);
   assert.deepEqual(c.actionLog.map(x => x.text), ['First']);

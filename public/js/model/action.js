@@ -13,12 +13,13 @@ export function setAction(c, field, value, day) {
   else if (!c.action.since) c.action.since = day;
 }
 
-// Done: log it (newest first) and clear it. Returns the log entry, or null when there was nothing to finish.
+// Done: log it (newest first), clear it, and count it as an interaction today. Returns the log entry, or null when there was nothing to finish.
 export function completeAction(c, day) {
   if (!hasAction(c)) return null;
   const entry = { id: uid(), text: c.action.text.trim(), url: c.action.url.trim(), since: c.action.since || day, done: day };
   c.actionLog.unshift(entry);
   c.action = blankAction();
+  c.lastInteraction = day;
   return entry;
 }
 

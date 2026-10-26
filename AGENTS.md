@@ -159,7 +159,7 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
 - **Sorting:** click a header; again to flip. Empty values always go last. Last interaction and Progress start
   descending. Ties always fall back (owner's rule, fixed direction): next meeting (soonest first) → last interaction
   (most recent first) → status (Interested → Approached me → In process) → company name (A–Z).
-- **Last interaction:** ticking a stage sets it to today; adding a company does not (owner's rule).
+- **Last interaction:** ticking a stage or finishing a pending action sets it to today; adding a company does not (owner's rule).
 - **Progress popover** (`views/popover.js`): hovering a Progress cell opens the company's stage list. It stays open
   while focused or dragging, closes on Esc, outside click, scroll or mouse-out.
 - **Search:** every word must match somewhere: all fields, contacts, research links, stage comments and notes.
@@ -193,7 +193,9 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
   optional link (e.g. a scheduling page). "✓ Done" moves it to a collapsible "Done actions" log (date done, struck
   through, ✕ to remove). In the sheet, a company with a pending action gets a bold amber "⚑ Action" badge next to its
   name; hovering (or clicking) it opens a card with the action, the link, Edit (→ company page) and ✓ Done. Clicking
-  the badge doesn't open the company. Done does not change Last interaction (not asked for). Searchable.
+  the badge doesn't open the company. Done sets Last interaction to today (owner's rule). Rows without an action show a faint
+  "+ Action" on hover that opens the card with fields (Enter/Save or a click outside saves, Esc/Cancel discards);
+  the card's Edit uses the same fields. Searchable.
 - **Notes** (`views/notes.js`): titled free-text sections; titles suggest stage names.
 
 ### Keys
@@ -301,6 +303,8 @@ Learned on 2026-10-22 by running real lookups through the owner's running app:
 
 Newest first.
 
+- **2026-10-26 10:15:** Add/edit the pending action from the sheet ("+ Action" on row hover, Edit in the card).
+  Done now also sets Last interaction to today.
 - **2026-10-26 10:05:** Pending action per company (badge + hover card in the sheet, box + Done log on the company
   page). New fields `action`, `actionLog` (filled by `normalize()`, no migration). Demo data has one. The hover card
   is `position: fixed` in `#main` because `.sheet-wrap` scrolls (an absolute tooltip would be clipped).

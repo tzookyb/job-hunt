@@ -8,6 +8,10 @@
 .act-tip-h span{color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400}
 .act-tip-t{margin:6px 0 4px;font-size:14px;font-weight:600;line-height:1.4;white-space:pre-wrap;word-break:break-word}
 .act-tip-link{display:inline-block;font-size:12px;margin-bottom:2px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.act-add{flex:0 0 auto;font:600 11px/1 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--warn);background:transparent;border:1px dashed color-mix(in srgb,var(--warn) 60%,transparent);border-radius:999px;padding:3px 8px;cursor:pointer;opacity:0;transition:opacity .12s}
+tr.row:hover .act-add,.act-add:focus-visible{opacity:1}
+.act-add:hover{background:rgba(251,191,36,.12)}
+.act-tip.editing .field{margin-top:8px;font-size:13px}
 .act-tip-f{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}
 .act-done{font-weight:600}
 .act-done:not(:disabled){border-color:var(--ok);color:var(--ok)}

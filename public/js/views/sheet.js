@@ -100,7 +100,7 @@ export function init() {
     emit('render');
   });
   initColumnDrag(main);
-  delegate(main, 'click', 'tr.row td.goto', (e, el) => { if (e.target.closest('.act-btn')) return; location.hash = '#/c/' + companyOf(el).id; });
+  delegate(main, 'click', 'tr.row td.goto', (e, el) => { if (e.target.closest('.act-btn, .act-add')) return; location.hash = '#/c/' + companyOf(el).id; });
   delegate(main, 'click', 'tr.row .del', (e, el) => {
     const c = companyOf(el);
     if (!confirm(`Delete ${c.name || 'this company'}?`)) return;
