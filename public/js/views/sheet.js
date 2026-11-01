@@ -21,14 +21,19 @@ const query = () => $('#q').value;
 const sectionOpen = { openSec: true, closedSec: true };
 let moveLater = false;   // a row changed table while its popover was open: redraw once the popover closes
 let colOrder = loadColumnOrder();
-let sort = { key: null, dir: 1 };
-try { sort = JSON.parse(localStorage.getItem(SORT_KEY)) || sort; } catch { /* keep default */ }
+// Each table has its own sort: { active, open, closed: { key, dir } }. An older single sort applies to all three.
+const GROUPS = ['active', 'open', 'closed'];
+const sorts = {};
+try {
+  const saved = JSON.parse(localStorage.getItem(SORT_KEY)) || {};
+  for (const g of GROUPS) sorts[g] = (saved.key !== undefined ? saved : saved[g]) || { key: null, dir: 1 };
+} catch { for (const g of GROUPS) sorts[g] = { key: null, dir: 1 }; }
 
-const sortClass = key => sort.key === key ? (sort.dir > 0 ? 'sorted-asc' : 'sorted-desc') : '';
-const th = (key, label, cls = '') => `<th data-sort="${key}" class="${cls} ${sortClass(key)}">${label}</th>`;
-const movableTh = (col, closed) => {
+const sortClass = (g, key) => sorts[g].key === key ? (sorts[g].dir > 0 ? 'sorted-asc' : 'sorted-desc') : '';
+const th = (g, key, label, cls = '') => `<th data-sort="${key}" class="${cls} ${sortClass(g, key)}">${label}</th>`;
+const movableTh = (g, col, closed) => {
   const [key, label] = COLS[col].sort(closed);
-  return `<th data-sort="${key}" data-col="${col}" draggable="true" title="Click to sort · drag to move" class="${sortClass(key)}">${label}</th>`;
+  return `<th data-sort="${key}" data-col="${col}" draggable="true" title="Click to sort · drag to move" class="${sortClass(g, key)}">${label}</th>`;
 };
 
 function rowHtml(c, closed = isClosed(c)) {
@@ -41,17 +46,18 @@ function rowHtml(c, closed = isClosed(c)) {
   </tr>`;
 }
 
-function tableHtml(list, closed, emptyText = '') {
-  return `<div class="sheet-wrap"><table class="sheet ${closed ? 'closedtbl' : ''}">
+function tableHtml(g, list, emptyText = '') {
+  const closed = g === 'closed';
+  return `<div class="sheet-wrap"><table class="sheet ${closed ? 'closedtbl' : ''}" data-group="${g}">
     <colgroup><col class="col-logo"><col class="col-name">${colOrder.map(k => `<col class="${COLS[k].col(closed)}">`).join('')}<col class="col-del"></colgroup>
-    <thead><tr><th class="stk stk1"></th>${th('name', 'Company', 'stk stk2')}${colOrder.map(k => movableTh(k, closed)).join('')}<th></th></tr></thead>
-    <tbody>${sortCompanies(list, sort, { today: today() }).map(c => rowHtml(c, closed)).join('')}</tbody>
+    <thead><tr><th class="stk stk1"></th>${th(g, 'name', 'Company', 'stk stk2')}${colOrder.map(k => movableTh(g, k, closed)).join('')}<th></th></tr></thead>
+    <tbody>${sortCompanies(list, sorts[g], { today: today() }).map(c => rowHtml(c, closed)).join('')}</tbody>
   </table>${emptyText ? `<div class="empty">${emptyText}</div>` : ''}</div>`;
 }
 
-const section = (id, title, list, closed) => list.length ? `<details id="${id}" ${sectionOpen[id] ? 'open' : ''}>
+const section = (id, title, list, g) => list.length ? `<details id="${id}" ${sectionOpen[id] ? 'open' : ''}>
       <summary class="section-title">${title} (${list.length})</summary>
-      ${tableHtml(list, closed)}
+      ${tableHtml(g, list)}
     </details>` : '';
 
 export function renderSheet() {
@@ -62,9 +68,9 @@ export function renderSheet() {
   $('#count').textContent = query().trim() ? `${list.length} of ${companies.length}` : `${active.length} in process · ${open.length} interested · ${closed.length} closed`;
   const empty = active.length ? '' : !companies.length ? 'No companies yet — click “+ Add Company”.' : query().trim() ? 'No matches.' : 'Nothing in process.';
   mainEl().innerHTML = `<div class="section-title static">In process (${active.length})</div>
-    ${tableHtml(active, false, empty)}
-    ${section('openSec', 'Interested &amp; approached me', open, false)}
-    ${section('closedSec', 'Rejected, withdrew &amp; gone cold', closed, true)}`;
+    ${tableHtml('active', active, empty)}
+    ${section('openSec', 'Interested &amp; approached me', open, 'open')}
+    ${section('closedSec', 'Rejected, withdrew &amp; gone cold', closed, 'closed')}`;
   for (const id of Object.keys(sectionOpen)) $('#' + id)?.addEventListener('toggle', e => { sectionOpen[id] = e.target.open; });
 }
 
@@ -102,8 +108,9 @@ function initColumnDrag(main) {
 export function init() {
   const main = mainEl();
   delegate(main, 'click', 'th[data-sort]', (e, el) => {
-    sort = nextSort(sort, el.dataset.sort);
-    try { localStorage.setItem(SORT_KEY, JSON.stringify(sort)); } catch { /* not remembered */ }
+    const g = el.closest('table').dataset.group;
+    sorts[g] = nextSort(sorts[g], el.dataset.sort);
+    try { localStorage.setItem(SORT_KEY, JSON.stringify(sorts)); } catch { /* not remembered */ }
     emit('render');
   });
   initColumnDrag(main);

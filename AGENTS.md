@@ -183,7 +183,7 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
     move on day 0 → cold on day 8). Last move = latest of last interaction, `statusSince`, a meeting that has taken
     place, and the day it was added. Checked on page load (saves once if anything moved) and hourly while the tab
     is open. Picking a status by hand sets `statusSince`, so reviving a cold company gives it another 7 days.
-- **Sorting:** click a header; again to flip. Empty values always go last. Last interaction and Progress start
+- **Sorting:** click a header; again to flip. Each of the three tables keeps its own sort (owner, 2026-11-01). Empty values always go last. Last interaction and Progress start
   descending. Ties always fall back (owner's rule, fixed direction): next meeting (soonest first) → last interaction
   (most recent first) → status (Interested → Approached me → In process) → company name (A–Z).
 - **Last interaction:** ticking a stage or finishing a pending action sets it to today; adding a company does not (owner's rule).
@@ -233,7 +233,7 @@ Every edit autosaves (350ms debounce); the top-right status says where. Without 
 `localStorage['jobTracker']` and says so in red.
 
 ### Saved in the browser only (`localStorage`)
-`jobTrackerSort` (sort), `jobHuntCols` (column order), `jobHuntDrawer` (drawer open), `jobTracker` (data fallback
+`jobTrackerSort` (sort per table: `{ active, open, closed }`; an older single `{ key, dir }` applies to all), `jobHuntCols` (column order), `jobHuntDrawer` (drawer open), `jobTracker` (data fallback
 when there's no server).
 
 ## Backups
@@ -426,7 +426,9 @@ Shown as an "AI notes" section on the company page with "↻ Re-analyze"; `at` +
 
 Newest first.
 
-- **2026-11-01 13:40:** Sheet split into three tables (In process · Interested & approached me · Rejected, withdrew
+- **2026-11-01 13:25:** Each sheet table sorts on its own (`jobTrackerSort` holds one sort per table).
+
+- **2026-11-01 13:15:** Sheet split into three tables (In process · Interested & approached me · Rejected, withdrew
   & gone cold). New status `cold` ("Gone cold") and field `statusSince`; automatic status rules in
   `model/autoStatus.js`. Front-end only: refresh the tab. Existing In process companies already past 7 days go cold
   on the first load.
