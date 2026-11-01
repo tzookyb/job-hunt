@@ -87,6 +87,12 @@ export function init() {
     li.value = c.lastInteraction;
     li.nextElementSibling.outerHTML = agoHtml(c.lastInteraction);
   });
+  // an automatic status change (a stage done or a meeting set): update in place, so typing isn't interrupted
+  on('company:moved', c => {
+    if (!visible(c)) return;
+    $('select[data-f=status]', main).value = c.status;
+    $('.dprog', main).className = `dprog st-${c.status}`;
+  });
   on('field', ({ c, field, el }) => {
     if (!visible(c)) return;
     if (field === 'status') renderDetail(c.id);   // shows or hides Reason

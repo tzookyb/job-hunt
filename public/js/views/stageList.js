@@ -7,6 +7,7 @@ import { emit } from '../bus.js';
 import { addStage, moveBy, moveTo } from '../model/stages.js';
 import { setStageDone } from '../model/company.js';
 import { parseTime, combineMeeting } from '../model/meetings.js';
+import { noteProgress } from '../model/autoStatus.js';
 import { companyOf, stageName } from './common.js';
 
 export function stageListHtml(c) {
@@ -35,8 +36,9 @@ const changed = c => { save(); emit('company:changed', c); };
 function initEditing(main) {
   delegate(main, 'change', 'input[data-sd]', (e, el) => {
     const c = companyOf(el);
-    setStageDone(c, el.dataset.sd, el.checked, today());
+    const moved = setStageDone(c, el.dataset.sd, el.checked, today());
     changed(c);
+    if (moved) emit('company:moved', c);
   });
   delegate(main, 'change', 'input[data-se]', (e, el) => {
     const c = companyOf(el);
@@ -58,8 +60,10 @@ function initEditing(main) {
     if (time === null) return;   // half-typed or invalid time: keep the last good value
     c.stages[box.dataset.sm].meeting = value;
     box.classList.toggle('has', !!value);
+    const moved = !!value && noteProgress(c, today());   // a scheduled meeting is progress → In process
     save();
     emit('meeting:changed', c);   // updates the Next meeting cell without redrawing this list
+    if (moved) emit('company:moved', c);
   });
   delegate(main, 'focusout', '.stime', (e, el) => {
     const t = parseTime(el.value);

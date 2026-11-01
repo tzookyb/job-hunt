@@ -4,21 +4,25 @@ import { blankStage } from './normalize.js';
 import { blankContact } from './contacts.js';
 import { blankAction } from './action.js';
 import { RESEARCH } from '../config.js';
+import { noteProgress } from './autoStatus.js';
 
 export function newCompany(state, fields = {}) {
   // a new company is not an interaction: lastInteraction stays empty until something happens
   const c = { id: uid(), name: '', position: '', website: '', careersUrl: '', comments: '', status: 'active',
-    lastInteraction: '', closeReason: '', logo: '', contacts: [blankContact()],
+    lastInteraction: '', statusSince: '', closeReason: '', logo: '', contacts: [blankContact()],
     ...Object.fromEntries(RESEARCH.map(r => [r.field, ''])),
     order: state.stages.map(s => s.id), stages: {}, notes: [], action: blankAction(), actionLog: [], createdAt: Date.now(), ...fields };
   for (const s of state.stages) c.stages[s.id] = blankStage(s.defaultOn);
   return c;
 }
 
-// Ticking a stage as done counts as an interaction today.
+// Ticking a stage as done counts as an interaction today, and as progress (→ In process).
+// Returns true when the status changed.
 export function setStageDone(c, stageId, done, day) {
   c.stages[stageId].done = done;
-  if (done) c.lastInteraction = day;
+  if (!done) return false;
+  c.lastInteraction = day;
+  return noteProgress(c, day);
 }
 
 export const findCompany = (state, id) => state.companies.find(c => c.id === id);

@@ -1,9 +1,10 @@
-// The main screen: active companies, and a collapsible "Rejected & closed" table below them.
+// The main screen, three tables top to bottom: In process · Interested & approached me (collapsible) ·
+// Rejected, withdrew & gone cold (collapsible). Statuses move between them on their own (model/autoStatus.js).
 // Logo + Company are frozen on the left and open the company page; the other columns sort on click and can be
 // dragged into another order.
 import { esc, today } from '../util.js';
 import { mainEl, delegate, $, $$ } from '../dom.js';
-import { isClosed } from '../config.js';
+import { isClosed, isOpen } from '../config.js';
 import { getState, save } from '../store.js';
 import { on, emit } from '../bus.js';
 import { matches } from '../model/search.js';
@@ -12,12 +13,13 @@ import { moveTo } from '../model/stages.js';
 import { removeCompany } from '../model/company.js';
 import { companyOf, agoHtml, meetingHtml, logoHtml } from './common.js';
 import { COLS, loadColumnOrder, saveColumnOrder } from './columns.js';
-import { reopen } from './popover.js';
+import { reopen, isPopoverOpen } from './popover.js';
 import { actionBadgeHtml } from './action.js';
 
 const SORT_KEY = 'jobTrackerSort';
 const query = () => $('#q').value;
-let closedOpen = true;
+const sectionOpen = { openSec: true, closedSec: true };
+let moveLater = false;   // a row changed table while its popover was open: redraw once the popover closes
 let colOrder = loadColumnOrder();
 let sort = { key: null, dir: 1 };
 try { sort = JSON.parse(localStorage.getItem(SORT_KEY)) || sort; } catch { /* keep default */ }
@@ -47,18 +49,23 @@ function tableHtml(list, closed, emptyText = '') {
   </table>${emptyText ? `<div class="empty">${emptyText}</div>` : ''}</div>`;
 }
 
+const section = (id, title, list, closed) => list.length ? `<details id="${id}" ${sectionOpen[id] ? 'open' : ''}>
+      <summary class="section-title">${title} (${list.length})</summary>
+      ${tableHtml(list, closed)}
+    </details>` : '';
+
 export function renderSheet() {
+  moveLater = false;
   const { companies } = getState();
   const list = companies.filter(c => matches(c, query()));
-  const active = list.filter(c => !isClosed(c)), closed = list.filter(isClosed);
-  $('#count').textContent = query().trim() ? `${list.length} of ${companies.length}` : `${active.length} active · ${closed.length} closed`;
-  const empty = active.length ? '' : !companies.length ? 'No companies yet — click “+ Add Company”.' : query().trim() ? 'No matches.' : 'No active processes.';
-  mainEl().innerHTML = `${tableHtml(active, false, empty)}
-    ${closed.length ? `<details id="closedSec" ${closedOpen ? 'open' : ''}>
-      <summary class="section-title">Rejected &amp; closed (${closed.length})</summary>
-      ${tableHtml(closed, true)}
-    </details>` : ''}`;
-  $('#closedSec')?.addEventListener('toggle', e => { closedOpen = e.target.open; });
+  const active = list.filter(c => !isClosed(c) && !isOpen(c)), open = list.filter(isOpen), closed = list.filter(isClosed);
+  $('#count').textContent = query().trim() ? `${list.length} of ${companies.length}` : `${active.length} in process · ${open.length} interested · ${closed.length} closed`;
+  const empty = active.length ? '' : !companies.length ? 'No companies yet — click “+ Add Company”.' : query().trim() ? 'No matches.' : 'Nothing in process.';
+  mainEl().innerHTML = `<div class="section-title static">In process (${active.length})</div>
+    ${tableHtml(active, false, empty)}
+    ${section('openSec', 'Interested &amp; approached me', open, false)}
+    ${section('closedSec', 'Rejected, withdrew &amp; gone cold', closed, true)}`;
+  for (const id of Object.keys(sectionOpen)) $('#' + id)?.addEventListener('toggle', e => { sectionOpen[id] = e.target.open; });
 }
 
 const rowOf = c => $(`tr.row[data-id="${c.id}"]`, mainEl());
@@ -108,10 +115,17 @@ export function init() {
   });
   on('field', ({ c, field, el }) => {
     if (!rowOf(c)) return;
-    if (field === 'status') emit('render');   // may move between the two tables
+    if (field === 'status') emit('render');   // may move to another table
     if (field === 'lastInteraction') el.nextElementSibling.outerHTML = agoHtml(c.lastInteraction);
   });
   on('company:changed', redrawRow);
+  // a stage done or a meeting set moved the company to In process: move the row now, or after the popover closes
+  on('company:moved', c => {
+    if (!rowOf(c)) return;
+    redrawRow(c);
+    if (isPopoverOpen()) moveLater = true; else emit('render');
+  });
+  on('popover:closed', () => { if (moveLater && !location.hash) emit('render'); });
   on('meeting:changed', c => { const cell = rowOf(c)?.querySelector('.meet'); if (cell) cell.outerHTML = meetingHtml(c); });
   // a new stage reaches every company: redraw all rows, then bring the popover back
   on('stages:changed', ({ c }) => {

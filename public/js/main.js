@@ -16,7 +16,8 @@ import * as logoEditor from './views/logoEditor.js';
 import * as research from './views/research.js';
 import * as bookmarks from './views/bookmarks.js';
 import * as backupButton from './views/backupButton.js';
+import * as autoStatus from './views/autoStatus.js';
 
-[header, backupButton, fields, sheet, detail, stageList, popover, stagesDialog, addCompany, contacts, logoEditor, research, bookmarks, notes, action, router].forEach(m => m.init());
+[header, backupButton, fields, sheet, detail, stageList, popover, stagesDialog, addCompany, contacts, logoEditor, research, bookmarks, notes, action, autoStatus, router].forEach(m => m.init());
 await load();
 router.route();

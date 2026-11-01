@@ -29,7 +29,7 @@ export function normalize(raw) {
       if (!c.order.includes(id)) c.order.push(id);
       c.stages[id] = { ...blankStage(defaultOn(id)), ...c.stages[id] };
     }
-    for (const f of ['name', 'position', 'website', 'careersUrl', 'comments', 'lastInteraction', 'closeReason', 'logo', ...RESEARCH.map(r => r.field)]) c[f] = c[f] || '';
+    for (const f of ['name', 'position', 'website', 'careersUrl', 'comments', 'lastInteraction', 'closeReason', 'logo', 'statusSince', ...RESEARCH.map(r => r.field)]) c[f] = c[f] || '';
     c.notes = Array.isArray(c.notes) ? c.notes : [];
     c.action = { ...blankAction(), ...(c.action && typeof c.action === 'object' ? c.action : {}) };
     c.actionLog = Array.isArray(c.actionLog) ? c.actionLog : [];

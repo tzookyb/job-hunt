@@ -8,14 +8,17 @@ export const STATUSES = [
   ['active', 'In process'],
   ['rejected', 'Rejected'],
   ['withdrawn', 'Withdrew'],
+  ['cold', 'Gone cold'],             // set automatically after 7 full days with nothing new (model/autoStatus.js)
 ];
-export const CLOSED = ['rejected', 'withdrawn'];
+export const OPEN = ['interested', 'approached'];
+export const CLOSED = ['rejected', 'withdrawn', 'cold'];
 
 // Statuses that were removed → what old data loads as.
 export const OLD_STATUS = { offer: 'active', closed: 'withdrawn' };
 
 export const statusLabel = key => (STATUSES.find(s => s[0] === key) || [, key])[1];
 export const isClosed = c => CLOSED.includes(c.status);
+export const isOpen = c => OPEN.includes(c.status);
 
 // Company-research sites. The lookup fills the ones it finds; an empty field links to a search instead.
 // field · label · domain (for the site: search) · tooltip

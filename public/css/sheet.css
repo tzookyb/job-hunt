@@ -21,6 +21,7 @@ select option{background:var(--panel2)}
 .closedtbl tr.row > td > *{opacity:.6}
 .closedtbl tr.row:hover > td > *{opacity:1}
 .col-logo{width:46px}.col-name{width:200px}.col-del{width:38px}.col-prog{width:30%}.col-reason{width:22%}.closedtbl .col-prog{width:20%}.col-date{width:190px}.col-status{width:180px}
+.section-title.static{cursor:default;margin-top:4px}
 .section-title{font-size:13px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin:26px 0 8px;display:flex;gap:8px;align-items:center;cursor:pointer;list-style:none}
 .section-title::-webkit-details-marker{display:none}
 details > .section-title::before{content:'▸';transition:transform .15s;display:inline-block}
@@ -36,11 +37,12 @@ details[open] > .section-title::before{transform:rotate(90deg)}
 .bar{flex:0 0 90px;height:6px;border-radius:4px;background:var(--track);overflow:hidden}
 .bar > span{display:block;height:100%;background:var(--accent);border-radius:4px;transition:width .25s}
 .st-rejected .bar > span{background:var(--bad)}
-.st-withdrawn .bar > span{background:#5b6475}
+.st-withdrawn .bar > span,.st-cold .bar > span{background:#5b6475}
 /* status stripe on the left edge of the row */
 .st-interested > td:nth-child(2){box-shadow:inset 3px 0 0 #5b6475}
 .st-approached > td:nth-child(2){box-shadow:inset 3px 0 0 var(--accent)}
 .st-rejected > td:nth-child(2){box-shadow:inset 3px 0 0 var(--bad)}
+.st-cold > td:nth-child(2){box-shadow:inset 3px 0 0 #7dd3fc}
 .pct{font-variant-numeric:tabular-nums;font-weight:600;min-width:38px}
 .pn{color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
 
