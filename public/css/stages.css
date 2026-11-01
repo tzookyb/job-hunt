@@ -44,3 +44,6 @@
 /* a stage you jumped to from the delete warning */
 .srow.flash > td{animation:flash 2.4s ease-out}
 @keyframes flash{0%,40%{background:#3a2e12}100%{background:transparent}}
+
+/* the locked Application stage */
+.lock{width:18px;font-size:11px;cursor:help;opacity:.55;user-select:none}

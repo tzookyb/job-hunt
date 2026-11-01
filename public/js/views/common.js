@@ -1,9 +1,10 @@
 // Building blocks shared by several views.
-import { esc, today, daysBetween } from '../util.js';
+import { esc, today, nowStamp, daysBetween } from '../util.js';
 import { STATUSES, statusLabel, isClosed } from '../config.js';
 import { getState } from '../store.js';
 import { progress } from '../model/progress.js';
-import { nextMeeting, TIME_24 } from '../model/meetings.js';
+import { nextMeeting, meetingPassed, TIME_24 } from '../model/meetings.js';
+import { lockedStageId } from '../model/stages.js';
 
 // The company that a clicked/edited element belongs to (nearest [data-id]).
 export function companyOf(el) {
@@ -15,6 +16,9 @@ export const stageName = id => (getState().stages.find(s => s.id === id) || {}).
 
 export const statusOptions = value =>
   STATUSES.map(([k, label]) => `<option value="${k}" ${k === value ? 'selected' : ''}>${label}</option>`).join('');
+
+// Bin icon for delete buttons.
+export const BIN = '<svg class="bin" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>';
 
 // The company's logo, with its initial underneath as a fallback when there's no logo or it fails to load.
 export function logoHtml(c, cls = '') {
@@ -30,15 +34,16 @@ export function agoHtml(date) {
   return `<span class="ago ${days >= 7 ? 'stale' : ''}">${text}</span>`;
 }
 
-// Next meeting cell: "Tomorrow · 10:30" + stage name; highlighted for today and tomorrow.
+// Next up cell: "Tomorrow · 10:30" + stage name; highlighted for today and tomorrow, plain once it's over.
 export function meetingHtml(c) {
-  const m = nextMeeting(c, today());
+  const m = nextMeeting(c, today(), lockedStageId(getState()));
   if (!m) return '<div class="meet none">—</div>';
   const d = new Date(m.when);
   const days = daysBetween(today(), m.when.slice(0, 10));
   const day = days === 0 ? 'Today' : days === 1 ? 'Tomorrow' : d.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
   const time = m.when.length > 10 ? ' · ' + d.toLocaleTimeString(undefined, TIME_24) : '';
-  return `<div class="meet ${days <= 1 ? 'soon' : ''}" title="${esc(stageName(m.stage))} — ${esc(d.toLocaleString(undefined, { dateStyle: 'medium', ...(m.when.length > 10 ? { timeStyle: 'short', hourCycle: 'h23' } : {}) }))}"><b>${day}${time}</b><small>${esc(stageName(m.stage))}</small></div>`;
+  const cls = meetingPassed(m.when, nowStamp()) ? 'past' : days <= 1 ? 'soon' : '';
+  return `<div class="meet ${cls}" title="${esc(stageName(m.stage))} — ${esc(d.toLocaleString(undefined, { dateStyle: 'medium', ...(m.when.length > 10 ? { timeStyle: 'short', hourCycle: 'h23' } : {}) }))}"><b>${day}${time}</b><small>${esc(stageName(m.stage))}</small></div>`;
 }
 
 // bar · percent · "x/y · <last done stage> - done. next: <stage>"

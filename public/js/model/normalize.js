@@ -12,14 +12,17 @@ export function normalize(raw) {
   const d = raw && typeof raw === 'object' ? structuredClone(raw) : {};
   let migrated = false;
   if (!Array.isArray(d.stages) || !d.stages.length) {
-    d.stages = DEFAULT_STAGES.map((name, i) => ({ id: uid(), name, defaultOn: i < 2 }));
+    d.stages = DEFAULT_STAGES.map((name, i) => ({ id: uid(), name, defaultOn: i < 2, ...(i ? {} : { locked: true }) }));
     d.stageDefaultsV2 = true;
   }
   if (!Array.isArray(d.companies)) d.companies = [];
   if (!Array.isArray(d.bookmarks)) d.bookmarks = [];
+  d.cvs = Array.isArray(d.cvs) ? d.cvs.filter(x => x && x.id && x.file) : [];
   if (!d.stageDefaultsV2) { upgradeStageDefaults(d); migrated = true; }
+  if (lockApplicationStage(d)) migrated = true;
   d.stages.forEach(s => { s.defaultOn = !!s.defaultOn; });
   const ids = d.stages.map(s => s.id);
+  const locked = d.stages[0].id;   // lockApplicationStage() put it first
   const defaultOn = id => d.stages.find(s => s.id === id).defaultOn;
   for (const c of d.companies) {
     if (!c.stages || typeof c.stages !== 'object' || Array.isArray(c.stages)) c.stages = {};
@@ -29,10 +32,16 @@ export function normalize(raw) {
       if (!c.order.includes(id)) c.order.push(id);
       c.stages[id] = { ...blankStage(defaultOn(id)), ...c.stages[id] };
     }
+    // the locked Application stage: first, and on, for every company
+    c.order = [locked, ...c.order.filter(id => id !== locked)];
+    c.stages[locked].enabled = true;
     for (const f of ['name', 'position', 'website', 'careersUrl', 'comments', 'lastInteraction', 'closeReason', 'logo', ...RESEARCH.map(r => r.field)]) c[f] = c[f] || '';
+    c.jobText = typeof c.jobText === 'string' ? c.jobText : '';   // a pasted job post (AI lookup)
+    c.ai = c.ai && typeof c.ai === 'object' && !Array.isArray(c.ai) ? c.ai : null;   // read-only AI notes
     c.notes = Array.isArray(c.notes) ? c.notes : [];
     c.action = { ...blankAction(), ...(c.action && typeof c.action === 'object' ? c.action : {}) };
     c.actionLog = Array.isArray(c.actionLog) ? c.actionLog : [];
+    c.cv = d.cvs.some(x => x.id === c.cv) ? c.cv : '';
     if (upgradeContacts(c)) migrated = true;
     if (!c.contacts.length) c.contacts.push(blankContact());
     c.contacts = c.contacts.map(x => ({ ...blankContact(), ...x }));
@@ -58,4 +67,21 @@ function upgradeStageDefaults(d) {
     }
   }
   d.stageDefaultsV2 = true;
+}
+
+// The Application stage is locked (owner's rule): exactly one stage has `locked: true`, it is first in the shared
+// list and on by default. The first time, it is the stage named like "Applied" / "Application" (else a new
+// "Application" stage). Returns true when that first-time upgrade ran, so the page saves once.
+function lockApplicationStage(d) {
+  let s = d.stages.find(x => x.locked);
+  const upgraded = !s;
+  if (!s) {
+    s = d.stages.find(x => /^appl/i.test(String(x.name).trim()));
+    if (!s) { s = { id: uid(), name: 'Application', defaultOn: true }; d.stages.unshift(s); }
+  }
+  d.stages.forEach(x => { if (x !== s) delete x.locked; });
+  s.locked = true;
+  s.defaultOn = true;
+  d.stages = [s, ...d.stages.filter(x => x !== s)];
+  return upgraded;
 }

@@ -36,3 +36,14 @@ dialog .addstage{padding-left:0}
 #gsWarn li{font-size:13px}
 .gw-go{background:none;border:0;padding:0;color:var(--accent);cursor:pointer;font-weight:600;text-decoration:underline}
 .gw-act{display:flex;gap:8px;justify-content:flex-end}
+
+/* delete company: move to Rejected / Withdrew, or delete */
+#delDlg{width:min(520px,92vw)}
+.del-msg{color:var(--muted);font-size:13px;margin:10px 0 14px}
+.del-acts{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.del-acts .btn[hidden]{display:none}
+
+/* the locked Application stage in Hiring Stages */
+.gs.locked .field{color:var(--muted);cursor:default}
+.gs.locked .field:focus{border-color:var(--line)}
+.gs-lock{font-size:12px;color:var(--muted);white-space:nowrap;padding:0 6px;flex:0 0 131px}

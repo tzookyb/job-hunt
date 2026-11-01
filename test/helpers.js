@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { createApp } from '../server/app.js';
 import { ROOT } from '../server/config.js';
+import { createSecrets } from '../server/ai/secrets.js';
 
 export async function tempDir() {
   return fs.mkdtemp(path.join(os.tmpdir(), 'job-hunt-test-'));
@@ -17,10 +18,12 @@ export async function startApp(overrides = {}, deps = {}) {
     backupDir: path.join(dataDir, 'backups'),
     ...overrides,
   };
+  // Never the real Keychain or the owner's JOB_HUNT_AI_KEY: keys go to a file in the temp folder.
+  deps = { secrets: createSecrets({ file: path.join(dataDir, 'secrets.json'), platform: 'test', env: {} }), ...deps };
   const server = createApp(config, deps);
   await new Promise(r => server.listen(0, '127.0.0.1', r));
   const base = `http://127.0.0.1:${server.address().port}`;
-  return { config, base, close: () => new Promise(r => server.close(r)) };
+  return { config, base, deps, close: () => new Promise(r => server.close(r)) };
 }
 
 // fetch() as the app's own page calls the API (with the header server/guard.js requires).

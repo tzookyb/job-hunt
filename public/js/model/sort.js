@@ -9,7 +9,7 @@ import { STATUSES } from '../config.js';
 export const SORTERS = {
   name: c => (c.name || '').toLowerCase(),
   progress: c => progress(c).pct,
-  meeting: (c, ctx) => nextMeeting(c, ctx.today)?.when || null,
+  meeting: (c, ctx) => nextMeeting(c, ctx.today, ctx.skip)?.when || null,
   reason: c => (c.closeReason || '').toLowerCase() || null,
   last: c => c.lastInteraction || null,
   status: c => STATUSES.findIndex(([k]) => k === c.status),

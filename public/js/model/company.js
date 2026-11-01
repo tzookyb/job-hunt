@@ -7,7 +7,7 @@ import { RESEARCH } from '../config.js';
 
 export function newCompany(state, fields = {}) {
   // a new company is not an interaction: lastInteraction stays empty until something happens
-  const c = { id: uid(), name: '', position: '', website: '', careersUrl: '', comments: '', status: 'active',
+  const c = { id: uid(), name: '', position: '', website: '', careersUrl: '', comments: '', jobText: '', ai: null, status: 'active',
     lastInteraction: '', closeReason: '', logo: '', contacts: [blankContact()],
     ...Object.fromEntries(RESEARCH.map(r => [r.field, ''])),
     order: state.stages.map(s => s.id), stages: {}, notes: [], action: blankAction(), actionLog: [], createdAt: Date.now(), ...fields };

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { normalize } from '../../public/js/model/normalize.js';
-import { addStage, deleteStage, moveBy, moveTo, applyOrderToAll, stageUsage } from '../../public/js/model/stages.js';
+import { addStage, deleteStage, moveBy, moveTo, applyOrderToAll, stageUsage, lockedStageId } from '../../public/js/model/stages.js';
 
 const state = () => normalize({
   stageDefaultsV2: true,
@@ -30,10 +30,33 @@ test('adding an existing name reuses it and switches it on for that company', ()
 
 test('deleting a stage removes it everywhere', () => {
   const s = state();
-  deleteStage(s, 'a');
-  assert.deepEqual(s.stages.map(x => x.id), ['b']);
-  assert.deepEqual(s.companies[0].order, ['b']);
-  assert.equal(s.companies[0].stages.a, undefined);
+  assert.equal(deleteStage(s, 'b'), true);
+  assert.deepEqual(s.stages.map(x => x.id), ['a']);
+  assert.deepEqual(s.companies[0].order, ['a']);
+  assert.equal(s.companies[0].stages.b, undefined);
+});
+
+test('the Application stage is locked: first, on everywhere, never deleted or moved', () => {
+  const { data: s, migrated } = normalize({
+    stageDefaultsV2: true,
+    stages: [{ id: 'h', name: 'HR', defaultOn: true }, { id: 'a', name: 'Application', defaultOn: false }, { id: 't', name: 'Tech' }],
+    companies: [{ id: 'x', order: ['t', 'a', 'h'], stages: { a: { enabled: false, done: true } } }],
+  });
+  assert.equal(migrated, true);
+  assert.deepEqual(s.stages.map(x => [x.id, !!x.locked, x.defaultOn]), [['a', true, true], ['h', false, true], ['t', false, false]]);
+  assert.equal(lockedStageId(s), 'a');
+  const c = s.companies[0];
+  assert.deepEqual(c.order, ['a', 't', 'h']);
+  assert.equal(c.stages.a.enabled, true);
+  assert.equal(c.stages.a.done, true);
+  assert.equal(normalize(s).migrated, false);   // upgrade runs once
+  assert.equal(deleteStage(s, 'a'), false);
+  assert.equal(s.stages.length, 3);
+  assert.equal(moveBy(c.order, 0, 1, 'a'), false);   // can't move it down
+  assert.equal(moveBy(c.order, 1, -1, 'a'), false);  // nothing passes it
+  assert.equal(moveBy(c.order, 1, 1, 'a'), true);
+  assert.deepEqual(moveTo(['a', 'b', 'c'], 'a', 'c', true, 'a'), ['a', 'b', 'c']);
+  assert.deepEqual(moveTo(['a', 'b', 'c'], 'c', 'a', false, 'a'), ['a', 'c', 'b']);   // dropped before it → after it
 });
 
 test('reordering helpers', () => {

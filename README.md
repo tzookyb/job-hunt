@@ -13,10 +13,13 @@ step.
 - **A pending action per company.** Write down the next thing to do (and paste a link, e.g. a scheduling page);
   a bold ⚑ badge sits next to the company, hover it to see the action, open the link or mark it done. Done actions
   are kept in a log on the company page.
+- **The exact CV you sent.** Drop a CV file on a company's Applied row (or click 📎 CV) and that version is kept,
+  even if you edit your CV later. Reuse it for similar companies in one click, and click the chip to preview it
+  Quick Look–style (Space or Esc closes).
 - **Hiring stages that match reality.** A shared stage list (Applied, HR, Tech phone, Home assignment…) that each
   company can reorder or switch off. Hover the Progress bar to tick stages, set a meeting ("when?"), add comments,
   drag to reorder, or add a stage on the spot.
-- **What's next at a glance.** The Next meeting column shows the earliest upcoming meeting (highlighted for today
+- **What's next at a glance.** The Next up column shows the earliest upcoming meeting (highlighted for today
   and tomorrow), and Last interaction turns amber after a week of silence. Ticking a stage counts as an interaction.
 - **Closed processes out of the way.** Rejected and withdrawn companies move to their own collapsible table, with
   a Reason column.
@@ -28,6 +31,10 @@ step.
   before deleting.
 - **Sort and reorder** any column, **search** across everything (`/`), and a **bookmarks drawer** (`B`) for job
   boards, salary calculators or your CV.
+- **AI lookup (optional, free).** Bring a free API key and the lookup also writes read-only **AI notes**: what the
+  company does, how it fits you, and — given the job post link or its pasted text — the role's requirements, your
+  matches and gaps, what to prepare for the interviews and what to ask. If a lookup finds a different value for a
+  field you already filled, it asks first (tick the changes you want). Without a key, everything works as before.
 - **Automatic backups** (see below).
 
 | Progress popover | Company page |
@@ -59,6 +66,25 @@ If the top-right corner says **"No server — saving in this browser only"**, th
 **Why a server?** Browsers don't let a web page write files to your disk. The server's job is to write your data
 file, make backups and run the company lookup. Everything else happens in the page.
 
+## AI lookup (optional, free)
+
+Click **⚙** in the header to pick an AI provider. Only providers with a **free tier** are offered, and picking one
+shows how to get its free key, with a link to the right page:
+
+| Provider | What's free |
+|---|---|
+| Google Gemini | Free tier with a Google account, no card. |
+| Groq | Free plan, no card, about 1,000 requests a day. |
+| OpenRouter | Free account, no card, 50 requests a day on free models (the default model only uses free ones). |
+| Mistral | Free "Experiment" plan, no card, needs a verified phone number. |
+| Ollama | Runs on your own computer: free, private, no key. |
+
+Paste the key, press **Test**, and write a few lines in **About you** (your experience and what you're looking for),
+which the AI uses to judge fit. The key stays on your computer (macOS Keychain, or `user-data/secrets.json` readable
+only by you); the page never gets it back and it's not in your data file or backups. "About you" and the pages being
+analyzed are sent to the provider you pick, and some free tiers may use them to improve their models — the dialog
+says which.
+
 ## Your data
 
 Everything personal lives in **`user-data/`**, kept apart from the app code and ignored by git:
@@ -68,6 +94,9 @@ Everything personal lives in **`user-data/`**, kept apart from the app code and 
 | `user-data/data.json` | Your database, created on your first edit. The server prints its path when it starts. |
 | `user-data/data.backup.json` | The previous save. |
 | `user-data/backups/` | Automatic backups. |
+| `user-data/cvs/` | The CV files you attached to applications, one copy per distinct file. |
+| `user-data/settings.json` · `profile.md` | AI provider and model; your "About you" text. |
+| `user-data/secrets.json` | AI keys, only when the macOS Keychain isn't available (readable only by you). |
 
 - **Move your data** to another machine: copy `user-data/`.
 - **Share the app** with a friend: they clone the repo and start with an empty tracker.

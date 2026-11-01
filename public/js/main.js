@@ -16,7 +16,13 @@ import * as logoEditor from './views/logoEditor.js';
 import * as research from './views/research.js';
 import * as bookmarks from './views/bookmarks.js';
 import * as backupButton from './views/backupButton.js';
+import * as cv from './views/cv.js';
+import * as cvPreview from './views/cvPreview.js';
+import * as deleteDialog from './views/deleteDialog.js';
+import * as aiSettings from './views/aiSettings.js';
+import * as aiNotes from './views/aiNotes.js';
+import * as suggestDialog from './views/suggestDialog.js';
 
-[header, backupButton, fields, sheet, detail, stageList, popover, stagesDialog, addCompany, contacts, logoEditor, research, bookmarks, notes, action, router].forEach(m => m.init());
+[header, backupButton, fields, sheet, detail, stageList, popover, stagesDialog, addCompany, contacts, logoEditor, research, bookmarks, notes, action, cv, cvPreview, deleteDialog, aiSettings, aiNotes, suggestDialog, router].forEach(m => m.init());
 await load();
 router.route();

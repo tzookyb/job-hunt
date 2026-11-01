@@ -15,5 +15,6 @@ export function loadConfig(env = process.env) {
     dataFile: path.join(dataDir, 'data.json'),
     previousFile: path.join(dataDir, 'data.backup.json'),
     backupDir: path.join(dataDir, 'backups'),
+    cvDir: path.join(dataDir, 'cvs'),   // CV files sent with applications (server/cvs.js)
   };
 }

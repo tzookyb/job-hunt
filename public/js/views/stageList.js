@@ -4,26 +4,30 @@ import { esc, today } from '../util.js';
 import { mainEl, delegate, $$ } from '../dom.js';
 import { getState, save } from '../store.js';
 import { emit } from '../bus.js';
-import { addStage, moveBy, moveTo } from '../model/stages.js';
+import { addStage, moveBy, moveTo, lockedStageId } from '../model/stages.js';
 import { setStageDone } from '../model/company.js';
 import { parseTime, combineMeeting } from '../model/meetings.js';
 import { companyOf, stageName } from './common.js';
+import { cvSlotHtml, isCvStage } from './cv.js';
+
+const LOCK_TIP = 'Always the first stage, for every company: it can’t be switched off, moved or removed';
 
 export function stageListHtml(c) {
   let n = 0;
+  const locked = lockedStageId(getState());
   return `<div class="stagelist">
     <table class="stbl">
       <thead><tr><th></th><th>#</th><th>Done</th><th>Stage</th><th>when?</th><th>Comment</th><th>Relevant</th><th></th></tr></thead>
-      <tbody>${c.order.map(id => { const x = c.stages[id]; return `
-        <tr class="srow ${x.enabled ? '' : 'off'} ${x.done ? 'done' : ''}" data-stage="${id}">
-          <td class="grip" title="Drag to reorder">⋮⋮</td>
+      <tbody>${c.order.map(id => { const x = c.stages[id], lk = id === locked; return `
+        <tr class="srow ${x.enabled ? '' : 'off'} ${x.done ? 'done' : ''} ${isCvStage(id) ? 'cv-row' : ''} ${lk ? 'locked' : ''}" data-stage="${id}">
+          ${lk ? `<td class="lock" title="${LOCK_TIP}">🔒</td>` : '<td class="grip" title="Drag to reorder">⋮⋮</td>'}
           <td class="num">${x.enabled ? ++n : '–'}</td>
           <td><input type="checkbox" data-sd="${id}" ${x.done ? 'checked' : ''} ${x.enabled ? '' : 'disabled'}></td>
-          <td class="sname">${esc(stageName(id))}</td>
+          <td class="sname">${esc(stageName(id))}${isCvStage(id) ? cvSlotHtml(c) : ''}</td>
           <td><span class="swhen ${x.meeting ? 'has' : ''}" data-sm="${id}" title="Scheduled meeting for this stage (24-hour time)"><input type="date" class="smeet sdate" value="${esc((x.meeting || '').slice(0, 10))}"><input class="smeet stime" value="${esc((x.meeting || '').slice(11, 16))}" placeholder="--:--" maxlength="5" inputmode="numeric" autocomplete="off"></span></td>
           <td><input class="scomment" data-sc="${id}" value="${esc(x.comment)}" placeholder="comment…"></td>
-          <td class="rel"><label class="switch" title="Does this company have this stage?"><input type="checkbox" data-se="${id}" ${x.enabled ? 'checked' : ''}><span></span></label></td>
-          <td class="mv"><button class="icon up" title="Move up">↑</button><button class="icon down" title="Move down">↓</button></td>
+          <td class="rel">${lk ? '' : `<label class="switch" title="Does this company have this stage?"><input type="checkbox" data-se="${id}" ${x.enabled ? 'checked' : ''}><span></span></label>`}</td>
+          <td class="mv">${lk ? '' : '<button class="icon up" title="Move up">↑</button><button class="icon down" title="Move down">↓</button>'}</td>
         </tr>`; }).join('')}</tbody>
     </table>
     <div class="addstage"><input class="newstage" placeholder="+ Add stage (Enter)" title="New stages are added to all companies"></div>
@@ -59,7 +63,7 @@ function initEditing(main) {
     c.stages[box.dataset.sm].meeting = value;
     box.classList.toggle('has', !!value);
     save();
-    emit('meeting:changed', c);   // updates the Next meeting cell without redrawing this list
+    emit('meeting:changed', c);   // updates the Next up cell without redrawing this list
   });
   delegate(main, 'focusout', '.stime', (e, el) => {
     const t = parseTime(el.value);
@@ -77,7 +81,7 @@ function initEditing(main) {
 function initReorder(main) {
   delegate(main, 'click', '.srow .up, .srow .down', (e, el) => {
     const c = companyOf(el), id = el.closest('.srow').dataset.stage;
-    if (moveBy(c.order, c.order.indexOf(id), el.classList.contains('up') ? -1 : 1)) changed(c);
+    if (moveBy(c.order, c.order.indexOf(id), el.classList.contains('up') ? -1 : 1, lockedStageId(getState()))) changed(c);
   });
 
   // drag & drop: rows only become draggable while the ⋮⋮ handle is held
@@ -96,13 +100,14 @@ function initReorder(main) {
     e.preventDefault();
     clearMarks();
     const r = row.getBoundingClientRect();
-    row.classList.add(e.clientY > r.top + r.height / 2 ? 'drop-after' : 'drop-before');
+    const after = row.classList.contains('locked') || e.clientY > r.top + r.height / 2;   // nothing goes above the locked stage
+    row.classList.add(after ? 'drop-after' : 'drop-before');
   });
   delegate(main, 'drop', '.srow', (e, row) => {
     if (!drag || companyOf(row) !== drag.c) return;
     e.preventDefault();
     const { c, id } = drag;
-    c.order = moveTo(c.order, id, row.dataset.stage, row.classList.contains('drop-after'));
+    c.order = moveTo(c.order, id, row.dataset.stage, row.classList.contains('drop-after'), lockedStageId(getState()));
     drag = null;
     changed(c);
   });

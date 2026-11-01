@@ -4,13 +4,13 @@
 import { esc, today } from '../util.js';
 import { mainEl, delegate, $, $$ } from '../dom.js';
 import { isClosed } from '../config.js';
-import { getState, save } from '../store.js';
+import { getState } from '../store.js';
 import { on, emit } from '../bus.js';
 import { matches } from '../model/search.js';
 import { sortCompanies, nextSort } from '../model/sort.js';
-import { moveTo } from '../model/stages.js';
-import { removeCompany } from '../model/company.js';
-import { companyOf, agoHtml, meetingHtml, logoHtml } from './common.js';
+import { moveTo, lockedStageId } from '../model/stages.js';
+import { companyOf, agoHtml, meetingHtml, logoHtml, BIN } from './common.js';
+import { askDelete } from './deleteDialog.js';
 import { COLS, loadColumnOrder, saveColumnOrder } from './columns.js';
 import { reopen } from './popover.js';
 import { actionBadgeHtml } from './action.js';
@@ -35,7 +35,7 @@ function rowHtml(c, closed = isClosed(c)) {
     <td class="stk stk1 goto" ${open}>${logoHtml(c)}</td>
     <td class="stk stk2 goto" ${open}><div class="cocell"><span class="coname ${c.name ? '' : 'untitled'}">${esc(c.name || 'Untitled')}</span>${actionBadgeHtml(c)}</div></td>
     ${colOrder.map(k => COLS[k].td(c, closed)).join('')}
-    <td><button class="icon del" title="Delete">✕</button></td>
+    <td><button class="icon del" title="Delete…">${BIN}</button></td>
   </tr>`;
 }
 
@@ -43,7 +43,7 @@ function tableHtml(list, closed, emptyText = '') {
   return `<div class="sheet-wrap"><table class="sheet ${closed ? 'closedtbl' : ''}">
     <colgroup><col class="col-logo"><col class="col-name">${colOrder.map(k => `<col class="${COLS[k].col(closed)}">`).join('')}<col class="col-del"></colgroup>
     <thead><tr><th class="stk stk1"></th>${th('name', 'Company', 'stk stk2')}${colOrder.map(k => movableTh(k, closed)).join('')}<th></th></tr></thead>
-    <tbody>${sortCompanies(list, sort, { today: today() }).map(c => rowHtml(c, closed)).join('')}</tbody>
+    <tbody>${sortCompanies(list, sort, { today: today(), skip: lockedStageId(getState()) }).map(c => rowHtml(c, closed)).join('')}</tbody>
   </table>${emptyText ? `<div class="empty">${emptyText}</div>` : ''}</div>`;
 }
 
@@ -101,10 +101,8 @@ export function init() {
   });
   initColumnDrag(main);
   delegate(main, 'click', 'tr.row td.goto', (e, el) => { if (e.target.closest('.act-btn, .act-add')) return; location.hash = '#/c/' + companyOf(el).id; });
-  delegate(main, 'click', 'tr.row .del', (e, el) => {
-    const c = companyOf(el);
-    if (!confirm(`Delete ${c.name || 'this company'}?`)) return;
-    removeCompany(getState(), c.id); save(); emit('render');
+  delegate(main, 'click', 'tr.row .del', async (e, el) => {
+    if (await askDelete(companyOf(el)) === 'deleted') emit('render');
   });
   on('field', ({ c, field, el }) => {
     if (!rowOf(c)) return;

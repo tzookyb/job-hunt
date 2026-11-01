@@ -1,12 +1,14 @@
 // The company page (#/c/<id>): every field, the stage list and notes.
 import { esc } from '../util.js';
 import { mainEl, delegate, $, $$, autosize } from '../dom.js';
-import { getState, save } from '../store.js';
+import { getState } from '../store.js';
 import { on, emit } from '../bus.js';
-import { findCompany, removeCompany } from '../model/company.js';
+import { findCompany } from '../model/company.js';
 import { isClosed, statusLabel } from '../config.js';
 import { companyOf, statusOptions, progressInner, agoHtml, logoHtml } from './common.js';
+import { askDelete } from './deleteDialog.js';
 import { runLookup } from './addCompany.js';
+import { aiNotesHtml } from './aiNotes.js';
 import { contactsHtml } from './contacts.js';
 import { logoEditorHtml } from './logoEditor.js';
 import { researchHtml, syncResearchLinks } from './research.js';
@@ -32,7 +34,7 @@ export function renderDetail(id) {
       ${logoEditorHtml(c)}
       <input class="title" data-f="name" value="${esc(c.name)}" placeholder="Company name">
       <select data-f="status">${statusOptions(c.status)}</select>
-      <button class="btn ghost lookup" title="Fill empty website, logo and research links">↻ Look up</button>
+      <button class="btn ghost lookup" title="Fill empty website, logo and research links (and refresh the AI notes when AI is set up). Filled fields only change if you approve.">↻ Look up</button>
     </div>
     <div class="dprog st-${c.status}">${progressInner(c)}</div>
     ${actionBoxHtml(c)}
@@ -42,11 +44,14 @@ export function renderDetail(id) {
       ${isClosed(c) ? `<label class="full">Reason (${esc(statusLabel(c.status))})<input class="field" data-f="closeReason" value="${esc(c.closeReason)}" placeholder="Why did it end?"></label>` : ''}
       <label>Website${linkInput(c, 'website', 'website')}</label>
       <label>Careers / job post${linkInput(c, 'careersUrl', 'link to the position')}</label>
+      <details class="full paste-job"${c.jobText ? ' open' : ''}><summary>Paste job post${c.jobText ? ' (pasted)' : ' — for LinkedIn and pages that can’t be read'}</summary>
+        <textarea class="field" data-f="jobText" rows="4" placeholder="Paste the whole job post here. It wins over the link when analyzing.">${esc(c.jobText)}</textarea></details>
       ${contactsHtml(c)}
       <label class="full">Comments<textarea class="field" data-f="comments" rows="2" placeholder="General notes about the position">${esc(c.comments)}</textarea></label>
     </div>
     <h2>Stages</h2>
     ${stageListHtml(c)}
+    ${aiNotesHtml(c)}
     ${researchHtml(c)}
     ${notesHtml(c)}
     <div class="dangerzone"><button class="btn ghost danger del-company">Delete company</button></div>
@@ -67,15 +72,18 @@ const visible = c => location.hash.startsWith('#/c/') && currentId === c.id;
 export function init() {
   const main = mainEl();
   delegate(main, 'click', '.back', () => { location.hash = ''; });
+  delegate(main, 'click', '.ai-run', async (e, el) => {
+    const c = companyOf(el);
+    await runLookup(c);
+    if (visible(c)) renderDetail(c.id);
+  });
   delegate(main, 'click', '.lookup', async (e, el) => {
     const c = companyOf(el);
     await runLookup(c);
     if (visible(c)) renderDetail(c.id);
   });
-  delegate(main, 'click', '.del-company', (e, el) => {
-    const c = companyOf(el);
-    if (!confirm(`Delete ${c.name || 'this company'}?`)) return;
-    removeCompany(getState(), c.id); save(); location.hash = '';
+  delegate(main, 'click', '.del-company', async (e, el) => {
+    if (await askDelete(companyOf(el)) === 'deleted') location.hash = '';
   });
   on('company:changed', c => {
     if (!visible(c)) return;
@@ -92,6 +100,7 @@ export function init() {
     if (field === 'status') renderDetail(c.id);   // shows or hides Reason
     if (field === 'lastInteraction') el.nextElementSibling.outerHTML = agoHtml(c.lastInteraction);
     if (field === 'logo' || field === 'name') $('.lg', main).outerHTML = logoHtml(c, 'big');
+    if (field === 'careersUrl' || field === 'jobText') $('.ai-notes', main).outerHTML = aiNotesHtml(c);   // shows "Analyze this job post"
   });
   on('stages:changed', ({ c }) => {
     if (!visible(c)) return;

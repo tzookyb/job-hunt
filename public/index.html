@@ -12,6 +12,8 @@
 <link rel="stylesheet" href="css/dialogs.css">
 <link rel="stylesheet" href="css/drawer.css">
 <link rel="stylesheet" href="css/action.css">
+<link rel="stylesheet" href="css/cv.css">
+<link rel="stylesheet" href="css/ai.css">
 </head>
 <body>
 <header>
@@ -25,6 +27,7 @@
   <span id="saveStatus"></span>
   <button class="btn icon-btn" id="backupBtn" title="Back up now: saves a copy to user-data/backups">⤓</button>
   <button class="btn" id="bmBtn" title="Bookmarks (B)">🔖 Bookmarks</button>
+  <button class="btn icon-btn" id="aiBtn" title="AI settings">⚙</button>
 </header>
 <main id="main"></main>
 
@@ -45,7 +48,11 @@
       <input id="newName" class="field" placeholder="Company name" autocomplete="off">
       <select id="newStatus" class="field" title="Status"></select>
     </div>
-    <span class="hint">I’ll try to find the website, logo and research links (Glassdoor, LinkedIn…), then open the company.</span>
+    <input id="newJob" class="field" placeholder="Job post link (optional)" autocomplete="off" spellcheck="false">
+    <details id="newPaste"><summary>…or paste the job post text (for LinkedIn and pages that can’t be read)</summary>
+      <textarea id="newJobText" class="field" rows="6" placeholder="Paste the whole job post here"></textarea>
+    </details>
+    <span class="hint">I’ll find the website, logo and research links (Glassdoor, LinkedIn…). With an AI provider set up in ⚙, I’ll also describe the company, judge how it fits you and analyze the job post. Then I’ll open the company.</span>
     <div class="row2"><button type="button" class="btn ghost" id="newCancel">Cancel</button><button class="btn primary">Add</button></div>
   </form>
 </dialog>
@@ -58,6 +65,40 @@
   <div id="gsList"></div>
   <div class="addstage"><input id="gsNew" class="newstage" placeholder="+ New stage — Enter to add"></div>
   <div class="dlg-foot"><button class="btn ghost" id="applyOrder">Apply this order to all companies</button></div>
+</dialog>
+<dialog id="delDlg">
+  <div class="dlg-head"><h3 id="delTitle"></h3><button class="icon" data-act="cancel" title="Cancel (Esc)">✕</button></div>
+  <p class="del-msg">Moving it keeps it, with its history, in the Rejected &amp; closed table. Deleting can't be undone (except from a backup).</p>
+  <div class="del-acts">
+    <button class="btn" data-act="rejected">Move to Rejected</button>
+    <button class="btn" data-act="withdrawn">Move to Withdrew</button>
+    <button class="btn danger" data-act="delete">Delete for good</button>
+  </div>
+</dialog>
+<dialog id="aiDlg">
+  <form id="aiForm">
+    <div class="dlg-head"><h3>AI settings</h3><button type="button" class="icon" id="aiClose" title="Close (Esc)">✕</button></div>
+    <p class="hint">Optional. With a provider and key, the lookup can describe a company, judge how it fits you and analyze the job post. Every provider here has a free tier — pick one to see how to get a key. With none, everything works as before.</p>
+    <label>Provider<select id="aiProvider" class="field"></select></label>
+    <div id="aiDetails">
+      <div id="aiGuide" class="ai-guide"></div>
+      <label>Model<input id="aiModel" class="field" placeholder="Model name, from the provider's model list" autocomplete="off" spellcheck="false"></label>
+      <div id="aiKeyRow">
+        <label>API key<input id="aiKey" class="field" type="password" autocomplete="off" spellcheck="false"></label>
+        <div class="ai-keystate"><span id="aiKeyState" class="hint"></span><button type="button" class="btn ghost" id="aiKeyRemove">Remove key</button></div>
+        <p class="hint">The key stays on this computer. The page never gets it back, and it isn't in your data file or its backups.</p>
+      </div>
+    </div>
+    <label>About you<textarea id="aiProfile" class="field" rows="9" spellcheck="true" placeholder="CV highlights and what you're looking for, e.g.&#10;- Senior frontend engineer, 6 years: React, TypeScript, MobX…&#10;- Strongest work: …&#10;- Looking for: product companies, hybrid in Tel Aviv…"></textarea></label>
+    <p class="hint ai-warn">⚠ “About you” and the pages being analyzed are sent to the provider you pick.</p>
+    <div class="ai-foot"><span id="aiMsg"></span><button type="button" class="btn" id="aiTest" title="Save, then send one tiny request to check the key and model">Test</button><button type="button" class="btn ghost" id="aiCancel">Cancel</button><button class="btn primary" id="aiSave">Save</button></div>
+  </form>
+</dialog>
+<dialog id="sugDlg">
+  <div class="dlg-head"><h3 id="sugTitle"></h3><button type="button" class="icon" id="sugClose" title="Keep mine (Esc)">✕</button></div>
+  <p class="hint">You already filled these. Tick the ones to replace with what the lookup found; the rest stay as they are.</p>
+  <div id="sugList"></div>
+  <div class="ai-foot"><button type="button" class="btn ghost" id="sugKeep">Keep mine</button><button type="button" class="btn primary" id="sugApply">Apply selected</button></div>
 </dialog>
 <script type="module" src="js/main.js"></script>
 </body>

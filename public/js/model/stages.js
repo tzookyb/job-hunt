@@ -2,6 +2,10 @@
 import { uid } from '../util.js';
 import { blankStage } from './normalize.js';
 
+// The Application stage is locked: always first, on for every company, and it can't be renamed, switched off,
+// moved or deleted. `normalize()` keeps it that way; the helpers below refuse to break it.
+export const lockedStageId = state => state.stages.find(s => s.locked)?.id || null;
+
 // Adds a stage to the shared list. Every company gets it, switched on only for `forCompany` (the one it was added
 // from). If a stage with that name exists, it is just switched on for `forCompany`.
 export function addStage(state, name, forCompany = null) {
@@ -31,24 +35,30 @@ export function stageUsage(state, id) {
 }
 
 export function deleteStage(state, id) {
+  if (id === lockedStageId(state)) return false;
   state.stages = state.stages.filter(s => s.id !== id);
   for (const c of state.companies) {
     c.order = c.order.filter(x => x !== id);
     delete c.stages[id];
   }
+  return true;
 }
 
-// Swap an item with its neighbour (delta -1 = up, +1 = down). Returns false at the edges.
-export function moveBy(list, index, delta) {
+// Swap an item with its neighbour (delta -1 = up, +1 = down). Returns false at the edges, or when either item is
+// `fixed` (the locked stage: it never moves and nothing passes it).
+export function moveBy(list, index, delta, fixed = null) {
   const j = index + delta;
   if (index < 0 || j < 0 || j >= list.length) return false;
+  if (fixed != null && (list[index] === fixed || list[j] === fixed)) return false;
   [list[index], list[j]] = [list[j], list[index]];
   return true;
 }
 
-// Move `id` before or after `targetId` inside a list of ids.
-export function moveTo(ids, id, targetId, after) {
-  if (id === targetId) return ids;
+// Move `id` before or after `targetId` inside a list of ids. The `fixed` id never moves, and dropping before it
+// lands right after it instead.
+export function moveTo(ids, id, targetId, after, fixed = null) {
+  if (id === targetId || (fixed != null && id === fixed)) return ids;
+  if (fixed != null && targetId === fixed) after = true;
   const out = ids.filter(x => x !== id);
   out.splice(out.indexOf(targetId) + (after ? 1 : 0), 0, id);
   return out;

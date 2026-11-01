@@ -5,7 +5,7 @@ import { esc } from '../util.js';
 import { $, delegate } from '../dom.js';
 import { getState, save } from '../store.js';
 import { emit } from '../bus.js';
-import { addStage, deleteStage, moveBy, applyOrderToAll, stageUsage } from '../model/stages.js';
+import { addStage, deleteStage, moveBy, applyOrderToAll, stageUsage, lockedStageId } from '../model/stages.js';
 import { focusStageOnOpen } from './detail.js';
 import { TIME_24 } from '../model/meetings.js';
 
@@ -13,7 +13,11 @@ const dlg = () => $('#stagesDlg');
 const warning = () => $('#gsWarn');
 
 function render() {
-  $('#gsList').innerHTML = getState().stages.map(s => `
+  $('#gsList').innerHTML = getState().stages.map(s => s.locked ? `
+    <div class="gs locked" data-g="${s.id}" title="Always the first stage, for every company: it can’t be renamed, switched off, moved or removed">
+      <input class="field" value="${esc(s.name)}" readonly tabindex="-1">
+      <span class="gs-lock">🔒 Always first</span>
+    </div>` : `
     <div class="gs" data-g="${s.id}">
       <input class="field" value="${esc(s.name)}">
       <label class="switch" title="On by default for new companies"><input type="checkbox" class="gdef" ${s.defaultOn ? 'checked' : ''}><span></span></label>
@@ -71,14 +75,16 @@ export function init() {
   delegate(d, 'click', '#dlgClose', () => d.close());
   d.addEventListener('click', e => { if (e.target === d) d.close(); });
 
-  delegate(d, 'input', '.gs .field', (e, el) => { stageOfRow(el).name = el.value; save(); });
+  delegate(d, 'input', '.gs:not(.locked) .field', (e, el) => { stageOfRow(el).name = el.value; save(); });
   delegate(d, 'change', '.gs .gdef', (e, el) => { stageOfRow(el).defaultOn = el.checked; save(); });
   delegate(d, 'click', '.gup, .gdown', (e, el) => {
     const { stages } = getState();
-    if (moveBy(stages, stages.indexOf(stageOfRow(el)), el.classList.contains('gup') ? -1 : 1)) { save(); render(); }
+    const fixed = stages.find(s => s.id === lockedStageId(getState()));
+    if (moveBy(stages, stages.indexOf(stageOfRow(el)), el.classList.contains('gup') ? -1 : 1, fixed)) { save(); render(); }
   });
   delegate(d, 'click', '.gdel', (e, el) => {
     const s = stageOfRow(el);
+    if (s.locked) return;
     if (getState().stages.length === 1) return alert('Keep at least one stage.');
     const usage = stageUsage(getState(), s.id);
     if (usage.length) return showWarning(s, usage);   // companies would lose data → list them first

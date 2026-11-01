@@ -17,10 +17,12 @@ tr.row:hover .coname{color:var(--accent)}
 table.sheet{min-width:900px}
 tr.row input:focus, tr.row select:focus{background:var(--focus-bg);box-shadow:inset 0 0 0 1px var(--accent)}
 tr.row select{cursor:pointer}
+/* Status: as wide as the chosen option, so its arrow sits right after the text */
+tr.row select[data-f=status]{width:auto;field-sizing:content;padding-right:6px}
 select option{background:var(--panel2)}
 .closedtbl tr.row > td > *{opacity:.6}
 .closedtbl tr.row:hover > td > *{opacity:1}
-.col-logo{width:46px}.col-name{width:200px}.col-del{width:38px}.col-prog{width:30%}.col-reason{width:22%}.closedtbl .col-prog{width:20%}.col-date{width:190px}.col-status{width:180px}
+.col-logo{width:46px}.col-name{width:200px}.col-del{width:38px}.col-prog{width:30%}.col-reason{width:22%}.closedtbl .col-prog{width:20%}.col-date{width:190px}.col-status{width:1%}
 .section-title{font-size:13px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin:26px 0 8px;display:flex;gap:8px;align-items:center;cursor:pointer;list-style:none}
 .section-title::-webkit-details-marker{display:none}
 details > .section-title::before{content:'▸';transition:transform .15s;display:inline-block}
@@ -55,13 +57,14 @@ th[data-sort]::after{content:'↕';opacity:.3;margin-left:5px;font-size:11px}
 th.sorted-asc::after{content:'↑';opacity:1;color:var(--accent)}
 th.sorted-desc::after{content:'↓';opacity:1;color:var(--accent)}
 
-/* next meeting */
+/* next up (meeting) */
 .col-meet{width:190px}
 .meet{padding:6px 10px;line-height:1.25;white-space:nowrap}
 .meet b{font-weight:600;font-size:13px}
 .meet small{display:block;color:var(--muted);font-size:11px;overflow:hidden;text-overflow:ellipsis;max-width:170px}
 .meet.soon b{color:var(--warn)}
 .meet.none{color:#3f4b68}
+.meet.past b{font-weight:400;color:var(--muted)}
 
 /* logos */
 .lg{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:24px;height:24px;border-radius:6px;background:var(--panel2);border:1px solid var(--line2);color:var(--muted);font-size:12px;font-weight:600;overflow:hidden;vertical-align:middle}

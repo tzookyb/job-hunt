@@ -37,6 +37,7 @@ body.in-detail .tools, body.in-detail #bmBtn{display:none}
 .icon{background:transparent;border:0;cursor:pointer;color:var(--muted);padding:8px 10px}
 .icon:hover{color:var(--text)}
 .icon.del:hover{color:var(--bad)}
+.icon .bin{display:block}
 
 /* toggle switch */
 .switch{position:relative;display:inline-block;width:30px;height:17px;cursor:pointer;vertical-align:middle}

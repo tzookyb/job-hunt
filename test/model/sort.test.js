@@ -48,6 +48,7 @@ test('next meeting: earliest upcoming one on a relevant stage', () => {
   });
   assert.deepEqual(nextMeeting(c, '2026-10-22'), { when: '2026-10-24T15:30', stage: 'd' });
   assert.equal(nextMeeting(c, '2026-11-01'), null);
+  assert.deepEqual(nextMeeting(c, '2026-10-22', 'd'), { when: '2026-10-25T09:00', stage: 'b' });   // skips the Application stage
 });
 
 test('24-hour time typing', async () => {
