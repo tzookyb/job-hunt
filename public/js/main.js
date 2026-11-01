@@ -22,7 +22,8 @@ import * as deleteDialog from './views/deleteDialog.js';
 import * as aiSettings from './views/aiSettings.js';
 import * as aiNotes from './views/aiNotes.js';
 import * as suggestDialog from './views/suggestDialog.js';
+import * as autoStatus from './views/autoStatus.js';
 
-[header, backupButton, fields, sheet, detail, stageList, popover, stagesDialog, addCompany, contacts, logoEditor, research, bookmarks, notes, action, cv, cvPreview, deleteDialog, aiSettings, aiNotes, suggestDialog, router].forEach(m => m.init());
+[header, backupButton, fields, sheet, detail, stageList, popover, stagesDialog, addCompany, contacts, logoEditor, research, bookmarks, notes, action, cv, cvPreview, deleteDialog, aiSettings, aiNotes, suggestDialog, autoStatus, router].forEach(m => m.init());
 await load();
 router.route();

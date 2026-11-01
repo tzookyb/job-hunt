@@ -1,12 +1,14 @@
 // Deleting a company asks first: move it to Rejected or Withdrew (it stays, with its history, in the
-// "Rejected & closed" table), or delete it for good. Used by the sheet's bin and the company page's
+// "Rejected, withdrew & gone cold" table), or delete it for good. Used by the sheet's bin and the company page's
 // "Delete company". The option matching the company's current status is hidden.
 import { $ } from '../dom.js';
 import { getState, save } from '../store.js';
 import { emit } from '../bus.js';
-import { CLOSED } from '../config.js';
+import { today } from '../util.js';
 import { removeCompany } from '../model/company.js';
+import { setStatus } from '../model/autoStatus.js';
 
+const MOVE_TO = ['rejected', 'withdrawn'];   // Gone cold is only ever set automatically
 const dlg = () => $('#delDlg');
 let pending = null;   // { c, resolve } while the dialog is open
 
@@ -14,7 +16,7 @@ let pending = null;   // { c, resolve } while the dialog is open
 export function askDelete(c) {
   if (!c) return Promise.resolve(null);
   $('#delTitle').textContent = `Delete ${c.name || 'this company'}?`;
-  for (const s of CLOSED) $(`[data-act="${s}"]`, dlg()).hidden = c.status === s;
+  for (const s of MOVE_TO) $(`[data-act="${s}"]`, dlg()).hidden = c.status === s;
   dlg().returnValue = '';
   dlg().showModal();
   $('.del-acts .btn:not([hidden])', dlg()).focus();
@@ -23,9 +25,9 @@ export function askDelete(c) {
 
 function apply(c, act) {
   if (act === 'delete') { removeCompany(getState(), c.id); save(); return 'deleted'; }
-  if (CLOSED.includes(act)) {
-    c.status = act; save();
-    emit('render');   // moves the row to Rejected & closed / redraws the company page
+  if (MOVE_TO.includes(act)) {
+    setStatus(c, act, today()); save();
+    emit('render');   // moves the row to the closed table / redraws the company page
     return 'moved';
   }
   return null;

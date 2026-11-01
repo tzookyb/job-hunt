@@ -1,10 +1,11 @@
-// The main screen: active companies, and a collapsible "Rejected & closed" table below them.
+// The main screen, three tables top to bottom: In process · Interested & approached me (collapsible) ·
+// Rejected, withdrew & gone cold (collapsible). Statuses move between them on their own (model/autoStatus.js).
 // Logo + Company are frozen on the left and open the company page; the other columns sort on click and can be
 // dragged into another order.
 import { esc, today } from '../util.js';
 import { mainEl, delegate, $, $$ } from '../dom.js';
-import { isClosed } from '../config.js';
-import { getState } from '../store.js';
+import { isClosed, isOpen } from '../config.js';
+import { getState, save } from '../store.js';
 import { on, emit } from '../bus.js';
 import { matches } from '../model/search.js';
 import { sortCompanies, nextSort } from '../model/sort.js';
@@ -12,21 +13,27 @@ import { moveTo, lockedStageId } from '../model/stages.js';
 import { companyOf, agoHtml, meetingHtml, logoHtml, BIN } from './common.js';
 import { askDelete } from './deleteDialog.js';
 import { COLS, loadColumnOrder, saveColumnOrder } from './columns.js';
-import { reopen } from './popover.js';
+import { reopen, isPopoverOpen } from './popover.js';
 import { actionBadgeHtml } from './action.js';
 
 const SORT_KEY = 'jobTrackerSort';
 const query = () => $('#q').value;
-let closedOpen = true;
+const sectionOpen = { openSec: true, closedSec: true };
+let moveLater = false;   // a row changed table while its popover was open: redraw once the popover closes
 let colOrder = loadColumnOrder();
-let sort = { key: null, dir: 1 };
-try { sort = JSON.parse(localStorage.getItem(SORT_KEY)) || sort; } catch { /* keep default */ }
+// Each table has its own sort: { active, open, closed: { key, dir } }. An older single sort applies to all three.
+const GROUPS = ['active', 'open', 'closed'];
+const sorts = {};
+try {
+  const saved = JSON.parse(localStorage.getItem(SORT_KEY)) || {};
+  for (const g of GROUPS) sorts[g] = (saved.key !== undefined ? saved : saved[g]) || { key: null, dir: 1 };
+} catch { for (const g of GROUPS) sorts[g] = { key: null, dir: 1 }; }
 
-const sortClass = key => sort.key === key ? (sort.dir > 0 ? 'sorted-asc' : 'sorted-desc') : '';
-const th = (key, label, cls = '') => `<th data-sort="${key}" class="${cls} ${sortClass(key)}">${label}</th>`;
-const movableTh = (col, closed) => {
+const sortClass = (g, key) => sorts[g].key === key ? (sorts[g].dir > 0 ? 'sorted-asc' : 'sorted-desc') : '';
+const th = (g, key, label, cls = '') => `<th data-sort="${key}" class="${cls} ${sortClass(g, key)}">${label}</th>`;
+const movableTh = (g, col, closed) => {
   const [key, label] = COLS[col].sort(closed);
-  return `<th data-sort="${key}" data-col="${col}" draggable="true" title="Click to sort · drag to move" class="${sortClass(key)}">${label}</th>`;
+  return `<th data-sort="${key}" data-col="${col}" draggable="true" title="Click to sort · drag to move" class="${sortClass(g, key)}">${label}</th>`;
 };
 
 function rowHtml(c, closed = isClosed(c)) {
@@ -39,26 +46,32 @@ function rowHtml(c, closed = isClosed(c)) {
   </tr>`;
 }
 
-function tableHtml(list, closed, emptyText = '') {
-  return `<div class="sheet-wrap"><table class="sheet ${closed ? 'closedtbl' : ''}">
+function tableHtml(g, list, emptyText = '') {
+  const closed = g === 'closed';
+  return `<div class="sheet-wrap"><table class="sheet ${closed ? 'closedtbl' : ''}" data-group="${g}">
     <colgroup><col class="col-logo"><col class="col-name">${colOrder.map(k => `<col class="${COLS[k].col(closed)}">`).join('')}<col class="col-del"></colgroup>
-    <thead><tr><th class="stk stk1"></th>${th('name', 'Company', 'stk stk2')}${colOrder.map(k => movableTh(k, closed)).join('')}<th></th></tr></thead>
-    <tbody>${sortCompanies(list, sort, { today: today(), skip: lockedStageId(getState()) }).map(c => rowHtml(c, closed)).join('')}</tbody>
+    <thead><tr><th class="stk stk1"></th>${th(g, 'name', 'Company', 'stk stk2')}${colOrder.map(k => movableTh(g, k, closed)).join('')}<th></th></tr></thead>
+    <tbody>${sortCompanies(list, sorts[g], { today: today(), skip: lockedStageId(getState()) }).map(c => rowHtml(c, closed)).join('')}</tbody>
   </table>${emptyText ? `<div class="empty">${emptyText}</div>` : ''}</div>`;
 }
 
+const section = (id, title, list, g) => list.length ? `<details id="${id}" ${sectionOpen[id] ? 'open' : ''}>
+      <summary class="section-title">${title} (${list.length})</summary>
+      ${tableHtml(g, list)}
+    </details>` : '';
+
 export function renderSheet() {
+  moveLater = false;
   const { companies } = getState();
   const list = companies.filter(c => matches(c, query()));
-  const active = list.filter(c => !isClosed(c)), closed = list.filter(isClosed);
-  $('#count').textContent = query().trim() ? `${list.length} of ${companies.length}` : `${active.length} active · ${closed.length} closed`;
-  const empty = active.length ? '' : !companies.length ? 'No companies yet — click “+ Add Company”.' : query().trim() ? 'No matches.' : 'No active processes.';
-  mainEl().innerHTML = `${tableHtml(active, false, empty)}
-    ${closed.length ? `<details id="closedSec" ${closedOpen ? 'open' : ''}>
-      <summary class="section-title">Rejected &amp; closed (${closed.length})</summary>
-      ${tableHtml(closed, true)}
-    </details>` : ''}`;
-  $('#closedSec')?.addEventListener('toggle', e => { closedOpen = e.target.open; });
+  const active = list.filter(c => !isClosed(c) && !isOpen(c)), open = list.filter(isOpen), closed = list.filter(isClosed);
+  $('#count').textContent = query().trim() ? `${list.length} of ${companies.length}` : `${active.length} in process · ${open.length} interested · ${closed.length} closed`;
+  const empty = active.length ? '' : !companies.length ? 'No companies yet — click “+ Add Company”.' : query().trim() ? 'No matches.' : 'Nothing in process.';
+  mainEl().innerHTML = `<div class="section-title static">In process (${active.length})</div>
+    ${tableHtml('active', active, empty)}
+    ${section('openSec', 'Interested &amp; approached me', open, 'open')}
+    ${section('closedSec', 'Rejected, withdrew &amp; gone cold', closed, 'closed')}`;
+  for (const id of Object.keys(sectionOpen)) $('#' + id)?.addEventListener('toggle', e => { sectionOpen[id] = e.target.open; });
 }
 
 const rowOf = c => $(`tr.row[data-id="${c.id}"]`, mainEl());
@@ -95,8 +108,9 @@ function initColumnDrag(main) {
 export function init() {
   const main = mainEl();
   delegate(main, 'click', 'th[data-sort]', (e, el) => {
-    sort = nextSort(sort, el.dataset.sort);
-    try { localStorage.setItem(SORT_KEY, JSON.stringify(sort)); } catch { /* not remembered */ }
+    const g = el.closest('table').dataset.group;
+    sorts[g] = nextSort(sorts[g], el.dataset.sort);
+    try { localStorage.setItem(SORT_KEY, JSON.stringify(sorts)); } catch { /* not remembered */ }
     emit('render');
   });
   initColumnDrag(main);
@@ -106,10 +120,17 @@ export function init() {
   });
   on('field', ({ c, field, el }) => {
     if (!rowOf(c)) return;
-    if (field === 'status') emit('render');   // may move between the two tables
+    if (field === 'status') emit('render');   // may move to another table
     if (field === 'lastInteraction') el.nextElementSibling.outerHTML = agoHtml(c.lastInteraction);
   });
   on('company:changed', redrawRow);
+  // a stage done or a meeting set moved the company to In process: move the row now, or after the popover closes
+  on('company:moved', c => {
+    if (!rowOf(c)) return;
+    redrawRow(c);
+    if (isPopoverOpen()) moveLater = true; else emit('render');
+  });
+  on('popover:closed', () => { if (moveLater && !location.hash) emit('render'); });
   on('meeting:changed', c => { const cell = rowOf(c)?.querySelector('.meet'); if (cell) cell.outerHTML = meetingHtml(c); });
   // a new stage reaches every company: redraw all rows, then bring the popover back
   on('stages:changed', ({ c }) => {

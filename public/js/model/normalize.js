@@ -35,7 +35,7 @@ export function normalize(raw) {
     // the locked Application stage: first, and on, for every company
     c.order = [locked, ...c.order.filter(id => id !== locked)];
     c.stages[locked].enabled = true;
-    for (const f of ['name', 'position', 'website', 'careersUrl', 'comments', 'lastInteraction', 'closeReason', 'logo', ...RESEARCH.map(r => r.field)]) c[f] = c[f] || '';
+    for (const f of ['name', 'position', 'website', 'careersUrl', 'comments', 'lastInteraction', 'closeReason', 'logo', 'statusSince', ...RESEARCH.map(r => r.field)]) c[f] = c[f] || '';
     c.jobText = typeof c.jobText === 'string' ? c.jobText : '';   // a pasted job post (AI lookup)
     c.ai = c.ai && typeof c.ai === 'object' && !Array.isArray(c.ai) ? c.ai : null;   // read-only AI notes
     c.notes = Array.isArray(c.notes) ? c.notes : [];

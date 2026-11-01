@@ -21,8 +21,9 @@ step.
   drag to reorder, or add a stage on the spot.
 - **What's next at a glance.** The Next up column shows the earliest upcoming meeting (highlighted for today
   and tomorrow), and Last interaction turns amber after a week of silence. Ticking a stage counts as an interaction.
-- **Closed processes out of the way.** Rejected and withdrawn companies move to their own collapsible table, with
-  a Reason column.
+- **Three tables that sort themselves.** In process on top, Interested & approached me in the middle, and Rejected,
+  withdrew & gone cold at the bottom (with a Reason column). Ticking a stage or scheduling a meeting moves a company
+  to In process; a process with nothing new for more than 7 days moves to Gone cold.
 - **Add a company by name.** A naive lookup fills in the website, logo and research links (Glassdoor, LinkedIn,
   Crunchbase, Levels.fyi, Blind, Comparably…), mostly from Wikidata. Anything it can't find gets a one-click search.
 - **A page per company:** points of contact (📞 call and WhatsApp Web links generated from the phone number), six

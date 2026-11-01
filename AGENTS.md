@@ -76,11 +76,11 @@ edit as you go. Every change persists locally to a JSON file. Single user, runs 
 | `public/js/main.js` | Composition root: calls each feature's `init()`, loads data, routes. |
 | `public/js/store.js` | Owns the state; `load()`, debounced `save()` (350ms), `writeNow()`; server or localStorage. |
 | `public/js/api.js` | `fetch` wrappers for the server API. |
-| `public/js/bus.js` | Tiny pub/sub: `status`, `render`, `route`, `field`, `company:changed`, `stages:changed`, `meeting:changed`. |
+| `public/js/bus.js` | Tiny pub/sub: `status`, `render`, `route`, `field`, `company:changed`, `stages:changed`, `meeting:changed`, `company:moved`, `popover:closed`. |
 | `public/js/dom.js` | `$`, `$$`, `delegate()`, `autosize()`. |
 | `public/js/router.js` | `#/c/<id>` → company page, otherwise the sheet. |
 | `public/js/config.js` | Default stages, statuses. |
-| `public/js/model/` | Pure logic, unit-tested: `normalize`, `company`, `stages`, `progress`, `meetings`, `search`, `sort`, `contacts`, `bookmarks`, `action`, `cvs`, `lookupResult` (what a lookup does to a company: fill empty, suggestions, AI notes, "job post changed?"). |
+| `public/js/model/` | Pure logic, unit-tested: `normalize`, `company`, `stages`, `progress`, `meetings`, `search`, `sort`, `contacts`, `bookmarks`, `action`, `autoStatus`, `cvs`, `lookupResult` (what a lookup does to a company: fill empty, suggestions, AI notes, "job post changed?"). |
 | `public/js/views/` | One file per UI feature, each with an `init()` that registers its own delegated listeners. |
 | `test/` | `node --test` suites; `test/helpers.js` starts the app against a temp data folder. |
 | `user-data/` | **All personal data** (git-ignored, created on start): `data.json`, `data.backup.json`, `backups/`, `cvs/`, `settings.json` (AI provider/model), `profile.md` ("About you"), `secrets.json` (AI keys, 0600, only off macOS or when the Keychain refuses). |
@@ -131,6 +131,8 @@ A tab left open from before this change gets 403 until it's refreshed (the page 
   - `company:changed` ← after a stage edit (views patch just that company); `meeting:changed` patches only the Next
     up cell (so the popover being typed in isn't redrawn);
   - `stages:changed` ← a stage was added from a company (`{ c }`); `status` → the save-status text.
+  - `company:moved` ← a stage done / meeting set changed the status automatically (`c`); `popover:closed` ← the
+    progress popover closed (the sheet moves a row then, not while the popover is being typed in).
 - **`data-f="<field>"` inputs are bound automatically** by `views/fields.js`.
 - **Model code is pure** (no DOM, no fetch) and lives in `public/js/model/`, so `node --test` can import it.
 
@@ -144,12 +146,13 @@ A tab left open from before this change gets 403 until it's refreshed (the page 
   companies: [{
     id, name, position, website, careersUrl, comments, createdAt,
     lastInteraction: 'YYYY-MM-DD',       // set by hand, or to today when a stage is ticked done
+    statusSince: 'YYYY-MM-DD',           // day the status last changed (by hand or automatically); '' in older data
     closeReason,                          // why a rejected/withdrawn/closed process ended
     logo,                                 // image URL
     glassdoorUrl, linkedinUrl, crunchbaseUrl, levelsUrl, blindUrl, comparablyUrl,
     // (older data may still hold indeedUrl / finderUrl: those fields were removed from the UI, values left alone)
     contacts: [{ id, name, role, phone, linkedin }],   // phone in international format
-    status: 'interested'|'approached'|'active'|'rejected'|'withdrawn',   // 'active' shows as "In process"
+    status: 'interested'|'approached'|'active'|'rejected'|'withdrawn'|'cold',   // 'active' = "In process", 'cold' = "Gone cold"
     order: [stageId...],                  // this company's own stage order
     stages: { [stageId]: { enabled, done, comment, meeting: 'YYYY-MM-DDTHH:mm' } },   // enabled = applies to this company
     notes: [{ id, title, body }],
@@ -198,13 +201,22 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
     passed — `meetingPassed()`), Last interaction (date + "x days ago", amber
     after 7 days) and Status. Drag a header to reorder them (both tables; remembered per browser).
   - Status select hugs the chosen option (`field-sizing: content`; column `width:1%`).
-  - 🗑 (bin) deletes: `views/deleteDialog.js` asks Move to Rejected / Move to Withdrew (the current one hidden) or
+  - 🗑 (bin) deletes: `views/deleteDialog.js` asks Move to Rejected / Move to Withdrew (the current one hidden; never Gone cold, which is only automatic) or
     Delete for good. The company page's "Delete company" uses the same dialog. Website, position and comments live on the company page only. Up to 1600px wide.
 - **Statuses:** Interested (thinking of applying, grey stripe) · Approached me (they reached out, blue stripe) · In
-  process · Rejected · Withdrew. Offer and "Closed / done" were dropped by the owner.
-- **Rejected & closed** (rejected, withdrawn) move to a collapsible table below, with an editable Reason column in
-  place of Next up. Changing the status moves the row.
-- **Sorting:** click a header; again to flip. Empty values always go last. Last interaction and Progress start
+  process · Rejected · Withdrew · Gone cold (light-blue stripe). Offer and "Closed / done" were dropped by the owner.
+- **Three tables, top to bottom** (owner, 2026-11-01): **In process** · **Interested & approached me**
+  (collapsible) · **Rejected, withdrew & gone cold** (collapsible, an editable Reason column in place of Next
+  up). Changing the status moves the row; empty collapsible tables are hidden.
+- **Automatic statuses** (`model/autoStatus.js`, owner's rules):
+  - Progress → In process: ticking a stage done or scheduling a meeting moves Interested / Approached me / Gone cold
+    to In process. Rejected and Withdrew are never changed automatically. Moving a row while the progress popover
+    is open waits until it closes.
+  - Gone cold: an In process company with no upcoming meeting (the locked Application stage never counts as upcoming) whose last move is more than 7 full days ago (last
+    move on day 0 → cold on day 8). Last move = latest of last interaction, `statusSince`, a meeting that has taken
+    place, and the day it was added. Checked on page load (saves once if anything moved) and hourly while the tab
+    is open. Picking a status by hand sets `statusSince`, so reviving a cold company gives it another 7 days.
+- **Sorting:** click a header; again to flip. Each of the three tables keeps its own sort (owner, 2026-11-01). Empty values always go last. Last interaction and Progress start
   descending. Ties always fall back (owner's rule, fixed direction): next meeting (soonest first) → last interaction
   (most recent first) → status (Interested → Approached me → In process) → company name (A–Z).
 - **Last interaction:** ticking a stage or finishing a pending action sets it to today; adding a company does not (owner's rule).
@@ -264,7 +276,7 @@ Every edit autosaves (350ms debounce); the top-right status says where. Without 
 `localStorage['jobTracker']` and says so in red.
 
 ### Saved in the browser only (`localStorage`)
-`jobTrackerSort` (sort), `jobHuntCols` (column order), `jobHuntDrawer` (drawer open), `jobTracker` (data fallback
+`jobTrackerSort` (sort per table: `{ active, open, closed }`; an older single `{ key, dir }` applies to all), `jobHuntCols` (column order), `jobHuntDrawer` (drawer open), `jobTracker` (data fallback
 when there's no server).
 
 ## Backups
@@ -524,6 +536,17 @@ Shown as an "AI notes" section on the company page with "↻ Re-analyze"; `at` +
 ## Work log
 
 Newest first.
+
+- **2026-11-01 15:40:** Merged the local AI/CV/delete-dialog work with the three-table sheet from `main`. Beyond the
+  textual conflicts: `deleteDialog.js` looped over `CLOSED`, which now includes `cold` and has no button (crash on
+  delete), so it has its own `MOVE_TO`, and it uses `setStatus()`; `isGoingCold` skips the locked Application stage.
+
+- **2026-11-01 13:25:** Each sheet table sorts on its own (`jobTrackerSort` holds one sort per table).
+
+- **2026-11-01 13:15:** Sheet split into three tables (In process · Interested & approached me · Rejected, withdrew
+  & gone cold). New status `cold` ("Gone cold") and field `statusSince`; automatic status rules in
+  `model/autoStatus.js`. Front-end only: refresh the tab. Existing In process companies already past 7 days go cold
+  on the first load.
 
 - **2026-10-28 12:00:** AI lookup step 5 (UI) + owner's decisions: filled fields change only through a suggestions
   dialog (unticked checkboxes, links shown without `https://www.`), AI notes read-only, comments never touched, job

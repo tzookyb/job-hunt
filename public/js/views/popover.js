@@ -2,7 +2,7 @@
 // you type or drag inside it, and closes on Esc, a click outside, scrolling or moving away.
 import { esc } from '../util.js';
 import { mainEl, $, $$ } from '../dom.js';
-import { on } from '../bus.js';
+import { on, emit } from '../bus.js';
 import { companyOf } from './common.js';
 import { stageListHtml, isDraggingStage } from './stageList.js';
 
@@ -32,10 +32,13 @@ export function openPopover(c, anchor) {
 
 export function closePopover() {
   clearTimeout(openT); clearTimeout(hideT);
+  const was = pop;
   pop?.remove();
   pop = null; popFor = null;
   $$('.prog.open', mainEl()).forEach(p => p.classList.remove('open'));
+  if (was) emit('popover:closed');
 }
+export const isPopoverOpen = () => !!pop;
 
 const anchorOf = id => $(`tr.row[data-id="${id}"] .prog`, mainEl());
 const busy = () => pop && (pop.contains(document.activeElement) || isDraggingStage());

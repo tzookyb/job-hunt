@@ -1,6 +1,8 @@
 // Owns the app state and persistence: the server when it's running, the browser's localStorage otherwise.
 import * as api from './api.js';
 import { normalize } from './model/normalize.js';
+import { applyCold } from './model/autoStatus.js';
+import { today } from './util.js';
 import { emit } from './bus.js';
 
 const LOCAL_KEY = 'jobTracker';
@@ -28,7 +30,8 @@ export async function load() {
   }
   const { data, migrated } = normalize(raw);
   state = data;
-  if (migrated) save();
+  const cold = applyCold(state, today());   // processes with nothing new for 7+ full days → Gone cold
+  if (migrated || cold.length) save();
   return state;
 }
 

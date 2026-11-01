@@ -9,7 +9,7 @@ export const COLS = {
     col: () => 'col-prog', sort: () => ['progress', 'Progress'],
     td: c => `<td><button class="prog ${popoverCompanyId() === c.id ? 'open' : ''}">${progressInner(c)}</button></td>`,
   },
-  meet: {   // Next up (meeting) for active companies; Reason in the Rejected & closed table
+  meet: {   // Next up (meeting) for active companies; Reason in the closed table
     col: closed => closed ? 'col-reason' : 'col-meet',
     sort: closed => closed ? ['reason', 'Reason'] : ['meeting', 'Next up'],
     td: (c, closed) => `<td>${closed ? `<input data-f="closeReason" value="${esc(c.closeReason)}" placeholder="Why? e.g. no feedback, salary, ghosted…">` : meetingHtml(c)}</td>`,
