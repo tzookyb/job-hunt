@@ -56,7 +56,7 @@ edit as you go. Every change persists locally to a JSON file. Single user, runs 
 | `server/config.js` | Port (`PORT` env, default 4317) and paths; `DATA_DIR` env overrides the data folder. |
 | `server/app.js` | Builds the HTTP server from its parts (so tests can start it on a random port). |
 | `server/routes.js` | API route table: `"METHOD /path": handler`. |
-| `server/storage.js` | `JsonStore`: reads/writes the data file. |
+| `server/storage.js` | `JsonStore`: reads/writes the data file; writes are queued one at a time. |
 | `server/backups.js` | `Backups`: activity-driven automatic backups (see below). |
 | `server/static.js` | Serves `public/` (known file types only, no path traversal). |
 | `server/http.js` | `send`, `sendJson`, `readBody`. |
@@ -214,8 +214,9 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
     is open waits until it closes.
   - Gone cold: an In process company with no upcoming meeting (the locked Application stage never counts as upcoming) whose last move is more than 7 full days ago (last
     move on day 0 → cold on day 8). Last move = latest of last interaction, `statusSince`, a meeting that has taken
-    place, and the day it was added. Checked on page load (saves once if anything moved) and hourly while the tab
-    is open. Picking a status by hand sets `statusSince`, so reviving a cold company gives it another 7 days.
+    place, and the day it was added. Checked on page load (saves once if anything moved), then by
+    `views/autoStatus.js` when the tab comes back into view, just after local midnight, and hourly. It redraws when
+    a status moved or the date changed, but waits while a field is focused, a dialog or the popover is open. Picking a status by hand sets `statusSince`, so reviving a cold company gives it another 7 days.
 - **Sorting:** click a header; again to flip. Each of the three tables keeps its own sort (owner, 2026-11-01). Empty values always go last. Last interaction and Progress start
   descending. Ties always fall back (owner's rule, fixed direction): next meeting (soonest first) → last interaction
   (most recent first) → status (Interested → Approached me → In process) → company name (A–Z).
@@ -536,6 +537,10 @@ Shown as an "AI notes" section on the company page with "↻ Re-analyze"; `at` +
 ## Work log
 
 Newest first.
+
+- **2026-11-01 13:45:** Open tab stays current without a refresh: status check + redraw on tab focus/visibility,
+  at local midnight and hourly (`views/autoStatus.js`). Fixed overlapping saves racing on `data.json.tmp` (500 and
+  possibly an older save landing last): `JsonStore.write` now queues. Server change: restart needed.
 
 - **2026-11-01 15:40:** Merged the local AI/CV/delete-dialog work with the three-table sheet from `main`. Beyond the
   textual conflicts: `deleteDialog.js` looped over `CLOSED`, which now includes `cold` and has no button (crash on

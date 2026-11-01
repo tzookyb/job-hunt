@@ -28,3 +28,9 @@ test('invalid JSON is rejected and leaves the file untouched', async () => {
   await assert.rejects(s.write('{oops'));
   assert.equal(await s.read(), '{"v":1}');
 });
+
+test('overlapping writes all succeed and the last one wins', async () => {
+  const s = await store();
+  await Promise.all([1, 2, 3, 4, 5].map(n => s.write(JSON.stringify({ n }))));
+  assert.deepEqual(JSON.parse(await s.read()), { n: 5 });
+});
