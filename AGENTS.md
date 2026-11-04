@@ -538,6 +538,9 @@ Shown as an "AI notes" section on the company page with "↻ Re-analyze"; `at` +
 
 Newest first.
 
+- **2026-11-04:** Closed companies (Rejected / Withdrew / Gone cold) show "<Status> after <last done stage>" in the
+  Progress text instead of "at <next stage>" (`closedText()` in `model/progress.js`). Front-end only: refresh the tab.
+
 - **2026-11-01 13:45:** Open tab stays current without a refresh: status check + redraw on tab focus/visibility,
   at local midnight and hourly (`views/autoStatus.js`). Fixed overlapping saves racing on `data.json.tmp` (500 and
   possibly an older save landing last): `JsonStore.write` now queues. Server change: restart needed.

@@ -11,3 +11,6 @@ export function progress(c) {
     last: on.filter(id => c.stages[id].done).pop() || null,   // the latest completed stage
   };
 }
+
+// "Rejected after Phone interview": a closed company names the last stage it completed, not the one it didn't reach.
+export const closedText = (label, lastName) => lastName ? `${label} after ${lastName}` : label;

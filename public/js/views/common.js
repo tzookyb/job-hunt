@@ -2,7 +2,7 @@
 import { esc, today, nowStamp, daysBetween } from '../util.js';
 import { STATUSES, statusLabel, isClosed } from '../config.js';
 import { getState } from '../store.js';
-import { progress } from '../model/progress.js';
+import { progress, closedText } from '../model/progress.js';
 import { nextMeeting, meetingPassed, TIME_24 } from '../model/meetings.js';
 import { lockedStageId } from '../model/stages.js';
 
@@ -46,11 +46,11 @@ export function meetingHtml(c) {
   return `<div class="meet ${cls}" title="${esc(stageName(m.stage))} — ${esc(d.toLocaleString(undefined, { dateStyle: 'medium', ...(m.when.length > 10 ? { timeStyle: 'short', hourCycle: 'h23' } : {}) }))}"><b>${day}${time}</b><small>${esc(stageName(m.stage))}</small></div>`;
 }
 
-// bar · percent · "x/y · <last done stage> - done. next: <stage>"
+// bar · percent · "x/y · <last done stage> - done. next: <stage>" (closed: "x/y · Rejected after <last done stage>")
 export function progressInner(c) {
   const p = progress(c);
   let text = `${p.done}/${p.total}`;
-  if (isClosed(c)) text += ` · ${statusLabel(c.status)}${p.next ? ' at ' + stageName(p.next) : ''}`;
+  if (isClosed(c)) text += ` · ${closedText(statusLabel(c.status), p.last && stageName(p.last))}`;
   else {
     const parts = [];
     if (p.last) parts.push(`${stageName(p.last)} - done`);

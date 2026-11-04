@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { progress } from '../../public/js/model/progress.js';
+import { progress, closedText } from '../../public/js/model/progress.js';
 
 const company = stages => ({ stages });
 
@@ -14,4 +14,11 @@ test('counts only relevant stages and finds the next one', () => {
 
 test('no relevant stages means 0%', () => {
   assert.deepEqual(progress({ ...company({ a: { enabled: false } }), order: ['a'] }), { done: 0, total: 0, pct: 0, next: null, last: null });
+});
+
+test('a closed company names the last stage it completed', () => {
+  assert.equal(closedText('Rejected', 'Phone interview'), 'Rejected after Phone interview');
+  assert.equal(closedText('Withdrew', 'HR'), 'Withdrew after HR');
+  assert.equal(closedText('Gone cold', 'Application'), 'Gone cold after Application');
+  assert.equal(closedText('Rejected', null), 'Rejected');
 });
