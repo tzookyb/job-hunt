@@ -1,4 +1,4 @@
-// A company's stages in its own order: done ✓, comment, "relevant" switch, reorder (drag ⋮⋮ or ↑↓) and
+// A company's stages in its own order: done ✓, comment, "relevant" switch (next to the name), reorder (drag ⋮⋮ or ↑↓) and
 // "+ Add stage". Used by the progress popover and the company page.
 import { esc, today } from '../util.js';
 import { mainEl, delegate, $$ } from '../dom.js';
@@ -18,16 +18,16 @@ export function stageListHtml(c) {
   const locked = lockedStageId(getState());
   return `<div class="stagelist">
     <table class="stbl">
-      <thead><tr><th></th><th>#</th><th>Done</th><th>Stage</th><th>when?</th><th>Comment</th><th>Relevant</th><th></th></tr></thead>
+      <thead><tr><th></th><th>#</th><th>Done</th><th>Relevant</th><th>Stage</th><th>when?</th><th>Comment</th><th></th></tr></thead>
       <tbody>${c.order.map(id => { const x = c.stages[id], lk = id === locked; return `
         <tr class="srow ${x.enabled ? '' : 'off'} ${x.done ? 'done' : ''} ${isCvStage(id) ? 'cv-row' : ''} ${lk ? 'locked' : ''}" data-stage="${id}">
           ${lk ? `<td class="lock" title="${LOCK_TIP}">🔒</td>` : '<td class="grip" title="Drag to reorder">⋮⋮</td>'}
           <td class="num">${x.enabled ? ++n : '–'}</td>
           <td><input type="checkbox" data-sd="${id}" ${x.done ? 'checked' : ''} ${x.enabled ? '' : 'disabled'}></td>
+          <td class="rel">${lk ? '' : `<label class="switch" title="Does this company have this stage?"><input type="checkbox" data-se="${id}" ${x.enabled ? 'checked' : ''}><span></span></label>`}</td>
           <td class="sname">${esc(stageName(id))}${isCvStage(id) ? cvSlotHtml(c) : ''}</td>
           <td><span class="swhen ${x.meeting ? 'has' : ''}" data-sm="${id}" title="Scheduled meeting for this stage (24-hour time)"><input type="date" class="smeet sdate" value="${esc((x.meeting || '').slice(0, 10))}"><input class="smeet stime" value="${esc((x.meeting || '').slice(11, 16))}" placeholder="--:--" maxlength="5" inputmode="numeric" autocomplete="off"></span></td>
           <td><input class="scomment" data-sc="${id}" value="${esc(x.comment)}" placeholder="comment…"></td>
-          <td class="rel">${lk ? '' : `<label class="switch" title="Does this company have this stage?"><input type="checkbox" data-se="${id}" ${x.enabled ? 'checked' : ''}><span></span></label>`}</td>
           <td class="mv">${lk ? '' : '<button class="icon up" title="Move up">↑</button><button class="icon down" title="Move down">↓</button>'}</td>
         </tr>`; }).join('')}</tbody>
     </table>

@@ -17,7 +17,7 @@ step.
   even if you edit your CV later. Reuse it for similar companies in one click, and click the chip to preview it
   Quick Look–style (Space or Esc closes).
 - **Hiring stages that match reality.** A shared stage list (Applied, HR, Tech phone, Home assignment…) that each
-  company can reorder or switch off. Hover the Progress bar to tick stages, set a meeting ("when?"), add comments,
+  company can reorder or switch off. Hover the Progress bar to tick stages, switch one on or off (the switch sits right next to the stage name), set a meeting ("when?"), add comments,
   drag to reorder, or add a stage on the spot.
 - **What's next at a glance.** The Next up column shows the earliest upcoming meeting (highlighted for today
   and tomorrow), and Last interaction turns amber after a week of silence. Ticking a stage counts as an interaction.

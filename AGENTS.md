@@ -246,7 +246,7 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
   contact, ✕ removes one (asks if it has data). Empty links are greyed out; clicking one focuses its field.
 - **Stages** (`views/stageList.js`, shared with the popover): done ✓, a "when?" meeting (date + 24-hour time box;
   an invalid time turns red and isn't saved), comment, relevant
-  switch (off = greyed and excluded from progress), reorder by ⋮⋮ drag or ↑↓, and "+ Add stage" (adds to the shared
+  switch (off = greyed and excluded from progress; it sits right before the stage name, owner's request 2026-11-25 because it was hard to hit during calls), reorder by ⋮⋮ drag or ↑↓, and "+ Add stage" (adds to the shared
   list; every company gets it, switched on only for the company it was added from).
 - **Research** (`views/research.js`): 6 sites from `config.RESEARCH` (field, label, domain, tooltip). Hover a name
   for what the site is for; an empty field's 🔍 opens a Google `site:` search.
@@ -537,6 +537,9 @@ Shown as an "AI notes" section on the company page with "↻ Re-analyze"; `at` +
 ## Work log
 
 Newest first.
+
+- **2026-11-25:** The per-stage "Relevant" switch moved from the right end of the stage row to just left of the stage
+  name (`views/stageList.js`, popover and company page). Popover screenshot retaken. Front-end only: refresh the tab.
 
 - **2026-11-25:** README screenshots retaken from the new demo data (Playwright, 1440x810 at 2x; Google favicon requests stubbed with letter tiles because the sandbox is offline). Demo rebuilt (owner's request, so interviewers who clone the repo see a used app): 15 real Israeli
   companies, 8 well-known and 7 lesser-known startups (Torq, Cyera, Port, Coralogix, Pecan AI, Zesty, Lightrun; fictional people, phones, notes, job posts) across all three tables, every date relative to the day
