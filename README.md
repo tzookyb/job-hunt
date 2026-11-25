@@ -56,8 +56,9 @@ npm start
 
 Then open http://localhost:4317.
 
-- **Try it with sample data first:** `npm run demo` (http://localhost:4318). It uses fictional companies in
-  `.demo-data/` and never touches your own data.
+- **Try it with sample data first:** `npm run demo` (http://localhost:4318). It shows 15 sample applications
+  (real company names, made-up people and notes) with dates relative to today, in `.demo-data/`; it is rebuilt on
+  every start and never touches your own data. `npm run demo -- --keep` keeps your demo edits.
 - **Another port:** `PORT=5000 npm start`.
 - **On a Mac** you can also double-click `start.command` (or right-click → Open With → Terminal / iTerm).
 

@@ -49,7 +49,7 @@ edit as you go. Every change persists locally to a JSON file. Single user, runs 
 | `AGENTS.md` | This file. |
 | `CLAUDE.md` | Points Claude Code at this file. |
 | `README.md` | User-facing: features, how to run, your data, backups. |
-| `scripts/demo.js` | `npm run demo`: runs on fictional sample data (`scripts/demo-data.js`) in `.demo-data/` (git-ignored), port 4318. |
+| `scripts/demo.js` | `npm run demo`: rebuilds `.demo-data/` (git-ignored) on every start from `scripts/demo-data.js` (dates relative to today; `-- --keep` keeps old demo edits), port 4318. Also writes the demo CVs (`demo-cv.js`) and a fictional `profile.md`. |
 | `docs/screenshots/` | README screenshots, taken with Playwright from the demo data. |
 | `start.command` | macOS double-click launcher (login + interactive zsh, so `node` from nvm/Homebrew is found). |
 | `server/index.js` | Entry point (`npm start`). |
@@ -537,6 +537,15 @@ Shown as an "AI notes" section on the company page with "↻ Re-analyze"; `at` +
 ## Work log
 
 Newest first.
+
+- **2026-11-25:** Demo rebuilt (owner's request, so interviewers who clone the repo see a used app): 15 real Israeli
+  companies (fictional people, phones, notes, job posts) across all three tables, every date relative to the day
+  `npm run demo` starts (meetings today/tomorrow, actions, cold and closed with reasons), CV library with two small
+  generated PDFs, locked Application stage, pasted job posts, hand-written **AI notes** in the stored schema (model
+  label `gemini/gemini-3.5-flash-lite`; not produced by a real call), a fictional "About you" profile, two bookmarks
+  (Levels.fyi, Glassdoor). Research links use the app's own address patterns; Glassdoor is left empty on purpose (needs
+  an id we can't check offline), and none of the URLs were checked online. `npm run demo` now rebuilds the demo folder
+  each time. Front-end/server untouched.
 
 - **2026-11-04:** Closed companies (Rejected / Withdrew / Gone cold) show "<Status> after <last done stage>" in the
   Progress text instead of "at <next stage>" (`closedText()` in `model/progress.js`). Front-end only: refresh the tab.
