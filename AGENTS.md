@@ -538,7 +538,7 @@ Shown as an "AI notes" section on the company page with "↻ Re-analyze"; `at` +
 
 Newest first.
 
-- **2026-11-25:** Demo rebuilt (owner's request, so interviewers who clone the repo see a used app): 15 real Israeli
+- **2026-11-25:** README screenshots retaken from the new demo data (Playwright, 1440x810 at 2x; Google favicon requests stubbed with letter tiles because the sandbox is offline). Demo rebuilt (owner's request, so interviewers who clone the repo see a used app): 15 real Israeli
   companies, 8 well-known and 7 lesser-known startups (Torq, Cyera, Port, Coralogix, Pecan AI, Zesty, Lightrun; fictional people, phones, notes, job posts) across all three tables, every date relative to the day
   `npm run demo` starts (meetings today/tomorrow, actions, cold and closed with reasons), CV library with two small
   generated PDFs, locked Application stage, pasted job posts, hand-written **AI notes** in the stored schema (model
