@@ -539,7 +539,7 @@ Shown as an "AI notes" section on the company page with "↻ Re-analyze"; `at` +
 Newest first.
 
 - **2026-11-25:** Demo rebuilt (owner's request, so interviewers who clone the repo see a used app): 15 real Israeli
-  companies (fictional people, phones, notes, job posts) across all three tables, every date relative to the day
+  companies, 8 well-known and 7 lesser-known startups (Torq, Cyera, Port, Coralogix, Pecan AI, Zesty, Lightrun; fictional people, phones, notes, job posts) across all three tables, every date relative to the day
   `npm run demo` starts (meetings today/tomorrow, actions, cold and closed with reasons), CV library with two small
   generated PDFs, locked Application stage, pasted job posts, hand-written **AI notes** in the stored schema (model
   label `gemini/gemini-3.5-flash-lite`; not produced by a real call), a fictional "About you" profile, two bookmarks

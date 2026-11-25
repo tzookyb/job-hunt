@@ -211,12 +211,17 @@ export function demoData() {
         matches: ['Developer-facing products', 'Full-stack Node and React'], gaps: ['Go and Kubernetes appear in many teams'], flags: ['HQ is outside Tel Aviv: check the commute'],
       },
     }),
-    company('c6', 'Papaya Global', 'papayaglobal.com', {
+    company('c6', 'Torq', 'torq.io', {
       position: 'Senior Frontend Engineer', last: -1, added: -3,
-      r: { li: 'papaya-global', cb: 'papaya-global' }, done: [0], on: [1, 2, 3, 4],
+      r: { li: 'torq', cb: 'torq' }, done: [0], on: [1, 2, 3, 4],
       when: { 0: [-2], 1: [2, '15:30'] },
       contacts: [{ name: 'Gal Rosen', role: 'Recruiter', phone: '+972 58 000 0606' }],
-      comments: 'Applied through their careers page. Recruiter wrote back the next day.',
+      comments: 'Early-stage security automation startup. Applied through their careers page; the recruiter wrote back the next day.',
+      ai: {
+        ago: -2, summary: 'A fast-growing startup in security automation. Small frontend team, so you would have a lot of ownership.',
+        does: 'Builds a no-code platform that lets security teams automate their alerts and responses.', stage: 'Venture-backed startup, HQ Tel Aviv.',
+        matches: ['Ownership of a product area', 'Workflow-builder UIs are close to design-system work'], gaps: ['No security background'], flags: ['Small team: ask about on-call and how decisions are made'],
+      },
     }),
 
     // ── Interested & approached me ──────────────────────────────────────────────────────────────────────────
@@ -232,16 +237,17 @@ export function demoData() {
         matches: ['Marketplace UI and performance'], gaps: [], flags: ['No job post yet: ask for one'],
       },
     }),
-    company('c8', 'Cato Networks', 'catonetworks.com', {
+    company('c8', 'Cyera', 'cyera.io', {
       position: 'Frontend Team Lead', status: 'approached', since: -4, last: -4, added: -4,
-      r: { li: 'cato-networks', cb: 'cato-networks' },
+      r: { li: 'cyera', cb: 'cyera' },
       contacts: [{ name: 'Eden Shapira', role: 'Recruiter', phone: '+972 52 000 0808' }],
-      comments: 'Mid-size, private. A lead role would mean managing 4 people.',
+      comments: 'Data-security startup, growing fast. A lead role would mean managing 4 people.',
     }),
-    company('c9', 'Taboola', 'taboola.com', {
+    company('c9', 'Port', 'getport.io', {
       position: 'Senior Frontend Engineer', status: 'interested', since: -1, last: null, added: -1,
-      careersUrl: 'https://www.taboola.com/careers', jobText: posts.taboola, r: { li: 'taboola-com', lv: 'taboola', bl: 'Taboola' },
-      comments: 'Pasted the job post. Next: press "✦ Analyze with AI".',
+      careersUrl: 'https://www.getport.io/careers', jobText: posts.taboola.replace('Publisher Tools', 'Developer Portal').replace(/Own the dashboards[^.]*\./, 'Own the UI of a developer portal used by platform teams.').replace(/ Nice to have:[^.]*\./, ' Nice to have: experience with developer tools.'),
+      r: { li: 'getport' },
+      comments: 'Small startup in developer tools. Pasted the job post. Next: press "✦ Analyze with AI".',
     }),
     company('c10', 'Lightricks', 'lightricks.com', {
       position: 'Frontend Engineer', status: 'interested', since: -3, last: null, added: -3,
@@ -250,14 +256,14 @@ export function demoData() {
     }),
 
     // ── Rejected, withdrew & gone cold ──────────────────────────────────────────────────────────────────────
-    company('c11', 'Payoneer', 'payoneer.com', {
-      position: 'Senior Full Stack Engineer', status: 'cold', since: -2, last: -16, added: -19, r: { li: 'payoneer', cb: 'payoneer', lv: 'payoneer', bl: 'Payoneer' },
+    company('c11', 'Coralogix', 'coralogix.com', {
+      position: 'Senior Full Stack Engineer', status: 'cold', since: -2, last: -16, added: -19, r: { li: 'coralogix', cb: 'coralogix' },
       done: [0, 1], on: [2, 3, 4], when: { 0: [-18], 1: [-16, '12:00'] }, say: { 1: 'They said they will update me in a week.' },
       contacts: [{ name: 'Ruth Golan', role: 'Recruiter', phone: '+972 50 000 1111' }],
       log: [['Send CV to Ruth', -19, -18]],
     }),
-    company('c12', 'Riskified', 'riskified.com', {
-      position: 'Senior Frontend Engineer', status: 'cold', since: -5, last: -17, added: -20, r: { li: 'riskified', cb: 'riskified', lv: 'riskified' },
+    company('c12', 'Pecan AI', 'pecan.ai', {
+      position: 'Senior Frontend Engineer', status: 'cold', since: -5, last: -17, added: -20, r: { li: 'pecan-ai', cb: 'pecan-ai' },
       done: [0, 1, 2], on: [3, 4], when: { 0: [-19], 1: [-17, '10:00'], 2: [-17, '16:00'] }, say: { 2: 'Went well. Waiting for the home assignment.' },
     }),
     company('c13', 'Similarweb', 'similarweb.com', {
@@ -272,14 +278,14 @@ export function demoData() {
         matches: ['React and TypeScript'], gaps: ['Charting libraries (D3)'], flags: [],
       },
     }),
-    company('c14', 'Gong', 'gong.io', {
+    company('c14', 'Zesty', 'zesty.co', {
       position: 'Senior Full Stack Engineer', status: 'rejected', since: -9, last: -9, added: -21,
-      closeReason: 'Position filled internally', r: { li: 'gong-io', cb: 'gong', lv: 'gong', bl: 'Gong' },
+      closeReason: 'Position filled internally', r: { li: 'zesty-co', cb: 'zesty' },
       done: [0, 1, 2], on: [3, 4], when: { 0: [-20], 1: [-16, '09:30'], 2: [-9, '14:00'] },
     }),
-    company('c15', 'Lemonade', 'lemonade.com', {
+    company('c15', 'Lightrun', 'lightrun.com', {
       position: 'Senior Frontend Engineer', status: 'withdrawn', since: -6, last: -6, added: -15,
-      closeReason: 'Role is on-site 5 days a week, I need hybrid', r: { li: 'lemonade-inc', cb: 'lemonade', lv: 'lemonade' },
+      closeReason: 'Role is on-site 5 days a week, I need hybrid', r: { li: 'lightrun', cb: 'lightrun' },
       done: [0, 1], on: [2], when: { 0: [-14], 1: [-6, '11:30'] }, say: { 1: 'Learned on the call that the office is 5 days.' },
     }),
   ];
