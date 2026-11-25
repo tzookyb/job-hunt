@@ -70,6 +70,8 @@ file, make backups and run the company lookup. Everything else happens in the pa
 
 ## AI lookup (optional, free)
 
+![AI lookup demo: add a company, the lookup runs, AI notes and job post analysis fill in](docs/screenshots/ai-lookup.gif)
+
 Click **⚙** in the header to pick an AI provider. Only providers with a **free tier** are offered, and picking one
 shows how to get its free key, with a link to the right page:
 
