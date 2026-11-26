@@ -13,7 +13,7 @@ import { moveTo, lockedStageId } from '../model/stages.js';
 import { companyOf, agoHtml, meetingHtml, logoHtml, BIN } from './common.js';
 import { askDelete } from './deleteDialog.js';
 import { COLS, loadColumnOrder, saveColumnOrder } from './columns.js';
-import { reopen, isPopoverOpen } from './popover.js';
+import { isPopoverOpen } from './popover.js';
 import { actionBadgeHtml } from './action.js';
 
 const SORT_KEY = 'jobTrackerSort';
@@ -132,10 +132,9 @@ export function init() {
   });
   on('popover:closed', () => { if (moveLater && !location.hash) emit('render'); });
   on('meeting:changed', c => { const cell = rowOf(c)?.querySelector('.meet'); if (cell) cell.outerHTML = meetingHtml(c); });
-  // a new stage reaches every company: redraw all rows, then bring the popover back
-  on('stages:changed', ({ c }) => {
+  // a new stage reaches every company: redraw all rows
+  on('stages:changed', () => {
     if (location.hash) return;
     getState().companies.forEach(redrawRow);
-    reopen(c);
   });
 }

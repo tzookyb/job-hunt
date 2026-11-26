@@ -221,8 +221,10 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
   descending. Ties always fall back (owner's rule, fixed direction): next meeting (soonest first) → last interaction
   (most recent first) → status (Interested → Approached me → In process) → company name (A–Z).
 - **Last interaction:** ticking a stage or finishing a pending action sets it to today; adding a company does not (owner's rule).
-- **Progress popover** (`views/popover.js`): hovering a Progress cell opens the company's stage list. It stays open
-  while focused or dragging, closes on Esc, outside click, scroll or mouse-out.
+- **Progress popover** (`views/popover.js`): hovering a Progress cell opens a **read-only quick view**
+  (`quickListHtml` in `views/stageList.js`; owner, 2026-11-26): relevant (enabled) stages only, with ✓ Done as the
+  only thing you can change. No Relevant switch, reorder, add stage, comment/meeting inputs or CV upload (the CV chip
+  still previews). All editing is on the company page. It stays open while focused, closes on Esc, outside click, scroll or mouse-out.
 - **Search:** every word must match somewhere: all fields, contacts, research links, stage comments and notes.
 - **+ Add Company** (`views/addCompany.js`): asks for the name and a status (defaults to Interested), then a loader (with Skip) runs `/api/lookup`, fills
   only empty fields and opens the company page.
@@ -244,7 +246,7 @@ company's `order` and `stages` in sync with the shared list (unknown stages are 
   WhatsApp Web buttons computed from it (local 05x numbers fall back to +9725x) · LinkedIn chat. WhatsApp links use
   `target="whatsapp"`, so they reuse one tab (a tab opened by hand can't be reused — browser limit). ＋ adds a
   contact, ✕ removes one (asks if it has data). Empty links are greyed out; clicking one focuses its field.
-- **Stages** (`views/stageList.js`, shared with the popover): done ✓, a "when?" meeting (date + 24-hour time box;
+- **Stages** (`views/stageList.js`; the popover uses its read-only `quickListHtml`): done ✓, a "when?" meeting (date + 24-hour time box;
   an invalid time turns red and isn't saved), comment, relevant
   switch (off = greyed and excluded from progress; it sits right before the stage name, owner's request 2026-11-25 because it was hard to hit during calls), reorder by ⋮⋮ drag or ↑↓, and "+ Add stage" (adds to the shared
   list; every company gets it, switched on only for the company it was added from).
@@ -537,6 +539,10 @@ Shown as an "AI notes" section on the company page with "↻ Re-analyze"; `at` +
 ## Work log
 
 Newest first.
+
+- **2026-11-26:** Progress hover in the sheet is now a read-only quick view (relevant stages only, no Relevant switch,
+  no add stage, no editing; only ✓ Done works). Company page unchanged. `reopen()` removed from `popover.js`.
+  Screenshot retaken. Front-end only: refresh the tab.
 
 - **2026-11-25:** The per-stage "Relevant" switch moved from the right end of the stage row to just left of the stage
   name (`views/stageList.js`, popover and company page). Popover screenshot retaken. Front-end only: refresh the tab.

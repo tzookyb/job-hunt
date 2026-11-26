@@ -47,3 +47,5 @@
 
 /* the locked Application stage */
 .lock{width:18px;font-size:11px;cursor:help;opacity:.55;user-select:none}
+.quick .qwhen,.quick .qcomment{color:var(--muted);font-size:13px}
+.quick .qwhen{white-space:nowrap;font-variant-numeric:tabular-nums}

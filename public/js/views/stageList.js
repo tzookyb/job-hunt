@@ -10,8 +10,30 @@ import { parseTime, combineMeeting } from '../model/meetings.js';
 import { noteProgress } from '../model/autoStatus.js';
 import { companyOf, stageName } from './common.js';
 import { cvSlotHtml, isCvStage } from './cv.js';
+import { companyCv } from '../model/cvs.js';
 
 const LOCK_TIP = 'Always the first stage, for every company: it can’t be switched off, moved or removed';
+
+// Read-only list for the sheet's progress popover: relevant stages only, ✓ done is the one thing you can change.
+export function quickListHtml(c) {
+  let n = 0;
+  const cv = companyCv(getState(), c);
+  return `<div class="stagelist quick">
+    <table class="stbl">
+      <thead><tr><th>#</th><th>Done</th><th>Stage</th><th>when?</th><th>Comment</th></tr></thead>
+      <tbody>${c.order.filter(id => c.stages[id].enabled).map(id => { const x = c.stages[id]; return `
+        <tr class="srow ${x.done ? 'done' : ''}" data-stage="${id}">
+          <td class="num">${++n}</td>
+          <td><input type="checkbox" data-sd="${id}" ${x.done ? 'checked' : ''}></td>
+          <td class="sname">${esc(stageName(id))}${isCvStage(id) && cv ? `<span class="cvslot has"><button class="cvchip" data-cvopen="${cv.id}" title="Preview ${esc(cv.name)} (Space)"><span class="cvic">📄</span><span class="cvn">${esc(cv.name)}</span></button></span>` : ''}</td>
+          <td class="qwhen">${esc(whenText(x.meeting))}</td>
+          <td class="qcomment">${esc(x.comment)}</td>
+        </tr>`; }).join('')}</tbody>
+    </table>
+  </div>`;
+}
+
+const whenText = m => m ? `${m.slice(0, 10)}${m.length > 10 ? ' ' + m.slice(11, 16) : ''}` : '';
 
 export function stageListHtml(c) {
   let n = 0;

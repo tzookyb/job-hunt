@@ -1,10 +1,10 @@
-// Hovering a Progress cell in the sheet opens that company's stage list in a popover. It stays open while
-// you type or drag inside it, and closes on Esc, a click outside, scrolling or moving away.
+// Hovering a Progress cell in the sheet opens a read-only quick view of that company's relevant stages
+// (only ✓ done can be changed). It stays open while focused, and closes on Esc, a click outside, scrolling or moving away.
 import { esc } from '../util.js';
 import { mainEl, $, $$ } from '../dom.js';
 import { on, emit } from '../bus.js';
 import { companyOf } from './common.js';
-import { stageListHtml, isDraggingStage } from './stageList.js';
+import { quickListHtml, isDraggingStage } from './stageList.js';
 
 const OPEN_DELAY = 120, HIDE_DELAY = 250;
 let pop = null, popFor = null, openT = null, hideT = null;
@@ -23,7 +23,7 @@ export function openPopover(c, anchor) {
   pop = document.createElement('div');
   pop.className = 'pop';
   pop.dataset.id = c.id;
-  pop.innerHTML = `<div class="pop-head"><b>${esc(c.name || 'Untitled')}</b><span>drag ⋮⋮ to reorder · toggle to disable</span></div>${stageListHtml(c)}`;
+  pop.innerHTML = `<div class="pop-head"><b>${esc(c.name || 'Untitled')}</b><span>quick view · edit on the company page</span></div>${quickListHtml(c)}`;
   mainEl().appendChild(pop);
   popFor = c.id;
   anchor.classList.add('open');
@@ -70,17 +70,9 @@ export function init() {
   // keep the popover in sync with the company's row
   on('company:changed', c => {
     if (!pop || popFor !== c.id) return;
-    $('.stagelist', pop).outerHTML = stageListHtml(c);
+    $('.stagelist', pop).outerHTML = quickListHtml(c);
     const a = anchorOf(c.id);
     if (a) { a.classList.add('open'); place(a); }
   });
   on('render', closePopover);
-}
-
-// After a stage was added from the popover: reopen it for the same company, focused on "+ Add stage".
-export function reopen(c) {
-  const a = anchorOf(c.id);
-  if (!a) return;
-  openPopover(c, a);
-  $('.newstage', pop).focus();
 }

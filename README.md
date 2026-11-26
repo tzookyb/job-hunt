@@ -38,9 +38,9 @@ step.
   field you already filled, it asks first (tick the changes you want). Without a key, everything works as before.
 - **Automatic backups** (see below).
 
-| Progress popover | Company page |
+| Progress quick view | Company page |
 |---|---|
-| ![Stages popover](docs/screenshots/progress-popover.png) | ![Company page](docs/screenshots/company.png) |
+| ![Progress quick view](docs/screenshots/progress-popover.png) | ![Company page](docs/screenshots/company.png) |
 | **Stage delete warning** | **Bookmarks drawer** |
 | ![Stage delete warning](docs/screenshots/stage-warning.png) | ![Bookmarks](docs/screenshots/bookmarks.png) |
 
